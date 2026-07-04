@@ -12,10 +12,11 @@ import Supabase
 /// transaction as a bearer credential), not a second SupabaseClient with a
 /// key baked into this app.
 enum SupabaseClients {
-    /// TODO: replace with the real `toto-data` project URL + anon key once
-    /// that Supabase project is created (see ios/README.md).
-    private static let dataProjectURL = URL(string: "https://YOUR-TOTO-DATA-PROJECT.supabase.co")!
-    private static let dataProjectAnonKey = "YOUR-TOTO-DATA-ANON-KEY"
+    private static let dataProjectURL = URL(string: "https://vpopzwluqosebiistdmd.supabase.co")!
+    // This is the "publishable" key (Supabase's newer key format, sb_publishable_...) --
+    // functionally equivalent to the legacy "anon" key for RLS purposes, and
+    // just as safe to ship in this binary (see doc comment above).
+    private static let dataProjectAnonKey = "sb_publishable_5efrIi-5CPxz-cbz9HI1cA_3pGMCnlv"
 
     static let data = SupabaseClient(
         supabaseURL: dataProjectURL,
