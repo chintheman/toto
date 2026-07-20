@@ -7,7 +7,11 @@ final class HistoryViewModel {
     private(set) var errorMessage: String?
     private(set) var reachedEnd = false
 
-    private let repository = DrawsRepository()
+    private let repository: DrawsRepository
+
+    init(repository: DrawsRepository = DrawsRepository()) {
+        self.repository = repository
+    }
     private let pageSize = 30
 
     @MainActor
@@ -40,8 +44,16 @@ final class HistoryViewModel {
 
     @MainActor
     func refresh() async {
-        draws = []
-        reachedEnd = false
-        await loadInitial()
+        isLoading = true
+        errorMessage = nil
+        do {
+            let fresh = try await repository.history(limit: pageSize)
+            draws = fresh
+            reachedEnd = fresh.count < pageSize
+        } catch {
+            // Keep old draws on failure — don't clear before fetching
+            errorMessage = error.localizedDescription
+        }
+        isLoading = false
     }
 }

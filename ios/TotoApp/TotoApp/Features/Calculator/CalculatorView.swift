@@ -1,17 +1,31 @@
 import SwiftUI
 
 struct CalculatorView: View {
-    @State private var viewModel = CalculatorViewModel()
+    @State private var viewModel: CalculatorViewModel
+
+    init(budgetState: BudgetState = BudgetState()) {
+        _viewModel = State(initialValue: CalculatorViewModel(budgetState: budgetState))
+    }
+
+    /// en_SG currency formatter used for the typeable TextField.
+    private let currencyFormatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.numberStyle = .currency
+        f.currencyCode = "SGD"
+        f.locale = Locale(identifier: "en_SG")
+        f.maximumFractionDigits = 0
+        return f
+    }()
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    budgetInput
-                    if let jackpot = viewModel.currentJackpot {
-                        evStatusCard(jackpot: jackpot)
-                        strategyCard
-                        oddsBreakdownCard
+                    budgetCard
+
+                    if viewModel.currentJackpot != nil {
+                        whatCanBuyCard
+                        valueOfThisDrawCard
                     } else if !viewModel.isLoading {
                         ContentUnavailableView(
                             "No jackpot data yet",
@@ -19,6 +33,16 @@ struct CalculatorView: View {
                             description: Text("The upcoming draw's jackpot hasn't been scraped yet.")
                         )
                     }
+
+                    // Error state
+                    if let error = viewModel.errorMessage, viewModel.currentJackpot == nil {
+                        ContentUnavailableView(
+                            "Couldn't load jackpot data",
+                            systemImage: "wifi.slash",
+                            description: Text(error)
+                        )
+                    }
+
                     disclaimer
                 }
                 .padding()
@@ -31,92 +55,145 @@ struct CalculatorView: View {
         }
     }
 
-    private var budgetInput: some View {
+    // MARK: - Card 1: Budget
+
+    private var budgetCard: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Your budget").font(.headline)
+
+            Text(viewModel.budgetState.budget, format: .currency(code: "SGD").precision(.fractionLength(0)))
+                .font(.title2.bold())
+
+            Slider(value: Bindable(viewModel.budgetState).budget, in: 1...100_000, step: 1)
+
             HStack {
-                Text(viewModel.budget, format: .currency(code: "SGD"))
-                    .font(.title2.bold())
+                Text("Amount")
+                    .foregroundStyle(.secondary)
                 Spacer()
-                Stepper("", value: $viewModel.budget, in: 1...1000, step: 7)
-                    .labelsHidden()
+                TextField("1 – 100,000", value: Bindable(viewModel.budgetState).budget, formatter: currencyFormatter)
+                    .keyboardType(.numberPad)
+                    .textFieldStyle(.roundedBorder)
+                    .multilineTextAlignment(.trailing)
+                    .frame(maxWidth: 160)
             }
+            .font(.subheadline)
         }
         .cardStyle()
     }
 
-    private func evStatusCard(jackpot: Double) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: viewModel.isPositiveEV ? "arrow.up.right.circle.fill" : "arrow.down.right.circle.fill")
-                    .foregroundStyle(viewModel.isPositiveEV ? Theme.positiveEV : Theme.negativeEV)
-                Text(viewModel.isPositiveEV ? "+EV territory" : "-EV territory")
-                    .font(.headline)
-                    .foregroundStyle(viewModel.isPositiveEV ? Theme.positiveEV : Theme.negativeEV)
-            }
+    // MARK: - Card 2: What $X can buy
 
-            if let ev = viewModel.ordinaryEV {
-                Text("Every $1 spent returns about \(ev, format: .currency(code: "SGD").precision(.fractionLength(2))) on average at the current \(jackpot, format: .currency(code: "SGD")) jackpot.")
-                    .font(.subheadline)
-            }
-
-            if !viewModel.isPositiveEV, let gap = viewModel.jackpotGapToBreakEven, gap > 0 {
-                Text("The jackpot would need to grow by about \(gap, format: .currency(code: "SGD")) (to roughly \(viewModel.breakEvenJackpot, format: .currency(code: "SGD"))) to flip to +EV. Otherwise: wait for a bigger jackpot rather than spending more now.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            } else if viewModel.isPositiveEV {
-                Text("This is one of the better times to play, mathematically speaking — though still a lottery, not an investment.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .cardStyle()
-    }
-
-    private var strategyCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Suggested Allocation", systemImage: "chart.pie.fill")
+    private var whatCanBuyCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("What \(budgetFormatted) can buy")
                 .font(.headline)
-            Text("With \(viewModel.budget, format: .currency(code: "SGD")), spreading across \(viewModel.affordableSystem7Count) System 7 entries covers more of the 49 numbers than concentrating the same budget into fewer, bigger systems — more prize-tier hits on average for the same spend.")
-                .font(.subheadline)
+
+            ForEach(viewModel.affordableEntries, id: \.betType.id) { entry in
+                affordableRow(for: entry)
+            }
+
+            Text("Same expected return either way — spending pattern only changes how the losses arrive, never their average size.")
+                .font(.caption2)
                 .foregroundStyle(.secondary)
+                .padding(.top, 4)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle()
     }
 
-    private var oddsBreakdownCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label("Odds by Bet Type", systemImage: "list.bullet")
-                .font(.headline)
-            ForEach(viewModel.oddsByBetType) { odds in
-                HStack {
-                    Text(odds.betType.displayName).font(.subheadline.bold())
-                    Spacer()
-                    VStack(alignment: .trailing) {
-                        Text("Any prize: 1 in \(Int(1 / max(odds.probabilityAnyPrize, .leastNormalMagnitude)))")
-                        Text("Jackpot: 1 in \(Int(1 / max(odds.probabilityJackpot, .leastNormalMagnitude)))")
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+    private func affordableRow(for entry: (betType: BetType, count: Int, cost: Double)) -> some View {
+        let budget = viewModel.budgetState.budget
+        return HStack {
+            HStack(spacing: 3) {
+                Text(entry.count.formatted(.number))
+                    .monospacedDigit()
+                Text("\u{00D7}")
+                Text(entry.betType.displayName)
+            }
+            Spacer()
+            Text("\(entry.cost.formatted(.currency(code: "SGD").precision(.fractionLength(0)))) of \(budget.formatted(.currency(code: "SGD").precision(.fractionLength(0))))")
+                .monospacedDigit()
+        }
+        .font(.subheadline)
+    }
+
+    // MARK: - Card 3: Value of this draw
+
+    private var valueOfThisDrawCard: some View {
+        Group {
+            if let ev = viewModel.ordinaryEV, let jackpot = viewModel.currentJackpot {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Value of this draw").font(.headline)
+
+                    Text("About \(evString(ev)) back per $1, on average")
+                        .font(.title3.bold())
+
+                    EVGaugeView(ev: ev)
+
+                    Text("At the current \(jackpot.formatted(.currency(code: "SGD").precision(.fractionLength(0)))) jackpot. This rate depends only on the jackpot size — spending more doesn't change it, every dollar gets the same ~58\u{00A2} back. Break-even needs roughly a \(viewModel.breakEvenJackpot.formatted(.currency(code: "SGD").precision(.fractionLength(0)))) jackpot, but big jackpots attract more players and get split more often — so in practice, break-even draws don't really exist.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
+                .cardStyle()
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .cardStyle()
     }
+
+    /// Formats a per-dollar EV figure like 0.58 → "58¢".
+    private func evString(_ ev: Double) -> String {
+        let cents = Int((ev * 100).rounded())
+        return "\(cents)\u{00A2}"
+    }
+
+    // MARK: - Card 4: Disclaimer
 
     private var disclaimer: some View {
-        Text("This is a mathematical optimization tool, not gambling advice. The draw is fair and no strategy beats it — this only helps you understand the odds you're already facing. Play responsibly.")
+        Text("This is an odds explainer, not gambling advice. No strategy beats the draw. Play responsibly.")
             .font(.caption2)
             .foregroundStyle(.secondary)
             .padding(.top, 8)
     }
+
+    // MARK: - Helpers
+
+    private var budgetFormatted: String {
+        viewModel.budgetState.budget.formatted(.currency(code: "SGD").precision(.fractionLength(0)))
+    }
 }
 
-extension BetOdds: Identifiable {
-    var id: String { betType.id }
+// MARK: - EV Gauge
+
+private struct EVGaugeView: View {
+    let ev: Double
+
+    /// Maps EV to a 0-1 position.  0 EV → 0%,  1.0 EV → ~83%,  ≥1.2 → 100%.
+    private var fractionalPosition: CGFloat {
+        min(1.0, max(0, ev / 1.2))
+    }
+
+    var body: some View {
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            let position = width * fractionalPosition
+
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(LinearGradient(
+                        colors: [.red, .orange, .green],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ))
+                    .frame(height: 8)
+
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: 16, height: 16)
+                    .shadow(color: .black.opacity(0.2), radius: 3)
+                    .offset(x: position - 8)
+            }
+        }
+        .frame(height: 24)
+    }
 }
 
 #Preview {

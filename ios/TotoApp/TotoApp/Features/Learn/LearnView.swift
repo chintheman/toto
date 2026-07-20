@@ -3,6 +3,7 @@ import SwiftUI
 struct LearnView: View {
     @State private var fallacies: [Fallacy] = []
     @State private var isLoading = true
+    @State private var errorMessage: String?
     @State private var showOnboardingReplay = false
 
     private let repository = FallaciesRepository()
@@ -42,15 +43,29 @@ struct LearnView: View {
             }
             .overlay {
                 if isLoading { ProgressView() }
+                if let error = errorMessage, fallacies.isEmpty {
+                    ContentUnavailableView("Couldn't load fallacies", systemImage: "wifi.slash", description: Text(error))
+                }
             }
             .task {
-                fallacies = (try? await repository.allFallacies()) ?? []
-                isLoading = false
+                await loadFallacies()
             }
             .fullScreenCover(isPresented: $showOnboardingReplay) {
                 OnboardingCarouselView { showOnboardingReplay = false }
             }
         }
+    }
+
+    @MainActor
+    private func loadFallacies() async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            fallacies = try await repository.allFallacies()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        isLoading = false
     }
 }
 
@@ -61,7 +76,8 @@ struct FallacyDetailView: View {
         ScrollView {
             FallacyCardView(fallacy: fallacy)
         }
-        .background(LinearGradient(colors: [.black, .indigo.opacity(0.6)], startPoint: .top, endPoint: .bottom))
+        .background(LinearGradient(colors: [.black, .indigo.opacity(0.6)], startPoint: .top, endPoint: .bottom)
+            .ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
     }
 }

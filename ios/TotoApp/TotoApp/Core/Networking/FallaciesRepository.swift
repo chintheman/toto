@@ -2,7 +2,11 @@ import Foundation
 import Supabase
 
 struct FallaciesRepository {
-    private let client = SupabaseClients.data
+    private let client: SupabaseClient
+
+    init(client: SupabaseClient? = nil) {
+        self.client = client ?? SupabaseClients.data
+    }
 
     /// The mandatory onboarding carousel's content.
     func onboardingFallacies() async throws -> [Fallacy] {

@@ -2,41 +2,39 @@ import Foundation
 
 @Observable
 final class CalculatorViewModel {
-    var budget: Double = 100
+    let budgetState: BudgetState
     private(set) var currentJackpot: Double?
     private(set) var isLoading = true
     private(set) var errorMessage: String?
 
-    private let drawsRepository = DrawsRepository()
+    private let drawsRepository: DrawsRepository
 
-    var oddsByBetType: [BetOdds] {
-        guard let currentJackpot else { return [] }
-        return BetType.allCases.map { EVMath.odds(for: $0, jackpot: currentJackpot) }
+    init(drawsRepo: DrawsRepository = DrawsRepository(), budgetState: BudgetState = BudgetState()) {
+        drawsRepository = drawsRepo
+        self.budgetState = budgetState
     }
 
+    /// Expected value per dollar spent for an Ordinary ticket at the
+    /// current jackpot (e.g. 0.58 = 58¢ back per $1).
     var ordinaryEV: Double? {
         guard let currentJackpot else { return nil }
         return EVMath.expectedValue(betType: .ordinary, jackpot: currentJackpot)
     }
 
-    var isPositiveEV: Bool {
-        (ordinaryEV ?? 0) >= 1.0
-    }
-
+    /// Jackpot required for a single Ordinary ticket to reach $1.00 EV
+    /// (break-even), holding G2-G4 estimates fixed.
     var breakEvenJackpot: Double {
         EVMath.breakEvenJackpot()
     }
 
-    var jackpotGapToBreakEven: Double? {
-        guard let currentJackpot else { return nil }
-        return breakEvenJackpot - currentJackpot
-    }
-
-    /// How many System 7 entries the given budget affords, spent to
-    /// maximise number coverage across all 49 numbers -- mirrors the
-    /// research site's "spread beats concentration" strategy guidance.
-    var affordableSystem7Count: Int {
-        Int(budget / BetType.system7.cost)
+    /// Per-bet-type breakdown of what the current budget buys.
+    var affordableEntries: [(betType: BetType, count: Int, cost: Double)] {
+        let budget = budgetState.budget
+        return BetType.allCases.map { betType in
+            let count = Int(budget / betType.cost)
+            let cost = Double(count) * betType.cost
+            return (betType, count, cost)
+        }
     }
 
     @MainActor

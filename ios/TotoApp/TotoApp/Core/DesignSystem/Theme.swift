@@ -14,8 +14,6 @@ enum Theme {
         ballPalette[number % ballPalette.count]
     }
 
-    static let positiveEV = Color.green
-    static let negativeEV = Color.red
     static let cardCornerRadius: CGFloat = 16
 }
 
@@ -32,7 +30,7 @@ struct LotteryBallView: View {
                 .fill(isAdditional ? Color.secondary.opacity(0.25) : Theme.ballColor(for: number).opacity(0.85))
             Text("\(number)")
                 .font(.system(size: size * 0.38, weight: .bold, design: .rounded))
-                .foregroundStyle(isAdditional ? .primary : .white)
+                .foregroundStyle(isAdditional ? Color.primary : Color.white)
         }
         .frame(width: size, height: size)
         .accessibilityLabel(isAdditional ? "Additional number \(number)" : "Number \(number)")

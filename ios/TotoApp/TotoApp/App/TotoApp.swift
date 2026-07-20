@@ -27,6 +27,8 @@ struct RootView: View {
 }
 
 struct MainTabView: View {
+    @State private var budgetState = BudgetState()
+
     var body: some View {
         TabView {
             HomeView()
@@ -35,14 +37,11 @@ struct MainTabView: View {
             HistoryView()
                 .tabItem { Label("History", systemImage: "clock.arrow.circlepath") }
 
-            NumbersGridView()
-                .tabItem { Label("Numbers", systemImage: "number.circle.fill") }
-
-            LearnView()
-                .tabItem { Label("Learn", systemImage: "lightbulb.fill") }
-
-            CalculatorView()
+            CalculatorView(budgetState: budgetState)
                 .tabItem { Label("Calculator", systemImage: "function") }
+
+            PicksView(budgetState: budgetState)
+                .tabItem { Label("Picks", systemImage: "star.fill") }
         }
     }
 }

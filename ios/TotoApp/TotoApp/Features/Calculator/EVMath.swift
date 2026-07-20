@@ -16,7 +16,7 @@ import Foundation
 /// data we don't have yet. Once the historical backfill is populated,
 /// recalibrate `PrizeGroupEstimate.typical` against real scraped payouts.
 enum BetType: String, CaseIterable, Identifiable {
-    case ordinary, system7, system8, system9
+    case ordinary, system7, system8, system9, system10
 
     var id: String { rawValue }
 
@@ -27,6 +27,7 @@ enum BetType: String, CaseIterable, Identifiable {
         case .system7: return 7
         case .system8: return 8
         case .system9: return 9
+        case .system10: return 10
         }
     }
 
@@ -40,6 +41,7 @@ enum BetType: String, CaseIterable, Identifiable {
         case .system7: return "System 7"
         case .system8: return "System 8"
         case .system9: return "System 9"
+        case .system10: return "System 10"
         }
     }
 }

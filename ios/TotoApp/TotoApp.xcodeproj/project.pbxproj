@@ -1,0 +1,670 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		03B6D075430BF71A0297B120 /* NumbersGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AEF979A3562D25BC2AF343 /* NumbersGridView.swift */; };
+		1A48B5AC15DEA57DF504D073 /* EVMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A33C0AE2F0AE0AA227152C77 /* EVMathTests.swift */; };
+		24C18D52FABFAEA25CE9A022 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B362D563372A90383A74DE /* AppState.swift */; };
+		28791042727C1D08598B2098 /* DeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A84D91E1EE190B734022FFFE /* DeviceIdentity.swift */; };
+		3222729315CEC0D64C818A70 /* EVMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4204F7B1DA09647F19361C9B /* EVMath.swift */; };
+		34C02911FF51BB79D32A3B5F /* FactsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FBB262D48EB82BB152B3A6 /* FactsRepository.swift */; };
+		378341A2EFB8E71239E03607 /* Combinatorics.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7B35EBA6AA830161C4A73DD /* Combinatorics.swift */; };
+		48C63401E148310BDC264172 /* PicksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316D2B27489910E78DF3F7F3 /* PicksViewModel.swift */; };
+		5A9590A4A9C7A03C392B47F2 /* Fallacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A005339E7E7EE5ACA5924B2 /* Fallacy.swift */; };
+		6EBB47BAD2FA391A3A7E8F50 /* Draw.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B89528833D55E57EB20CEF4 /* Draw.swift */; };
+		701EF08C35796CAC01BC8753 /* LearnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A6C604456C46D25A899174B /* LearnView.swift */; };
+		7438960E3D2B619EDF1B64AF /* CalculatorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FF35248C4A89CB8C103DD0 /* CalculatorViewModel.swift */; };
+		7495B145EA208843DD5B6050 /* TotoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A1BA679B229ECADAB31BEC /* TotoApp.swift */; };
+		7739CB38ABD7B2F58B3431D5 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5756DF252E82BA12D2657D4 /* Theme.swift */; };
+		8349016C59D95EE4E3D3B666 /* DrawsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833D6E49F7A5DD34BD4A295E /* DrawsRepository.swift */; };
+		9601EEE7A07EA15F1BCFC834 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C6F6B7A434ABC8D6BAFC27D /* HomeViewModel.swift */; };
+		97482021C6E6FBFB5909C142 /* PicksMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DB9931399E5B72FCC3D248 /* PicksMath.swift */; };
+		AC3EA14A93A0002A58291822 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1293250E6FAB7EF80C3AB454 /* HistoryView.swift */; };
+		AE777697091A94263640897D /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EB9FF8B4386BCABCB8B3A24 /* HistoryViewModel.swift */; };
+		AFA7E85A53F9CDECD2A2D7E5 /* PicksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D729D503C8901C40BEF39A6 /* PicksView.swift */; };
+		B17F835EFC5B687C060B85E6 /* CalculatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F73DFB22FE27B6CC420F099 /* CalculatorView.swift */; };
+		B694280086CE300D65780154 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C02D35DD185BB0476F79CDC /* Assets.xcassets */; };
+		BA0D1C23F8459ABCCD2799D0 /* NextDrawSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6640EBFF3074A66C5DE39A4B /* NextDrawSchedule.swift */; };
+		D29F616D374C096F8E74C6AB /* FallaciesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD169980FF63D940F0F6C7BD /* FallaciesRepository.swift */; };
+		D56E8446494ED41A9FB71E46 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3A801FCF3882D944FCCD65 /* HomeView.swift */; };
+		D5B2446AD15F2CF08AF4D5BB /* SupabaseClients.swift in Sources */ = {isa = PBXBuildFile; fileRef = F616FFD6EA046642E44580C8 /* SupabaseClients.swift */; };
+		DA842781AE9CBC5EC11B87BF /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 8472279831D97348333F31CE /* Supabase */; };
+		EF478C4B957BEC5B433C3A8A /* NumberFact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E2F01AA8742F08514D1913 /* NumberFact.swift */; };
+		F3B225DE7A6934F5A298F3EB /* OnboardingCarouselView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10AD7006FB52D6382A904C36 /* OnboardingCarouselView.swift */; };
+		F5689692DF691DBE6E1AB702 /* BudgetState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475FD2770D4C6380DB5DF064 /* BudgetState.swift */; };
+		FF5018873BB14C7ADF8DAAF0 /* AppStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7E90385BC1D3FAB0F7D376 /* AppStorageKeys.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C21E8BF5B6D6AED18D96A746 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A814581EADC1244463F540CD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 66EA2DEBC696C51D9D36EC03;
+			remoteInfo = TotoApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0A59768D778DA5D8D9D83499 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		10AD7006FB52D6382A904C36 /* OnboardingCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCarouselView.swift; sourceTree = "<group>"; };
+		1293250E6FAB7EF80C3AB454 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		1C6F6B7A434ABC8D6BAFC27D /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		2A005339E7E7EE5ACA5924B2 /* Fallacy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fallacy.swift; sourceTree = "<group>"; };
+		2EB9FF8B4386BCABCB8B3A24 /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
+		316D2B27489910E78DF3F7F3 /* PicksViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicksViewModel.swift; sourceTree = "<group>"; };
+		32A1BA679B229ECADAB31BEC /* TotoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotoApp.swift; sourceTree = "<group>"; };
+		3A6C604456C46D25A899174B /* LearnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnView.swift; sourceTree = "<group>"; };
+		3B89528833D55E57EB20CEF4 /* Draw.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Draw.swift; sourceTree = "<group>"; };
+		4204F7B1DA09647F19361C9B /* EVMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVMath.swift; sourceTree = "<group>"; };
+		475FD2770D4C6380DB5DF064 /* BudgetState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetState.swift; sourceTree = "<group>"; };
+		51E2F01AA8742F08514D1913 /* NumberFact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFact.swift; sourceTree = "<group>"; };
+		6640EBFF3074A66C5DE39A4B /* NextDrawSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextDrawSchedule.swift; sourceTree = "<group>"; };
+		7274431146B4EE54C88F0051 /* TotoApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TotoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		78AEF979A3562D25BC2AF343 /* NumbersGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumbersGridView.swift; sourceTree = "<group>"; };
+		79DB9931399E5B72FCC3D248 /* PicksMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicksMath.swift; sourceTree = "<group>"; };
+		7F73DFB22FE27B6CC420F099 /* CalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorView.swift; sourceTree = "<group>"; };
+		833D6E49F7A5DD34BD4A295E /* DrawsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawsRepository.swift; sourceTree = "<group>"; };
+		89FBB262D48EB82BB152B3A6 /* FactsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FactsRepository.swift; sourceTree = "<group>"; };
+		8C02D35DD185BB0476F79CDC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9D729D503C8901C40BEF39A6 /* PicksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicksView.swift; sourceTree = "<group>"; };
+		A33C0AE2F0AE0AA227152C77 /* EVMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVMathTests.swift; sourceTree = "<group>"; };
+		A7B35EBA6AA830161C4A73DD /* Combinatorics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Combinatorics.swift; sourceTree = "<group>"; };
+		A84D91E1EE190B734022FFFE /* DeviceIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceIdentity.swift; sourceTree = "<group>"; };
+		A9B362D563372A90383A74DE /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		ABDD919224971225CFBC177F /* TotoAppTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TotoAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B4FF35248C4A89CB8C103DD0 /* CalculatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewModel.swift; sourceTree = "<group>"; };
+		CC3A801FCF3882D944FCCD65 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		CE7E90385BC1D3FAB0F7D376 /* AppStorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorageKeys.swift; sourceTree = "<group>"; };
+		D5756DF252E82BA12D2657D4 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		DD169980FF63D940F0F6C7BD /* FallaciesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallaciesRepository.swift; sourceTree = "<group>"; };
+		F616FFD6EA046642E44580C8 /* SupabaseClients.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClients.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3BFB1242082085F4B32F908B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DA842781AE9CBC5EC11B87BF /* Supabase in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0042B6FB9ABBC1A60A50D144 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3B89528833D55E57EB20CEF4 /* Draw.swift */,
+				2A005339E7E7EE5ACA5924B2 /* Fallacy.swift */,
+				51E2F01AA8742F08514D1913 /* NumberFact.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		0A9502258A6328DFD3A2F795 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				CC3A801FCF3882D944FCCD65 /* HomeView.swift */,
+				1C6F6B7A434ABC8D6BAFC27D /* HomeViewModel.swift */,
+				6640EBFF3074A66C5DE39A4B /* NextDrawSchedule.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		0F65BFB64CDA72A0DC02FD36 /* TotoAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				A33C0AE2F0AE0AA227152C77 /* EVMathTests.swift */,
+			);
+			path = TotoAppTests;
+			sourceTree = "<group>";
+		};
+		1C3F9C8654838375AE5BC3C1 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				833D6E49F7A5DD34BD4A295E /* DrawsRepository.swift */,
+				89FBB262D48EB82BB152B3A6 /* FactsRepository.swift */,
+				DD169980FF63D940F0F6C7BD /* FallaciesRepository.swift */,
+				F616FFD6EA046642E44580C8 /* SupabaseClients.swift */,
+			);
+			path = Networking;
+			sourceTree = "<group>";
+		};
+		3DEC73B5452D56EF80C3DFEC = {
+			isa = PBXGroup;
+			children = (
+				FA0AE1681EEA34CE83907DA3 /* TotoApp */,
+				0F65BFB64CDA72A0DC02FD36 /* TotoAppTests */,
+				686EDE445DA169739812EE0A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3E56D254EE2046061B1D0330 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A9B362D563372A90383A74DE /* AppState.swift */,
+				32A1BA679B229ECADAB31BEC /* TotoApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		48116FF0B84C4648304FBEC7 /* NumbersLibrary */ = {
+			isa = PBXGroup;
+			children = (
+				78AEF979A3562D25BC2AF343 /* NumbersGridView.swift */,
+			);
+			path = NumbersLibrary;
+			sourceTree = "<group>";
+		};
+		638DFC4DF285118BE1E8C1D1 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				D5756DF252E82BA12D2657D4 /* Theme.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		686EDE445DA169739812EE0A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7274431146B4EE54C88F0051 /* TotoApp.app */,
+				ABDD919224971225CFBC177F /* TotoAppTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6CF3310890909370FFD12489 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				CE7E90385BC1D3FAB0F7D376 /* AppStorageKeys.swift */,
+				A84D91E1EE190B734022FFFE /* DeviceIdentity.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		75D86BED9EBA6EAAFADF88BA /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				8B6A964F316F49CB0A38972B /* Calculator */,
+				A181FF63F8ABDD1C5C4A6438 /* History */,
+				0A9502258A6328DFD3A2F795 /* Home */,
+				CEF4075FA773E377C082815C /* Learn */,
+				48116FF0B84C4648304FBEC7 /* NumbersLibrary */,
+				DDCDBD2DD3F31CDA0C63A1F8 /* Onboarding */,
+				E7F99AF29CD42ACBF85C6C79 /* Picks */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		790A12E4ADDC065C86D2F9FD /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				638DFC4DF285118BE1E8C1D1 /* DesignSystem */,
+				0042B6FB9ABBC1A60A50D144 /* Models */,
+				1C3F9C8654838375AE5BC3C1 /* Networking */,
+				6CF3310890909370FFD12489 /* Persistence */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		8B6A964F316F49CB0A38972B /* Calculator */ = {
+			isa = PBXGroup;
+			children = (
+				475FD2770D4C6380DB5DF064 /* BudgetState.swift */,
+				7F73DFB22FE27B6CC420F099 /* CalculatorView.swift */,
+				B4FF35248C4A89CB8C103DD0 /* CalculatorViewModel.swift */,
+				A7B35EBA6AA830161C4A73DD /* Combinatorics.swift */,
+				4204F7B1DA09647F19361C9B /* EVMath.swift */,
+			);
+			path = Calculator;
+			sourceTree = "<group>";
+		};
+		A181FF63F8ABDD1C5C4A6438 /* History */ = {
+			isa = PBXGroup;
+			children = (
+				1293250E6FAB7EF80C3AB454 /* HistoryView.swift */,
+				2EB9FF8B4386BCABCB8B3A24 /* HistoryViewModel.swift */,
+			);
+			path = History;
+			sourceTree = "<group>";
+		};
+		CD58B8C18FAF9921D0AB0A08 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8C02D35DD185BB0476F79CDC /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		CEF4075FA773E377C082815C /* Learn */ = {
+			isa = PBXGroup;
+			children = (
+				3A6C604456C46D25A899174B /* LearnView.swift */,
+			);
+			path = Learn;
+			sourceTree = "<group>";
+		};
+		DDCDBD2DD3F31CDA0C63A1F8 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				10AD7006FB52D6382A904C36 /* OnboardingCarouselView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		E7F99AF29CD42ACBF85C6C79 /* Picks */ = {
+			isa = PBXGroup;
+			children = (
+				79DB9931399E5B72FCC3D248 /* PicksMath.swift */,
+				9D729D503C8901C40BEF39A6 /* PicksView.swift */,
+				316D2B27489910E78DF3F7F3 /* PicksViewModel.swift */,
+			);
+			path = Picks;
+			sourceTree = "<group>";
+		};
+		FA0AE1681EEA34CE83907DA3 /* TotoApp */ = {
+			isa = PBXGroup;
+			children = (
+				0A59768D778DA5D8D9D83499 /* Info.plist */,
+				3E56D254EE2046061B1D0330 /* App */,
+				790A12E4ADDC065C86D2F9FD /* Core */,
+				75D86BED9EBA6EAAFADF88BA /* Features */,
+				CD58B8C18FAF9921D0AB0A08 /* Resources */,
+			);
+			path = TotoApp;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0A99E78DBD823657204DF033 /* TotoAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5D83C70673B3AC2173F3828B /* Build configuration list for PBXNativeTarget "TotoAppTests" */;
+			buildPhases = (
+				9665AC4EB0CB2E4CF3ADD6D1 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				97A14659AC9830ED928C4A33 /* PBXTargetDependency */,
+			);
+			name = TotoAppTests;
+			packageProductDependencies = (
+			);
+			productName = TotoAppTests;
+			productReference = ABDD919224971225CFBC177F /* TotoAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		66EA2DEBC696C51D9D36EC03 /* TotoApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A113D547D18BFC4493AF95D5 /* Build configuration list for PBXNativeTarget "TotoApp" */;
+			buildPhases = (
+				4E8B09D3E1325CED6A105D2A /* Sources */,
+				40E65E1FBA09AB7A4111F262 /* Resources */,
+				3BFB1242082085F4B32F908B /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TotoApp;
+			packageProductDependencies = (
+				8472279831D97348333F31CE /* Supabase */,
+			);
+			productName = TotoApp;
+			productReference = 7274431146B4EE54C88F0051 /* TotoApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A814581EADC1244463F540CD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					0A99E78DBD823657204DF033 = {
+						DevelopmentTeam = "";
+					};
+					66EA2DEBC696C51D9D36EC03 = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = 4DD772E0378659A8B47FC860 /* Build configuration list for PBXProject "TotoApp" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 3DEC73B5452D56EF80C3DFEC;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C240711978CAD136B213561B /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 686EDE445DA169739812EE0A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				66EA2DEBC696C51D9D36EC03 /* TotoApp */,
+				0A99E78DBD823657204DF033 /* TotoAppTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		40E65E1FBA09AB7A4111F262 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B694280086CE300D65780154 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4E8B09D3E1325CED6A105D2A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24C18D52FABFAEA25CE9A022 /* AppState.swift in Sources */,
+				FF5018873BB14C7ADF8DAAF0 /* AppStorageKeys.swift in Sources */,
+				F5689692DF691DBE6E1AB702 /* BudgetState.swift in Sources */,
+				B17F835EFC5B687C060B85E6 /* CalculatorView.swift in Sources */,
+				7438960E3D2B619EDF1B64AF /* CalculatorViewModel.swift in Sources */,
+				378341A2EFB8E71239E03607 /* Combinatorics.swift in Sources */,
+				28791042727C1D08598B2098 /* DeviceIdentity.swift in Sources */,
+				6EBB47BAD2FA391A3A7E8F50 /* Draw.swift in Sources */,
+				8349016C59D95EE4E3D3B666 /* DrawsRepository.swift in Sources */,
+				3222729315CEC0D64C818A70 /* EVMath.swift in Sources */,
+				34C02911FF51BB79D32A3B5F /* FactsRepository.swift in Sources */,
+				D29F616D374C096F8E74C6AB /* FallaciesRepository.swift in Sources */,
+				5A9590A4A9C7A03C392B47F2 /* Fallacy.swift in Sources */,
+				AC3EA14A93A0002A58291822 /* HistoryView.swift in Sources */,
+				AE777697091A94263640897D /* HistoryViewModel.swift in Sources */,
+				D56E8446494ED41A9FB71E46 /* HomeView.swift in Sources */,
+				9601EEE7A07EA15F1BCFC834 /* HomeViewModel.swift in Sources */,
+				701EF08C35796CAC01BC8753 /* LearnView.swift in Sources */,
+				BA0D1C23F8459ABCCD2799D0 /* NextDrawSchedule.swift in Sources */,
+				EF478C4B957BEC5B433C3A8A /* NumberFact.swift in Sources */,
+				03B6D075430BF71A0297B120 /* NumbersGridView.swift in Sources */,
+				F3B225DE7A6934F5A298F3EB /* OnboardingCarouselView.swift in Sources */,
+				97482021C6E6FBFB5909C142 /* PicksMath.swift in Sources */,
+				AFA7E85A53F9CDECD2A2D7E5 /* PicksView.swift in Sources */,
+				48C63401E148310BDC264172 /* PicksViewModel.swift in Sources */,
+				D5B2446AD15F2CF08AF4D5BB /* SupabaseClients.swift in Sources */,
+				7739CB38ABD7B2F58B3431D5 /* Theme.swift in Sources */,
+				7495B145EA208843DD5B6050 /* TotoApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9665AC4EB0CB2E4CF3ADD6D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A48B5AC15DEA57DF504D073 /* EVMathTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		97A14659AC9830ED928C4A33 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 66EA2DEBC696C51D9D36EC03 /* TotoApp */;
+			targetProxy = C21E8BF5B6D6AED18D96A746 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0386EDBAA5B89ECD956A7929 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.TotoAppTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TotoApp.app/TotoApp";
+			};
+			name = Release;
+		};
+		0C454434FBEECFD0596C0E34 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		1DBE7B52FD37A1E2097A557E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		3C7A8735A0572152E30BE8FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.TotoAppTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TotoApp.app/TotoApp";
+			};
+			name = Debug;
+		};
+		92281BF668D45BA96472486A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = TotoApp/Info.plist;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.toto;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9362E99AC18D4C8D252A3F9A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = TotoApp/Info.plist;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.toto;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4DD772E0378659A8B47FC860 /* Build configuration list for PBXProject "TotoApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C454434FBEECFD0596C0E34 /* Debug */,
+				1DBE7B52FD37A1E2097A557E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5D83C70673B3AC2173F3828B /* Build configuration list for PBXNativeTarget "TotoAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C7A8735A0572152E30BE8FC /* Debug */,
+				0386EDBAA5B89ECD956A7929 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A113D547D18BFC4493AF95D5 /* Build configuration list for PBXNativeTarget "TotoApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92281BF668D45BA96472486A /* Debug */,
+				9362E99AC18D4C8D252A3F9A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C240711978CAD136B213561B /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.20.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8472279831D97348333F31CE /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C240711978CAD136B213561B /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A814581EADC1244463F540CD /* Project object */;
+}

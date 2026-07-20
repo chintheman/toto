@@ -2,7 +2,11 @@ import Foundation
 import Supabase
 
 struct FactsRepository {
-    private let client = SupabaseClients.data
+    private let client: SupabaseClient
+
+    init(client: SupabaseClient? = nil) {
+        self.client = client ?? SupabaseClients.data
+    }
 
     func allFacts(forNumber number: Int) async throws -> [NumberFact] {
         try await client
@@ -27,5 +31,19 @@ struct FactsRepository {
             .limit(limit)
             .execute()
             .value
+    }
+
+    /// Fetch facts for multiple numbers in a single query using `.in()`.
+    /// Returns a dictionary keyed by number value.
+    func multiFacts(forNumbers numbers: [Int]) async throws -> [Int: [NumberFact]] {
+        let facts: [NumberFact] = try await client
+            .from("number_facts")
+            .select()
+            .in("number_value", values: numbers)
+            .eq("is_active", value: true)
+            .order("priority", ascending: false)
+            .execute()
+            .value
+        return Dictionary(grouping: facts, by: { $0.numberValue })
     }
 }
