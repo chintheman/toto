@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 
 /// Snapshot of Home's remote data, persisted to disk so a relaunch renders
 /// instantly from cache while a refresh runs in the background

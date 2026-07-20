@@ -64,9 +64,13 @@ enum PrizeGroupEstimate {
     static let g5Fixed = 50.0
     static let g6Fixed = 25.0
     static let g7Fixed = 10.0
-    static let g2Typical = 180_000.0
-    static let g3Typical = 1_800.0
-    static let g4Typical = 450.0
+    // Pari-mutuel reference points taken from the design mock's real draw
+    // detail (G2 $121,410 / G3 $1,612 / G4 $391) rather than optimistic
+    // midpoints — still estimates until recalibrated against the scraped
+    // payout backfill.
+    static let g2Typical = 121_410.0
+    static let g3Typical = 1_612.0
+    static let g4Typical = 391.0
 }
 
 struct BetOdds {

@@ -238,14 +238,26 @@ struct PicksView: View {
             let email: String
             let device_id: UUID
         }
-        // Best-effort: record locally first so the UX never loses the
-        // signup, then push to Supabase (duplicate emails no-op server-side).
+        do {
+            _ = try await SupabaseClients.data
+                .from("premium_interest")
+                .insert(InterestRow(email: email.trimmingCharacters(in: .whitespaces), device_id: DeviceIdentity.current))
+                .execute()
+            markSaved()
+        } catch {
+            // A duplicate email is already registered — that counts as
+            // saved. Any other failure leaves the button active so the
+            // user can retry.
+            let text = String(describing: error).lowercased()
+            if text.contains("duplicate") || text.contains("23505") {
+                markSaved()
+            }
+        }
+    }
+
+    private func markSaved() {
         UserDefaults.standard.set(true, forKey: AppStorageKeys.premiumInterestEmailSaved)
         emailSaved = true
-        _ = try? await SupabaseClients.data
-            .from("premium_interest")
-            .insert(InterestRow(email: email.trimmingCharacters(in: .whitespaces), device_id: DeviceIdentity.current))
-            .execute()
     }
 }
 

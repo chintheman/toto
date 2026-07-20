@@ -42,11 +42,28 @@ struct HistoryView: View {
     }
 
     private var drawsList: some View {
-        List(viewModel.draws) { draw in
-            NavigationLink(value: draw) {
-                DrawRow(draw: draw)
+        List {
+            if viewModel.errorMessage != nil && !viewModel.draws.isEmpty {
+                // Failed refresh with rows still on screen: quiet inline
+                // notice instead of silently showing stale data.
+                HStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .foregroundStyle(.orange)
+                    Text("Couldn't refresh — showing earlier results.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button("Retry") { Task { await viewModel.refresh() } }
+                        .font(.caption.bold())
+                }
+                .listRowBackground(Color.orange.opacity(0.1))
             }
-            .task { await viewModel.loadMoreIfNeeded(currentItem: draw) }
+            ForEach(viewModel.draws) { draw in
+                NavigationLink(value: draw) {
+                    DrawRow(draw: draw)
+                }
+                .task { await viewModel.loadMoreIfNeeded(currentItem: draw) }
+            }
         }
         .overlay {
             if viewModel.isLoading && viewModel.draws.isEmpty {

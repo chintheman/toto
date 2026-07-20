@@ -44,6 +44,10 @@ struct NumberDetailView: View {
     @State private var recentDraws: [Draw] = []
     @State private var isLoading = true
     @State private var loadFailed = false
+    @State private var recentDrawsFailed = false
+    /// Recorded once per screen visit — retries reuse the same rotation
+    /// index instead of skipping facts.
+    @State private var visitCount: Int?
 
     private let factsRepository: FactsRepository
     private let drawsRepository: DrawsRepository
@@ -82,8 +86,16 @@ struct NumberDetailView: View {
                 .listRowBackground(Color.clear)
             }
 
-            if !recentDraws.isEmpty {
+            if !recentDraws.isEmpty || recentDrawsFailed {
                 Section("Recent Appearances") {
+                    if recentDrawsFailed {
+                        HStack {
+                            Text("Couldn't load recent appearances").foregroundStyle(.secondary)
+                            Spacer()
+                            Button("Retry") { Task { await load() } }
+                        }
+                        .font(.subheadline)
+                    }
                     ForEach(recentDraws) { draw in
                         HStack {
                             Text("Draw #\(draw.drawNumber)")
@@ -108,13 +120,18 @@ struct NumberDetailView: View {
             async let loadedFacts = factsRepository.allFacts(forNumber: number)
             async let loadedDraws = drawsRepository.draws(containingNumber: number)
             let facts = try await loadedFacts
-            recentDraws = (try? await loadedDraws) ?? []
+            do {
+                recentDraws = try await loadedDraws
+                recentDrawsFailed = false
+            } catch {
+                recentDrawsFailed = true
+            }
             if facts.isEmpty {
                 fact = nil
-                loadFailed = false
             } else {
-                let visitCount = FactRotation.recordVisit(number: number)
-                fact = facts[(visitCount - 1) % facts.count]
+                let visit = visitCount ?? FactRotation.recordVisit(number: number)
+                visitCount = visit
+                fact = facts[(visit - 1) % facts.count]
             }
         } catch {
             loadFailed = true

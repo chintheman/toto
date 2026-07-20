@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 
 /// A "What $X can buy" row: how many of a bet type the budget affords.
 struct AffordableCombo: Identifiable {
