@@ -1,21 +1,11 @@
 import { useCurrentFrame, useVideoConfig, spring, interpolate, AbsoluteFill, Sequence, Audio, staticFile } from "remotion";
 import { loadFont } from "@remotion/google-fonts/PlayfairDisplay";
 import { loadFont as loadInter } from "@remotion/google-fonts/Inter";
+import { theme as COLORS } from "../../shared/palette";
+import { strats, evByJackpot, frequencyTop, frequencyBottom, maxFreq } from "../../shared/totoData";
 
 const { fontFamily: headingFont } = loadFont("normal", { weights: ["400", "700", "900"] });
 const { fontFamily: bodyFont } = loadInter("normal", { weights: ["400", "600", "700"] });
-
-const COLORS = {
-  cream: "#faf7f2",
-  brown: "#3d3226",
-  brownLight: "#6b5d4f",
-  terracotta: "#c17a4d",
-  terracottaLight: "#d4895a",
-  sage: "#7d8c6b",
-  sageLight: "#9aab8a",
-  beige: "#e8e0d5",
-  beigeDark: "#d4c9b8",
-};
 
 // ─── Animation helpers ─────────────────────────────────────────────────────
 
@@ -37,8 +27,8 @@ const slideUp = (frame: number, start: number, amount: number = 60, dur: number 
   transform: `translateY(${interpolate(frame - start, [0, dur], [amount, 0], { extrapolateRight: "clamp", extrapolateLeft: "clamp" })}px)`,
 });
 
-const scaleIn = (frame: number, start: number) =>
-  spring({ frame: frame - start, fps: 30, config: { damping: 14, stiffness: 60 } });
+const scaleIn = (frame: number, start: number, fps: number) =>
+  spring({ frame: frame - start, fps, config: { damping: 14, stiffness: 60 } });
 
 // ─── Background ────────────────────────────────────────────────────────────
 
@@ -88,14 +78,13 @@ const SceneHook = () => {
 
 const SceneMyths = () => {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const hotColors = [COLORS.terracotta, COLORS.terracotta, COLORS.terracottaLight];
   const numbers = [
-    { num: 15, freq: 175, label: "HOT", color: COLORS.terracotta },
-    { num: 40, freq: 168, label: "HOT", color: COLORS.terracotta },
-    { num: 46, freq: 161, label: "HOT", color: COLORS.terracottaLight },
-    { num: 25, freq: 135, label: "COLD", color: COLORS.sage },
-    { num: 45, freq: 119, label: "COLD", color: COLORS.sage },
+    ...frequencyTop.slice(0, 3).map((f, i) => ({ num: Number(f.n), freq: f.count, label: "HOT", color: hotColors[i] ?? COLORS.terracotta })),
+    { num: Number(frequencyBottom[0].n), freq: frequencyBottom[0].count, label: "COLD", color: COLORS.sage },
+    { num: Number(frequencyBottom[4].n), freq: frequencyBottom[4].count, label: "COLD", color: COLORS.sage },
   ];
-  const maxFreq = 175;
 
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingLeft: 120, paddingBottom: 120 }}>
@@ -111,7 +100,7 @@ const SceneMyths = () => {
       <div style={{ display: "flex", alignItems: "flex-end", gap: 36 }}>
         {numbers.map((n, i) => {
           const delay = 30 + i * 10;
-          const h = spring({ frame: frame - delay, fps: 30, config: { damping: 15, stiffness: 60 } }) * (n.freq / maxFreq) * 340;
+          const h = spring({ frame: frame - delay, fps, config: { damping: 15, stiffness: 60 } }) * (n.freq / maxFreq) * 340;
           const op = fadeIn(frame, delay, 12);
           return (
             <div key={n.num} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, opacity: op }}>
@@ -136,15 +125,9 @@ const SceneMyths = () => {
 
 const SceneEV = () => {
   const frame = useCurrentFrame();
-  const jackpots = [
-    { amt: "$1M", ev: -72, color: COLORS.terracotta },
-    { amt: "$2M", ev: -55, color: COLORS.terracotta },
-    { amt: "$2.5M", ev: -42, color: COLORS.terracottaLight },
-    { amt: "$3.5M", ev: -15, color: COLORS.beigeDark },
-    { amt: "$4.5M", ev: 7, color: COLORS.sage },
-    { amt: "$6M", ev: 25, color: COLORS.sage },
-    { amt: "$8M", ev: 48, color: COLORS.sageLight },
-  ];
+  const { fps } = useVideoConfig();
+  const evColors = [COLORS.terracotta, COLORS.terracotta, COLORS.terracottaLight, COLORS.beigeDark, COLORS.sage, COLORS.sage, COLORS.sageLight];
+  const jackpots = evByJackpot.map((j, i) => ({ amt: j.jackpot, ev: j.ev, color: evColors[i] ?? COLORS.sage }));
 
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingLeft: 120, paddingBottom: 100 }}>
@@ -161,7 +144,7 @@ const SceneEV = () => {
         {jackpots.map((j, i) => {
           const delay = 30 + i * 10;
           const absEV = Math.abs(j.ev);
-          const barH = spring({ frame: frame - delay, fps: 30, config: { damping: 15, stiffness: 55 } }) * absEV * 4;
+          const barH = spring({ frame: frame - delay, fps, config: { damping: 15, stiffness: 55 } }) * absEV * 4;
           const op = fadeIn(frame, delay, 12);
           const pos = j.ev > 0;
           return (
@@ -240,10 +223,11 @@ const SceneStrategy = () => {
 const SceneCalculator = () => {
   const frame = useCurrentFrame();
 
+  const s1k = strats["1k"];
   const stats = [
-    { value: "49.3%", label: "Win anything", color: COLORS.sage, delay: 25 },
-    { value: "1:969", label: "Win ~$1,000", color: COLORS.terracotta, delay: 45 },
-    { value: "1:140K", label: "Win jackpot", color: COLORS.brown, delay: 65 },
+    { value: s1k.any, label: "Win anything", color: COLORS.sage, delay: 25 },
+    { value: s1k.g3.replace("1 in ", "1:"), label: "Win ~$1,000", color: COLORS.terracotta, delay: 45 },
+    { value: s1k.g1.replace("1 in ", "1:"), label: "Win jackpot", color: COLORS.brown, delay: 65 },
   ];
 
   return (
@@ -275,11 +259,12 @@ const SceneCalculator = () => {
   );
 };
 
-// ─── Scene 6: CTA (810–900 / 27–30s) ─────────────────────────────────────
+// ─── Scene 6: CTA (810–945 / 27–31.5s) ───────────────────────────────────
 
 const SceneCTA = () => {
   const frame = useCurrentFrame();
-  const s = scaleIn(frame, 10);
+  const { fps } = useVideoConfig();
+  const s = scaleIn(frame, 10, fps);
 
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", justifyContent: "center", paddingLeft: 120 }}>
@@ -314,11 +299,11 @@ export const TotoVideo = () => {
       <Audio src={staticFile("toto-vo.mp3")} />
       <Background />
       <Sequence from={0} durationInFrames={150}><SceneHook /></Sequence>
-      <Sequence from={135} durationInFrames={210}><SceneMyths /></Sequence>
-      <Sequence from={330} durationInFrames={195}><SceneEV /></Sequence>
-      <Sequence from={510} durationInFrames={195}><SceneStrategy /></Sequence>
-      <Sequence from={690} durationInFrames={135}><SceneCalculator /></Sequence>
-      <Sequence from={810} durationInFrames={90}><SceneCTA /></Sequence>
+      <Sequence from={150} durationInFrames={180}><SceneMyths /></Sequence>
+      <Sequence from={330} durationInFrames={180}><SceneEV /></Sequence>
+      <Sequence from={510} durationInFrames={180}><SceneStrategy /></Sequence>
+      <Sequence from={690} durationInFrames={120}><SceneCalculator /></Sequence>
+      <Sequence from={810} durationInFrames={135}><SceneCTA /></Sequence>
     </AbsoluteFill>
   );
 };

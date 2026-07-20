@@ -1,15 +1,21 @@
 # toto-video
 
+Remotion project for the 30-second TOTO explainer video.
+
 To install dependencies:
 
 ```bash
 bun install
 ```
 
-To run:
+To open the Remotion studio:
 
 ```bash
-bun run index.ts
+bun run studio
 ```
 
-This project was created using `bun init` in bun v1.3.11. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+To render the video to `output.mp4`:
+
+```bash
+bun run render
+```
