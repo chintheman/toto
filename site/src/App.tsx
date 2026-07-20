@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { theme, Section, ScribbleDivider } from "./brand";
 import { BarChart3, Share2, Sparkles, AlertTriangle, ChevronDown } from "lucide-react";
 import { useNextDraw } from "./useNextDraw";
-import { strats, evByJackpot, frequencyTop, frequencyBottom, maxFreq } from "../../shared/totoData";
+import { strats, evByJackpot, evAtJackpot, frequencyTop, frequencyBottom, maxFreq } from "../../shared/totoData";
+import { generatePortfolio, type Portfolio, type StrategyKey } from "../../shared/ticketGenerator";
 
 // ─── Data ───────────────────────────────────────────────────────────────────
 
@@ -128,6 +129,120 @@ function StatCard({ n, emoji, stat, label, detail, color }: typeof funFacts[0]) 
   );
 }
 
+function EVChecker() {
+  const [jm, setJm] = useState(2.5);
+  const ev = Math.round(evAtJackpot(jm));
+  const positive = ev > 0;
+  return (
+    <div className="rounded-xl p-4 my-3" style={{ background: theme.cream, border: `1px solid ${theme.beige}` }}>
+      <div className="flex items-center justify-between mb-2">
+        <label htmlFor="ev-slider" className="text-sm font-medium" style={{ color: theme.brown }}>
+          Check a jackpot: <strong>${jm.toFixed(1)}M</strong>
+        </label>
+        <span className="font-serif text-lg font-bold" style={{ color: positive ? theme.sage : theme.terracotta }}>
+          {positive ? "+" : ""}{ev}% EV
+        </span>
+      </div>
+      <input
+        id="ev-slider"
+        type="range"
+        min={1}
+        max={10}
+        step={0.1}
+        value={jm}
+        onChange={e => setJm(parseFloat(e.target.value))}
+        className="w-full"
+        style={{ accentColor: positive ? theme.sage : theme.terracotta }}
+      />
+      <p className="text-sm mt-2" style={{ color: theme.brownLight }}>
+        Every $1 played returns ≈ <strong style={{ color: theme.brown }}>${(1 + ev / 100).toFixed(2)}</strong> on average —{" "}
+        {positive
+          ? "positive EV. This is one of the rare draws where the math is on your side."
+          : "you're paying for entertainment, not value. Wait for $4.5M+."}
+      </p>
+    </div>
+  );
+}
+
+function TicketPortfolio({ portfolio, onShuffle }: { portfolio: Portfolio; onShuffle: () => void }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    const lines = portfolio.tickets.map(
+      t => `${t.type === "S7" ? "System 7" : "Ordinary"}: ${t.numbers.join(" ")}`
+    );
+    navigator.clipboard
+      ?.writeText(lines.join("\n"))
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {});
+  };
+  return (
+    <div className="rounded-2xl p-5 mt-4" style={{ background: theme.creamWarm, border: `1px solid ${theme.beige}` }}>
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div>
+          <h4 className="font-serif text-lg" style={{ color: theme.brown }}>Your tickets</h4>
+          <p className="text-[11px] sm:text-xs" style={{ color: theme.brownLight }}>
+            Mean pairwise overlap: {portfolio.meanOverlap.toFixed(2)} numbers
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={onShuffle}
+            className="px-4 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80"
+            style={{ background: theme.cream, color: theme.brownLight, border: `1px solid ${theme.beigeDark}` }}
+          >
+            🎲 Shuffle
+          </button>
+          <button
+            onClick={copy}
+            className="px-4 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80"
+            style={{ background: theme.terracotta, color: "#fff" }}
+          >
+            {copied ? "✓ Copied" : "Copy list"}
+          </button>
+        </div>
+      </div>
+
+      {portfolio.pool && (
+        <div className="flex flex-wrap items-center gap-1.5 mb-4">
+          <span className="text-[11px] sm:text-xs mr-1" style={{ color: theme.brownLight }}>Your 14-number pool:</span>
+          {portfolio.pool.map(n => (
+            <LotteryBall key={n} n={n} size={26} color={theme.brownLight} />
+          ))}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        {portfolio.tickets.map((t, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-1.5 rounded-xl px-3 py-2"
+            style={{ background: theme.cream, border: `1px solid ${theme.beige}` }}
+          >
+            <span
+              className="text-[10px] font-mono font-bold w-9 flex-shrink-0"
+              style={{ color: t.type === "S7" ? theme.sage : theme.terracotta }}
+            >
+              {t.type === "S7" ? "S7" : "ORD"}
+            </span>
+            <div className="flex flex-wrap gap-1">
+              {t.numbers.map(n => (
+                <LotteryBall key={n} n={n} size={26} color={t.type === "S7" ? theme.sage : theme.terracotta} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p className="text-[11px] sm:text-xs mt-4 text-center" style={{ color: theme.brownLight }}>
+        Random low-overlap numbers — every set has identical odds. Shuffling doesn't improve them; it just feels better.
+      </p>
+    </div>
+  );
+}
+
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function Toto() {
@@ -135,7 +250,11 @@ export default function Toto() {
   const [goal, setGoal] = useState("1k");
   const [showAllMyths, setShowAllMyths] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showTickets, setShowTickets] = useState(false);
+  const [seed, setSeed] = useState(() => Date.now() % 1_000_000);
   const draw = useNextDraw();
+
+  useEffect(() => setShowTickets(false), [goal]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -146,6 +265,11 @@ export default function Toto() {
   const s = strats[goal as keyof typeof strats];
   const bdgt = parseInt(amt);
   const ok = bdgt >= s.cost;
+
+  const portfolio = useMemo(
+    () => (showTickets && ok ? generatePortfolio(goal as StrategyKey, seed) : null),
+    [showTickets, ok, goal, seed]
+  );
 
   return (
     <>
@@ -397,6 +521,7 @@ export default function Toto() {
                         </div>
                       ))}
                     </div>
+                    <EVChecker />
                     <p><strong style={{ color: theme.brown }}>Bottom line:</strong> Wait for $4M+. Everything below that is expensive entertainment.</p>
                   </Accordion>
 
@@ -500,6 +625,19 @@ export default function Toto() {
                         </div>
                       ))}
                     </div>
+                  )}
+
+                  {ok && !portfolio && (
+                    <button
+                      onClick={() => setShowTickets(true)}
+                      className="mt-5 w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all hover:scale-[1.02]"
+                      style={{ background: theme.terracotta, color: "#fff" }}
+                    >
+                      🎟 Generate my tickets
+                    </button>
+                  )}
+                  {portfolio && (
+                    <TicketPortfolio portfolio={portfolio} onShuffle={() => setSeed(v => v + 1)} />
                   )}
                 </div>
 
