@@ -5,8 +5,8 @@ Standalone Singapore TOTO analysis repo. Three main modules:
 - `site/` — Vite + React + Tailwind SPA with strategy calculator, myth-busting, EV charts, frequency data
 - `video/` — Remotion 4 project for the 30-second explainer video
 - `api/` — Hono API route for next draw date + jackpot
-- `mobile/` — Expo (React Native) iOS app; reuses `shared/` via the `mobile/shared` symlink (see `mobile/DEPLOY_IOS.md` for App Store steps)
-- `shared/` — single source of truth for draw schedule, palette, stats data, ticket generator, and editorial content
+- `ios/` — native SwiftUI iOS app (TotoApp.xcodeproj, Supabase-backed; see `ios/DEPLOY_IOS.md` for App Store steps). Its design source of truth is the "App review request" Claude Design project (`TotoApp Refinements.dc.html` + `docs/design-changes.md`).
+- `shared/` — single source of truth for the site/video/api: draw schedule, palette, stats data, ticket generator, editorial content
 
 ## Key References
 
