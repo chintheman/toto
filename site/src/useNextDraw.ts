@@ -1,19 +1,7 @@
 import { useState, useEffect } from "react";
+import { computeNextDraw, type NextDraw } from "../../shared/drawSchedule";
 
-const DRAW_DAYS = [1, 4]; // Monday=1, Thursday=4
-const DRAW_HOUR = 18;
-const DRAW_MIN = 30;
-const SG_OFFSET = 8;
-
-function toSGT(date: Date): Date {
-  const utc = date.getTime() + date.getTimezoneOffset() * 60000;
-  return new Date(utc + SG_OFFSET * 3600000);
-}
-
-function daysUntilDrawDay(sgtDay: number): number {
-  for (const d of DRAW_DAYS) if (d >= sgtDay) return d - sgtDay;
-  return 7 + DRAW_DAYS[0] - sgtDay;
-}
+const FALLBACK_JACKPOT = "$2.5M";
 
 export interface DrawInfo {
   day: string;
@@ -21,37 +9,30 @@ export interface DrawInfo {
   jackpot: string;
 }
 
-function calcDraw(): DrawInfo {
-  const now = new Date();
-  const sgt = toSGT(now);
-  const sgtDay = sgt.getDay();
-  const sgtMinutes = sgt.getHours() * 60 + sgt.getMinutes();
-  const drawMinutes = DRAW_HOUR * 60 + DRAW_MIN;
-
-  let daysUntil = daysUntilDrawDay(sgtDay);
-  if (daysUntil === 0 && sgtMinutes >= drawMinutes) {
-    daysUntil = 7 + DRAW_DAYS[0] - sgtDay;
-  }
-
-  const next = new Date(sgt);
-  next.setDate(next.getDate() + daysUntil);
-  next.setHours(DRAW_HOUR, DRAW_MIN, 0, 0);
-
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-  return {
-    day: days[next.getDay()],
-    date: `${next.getDate()} ${months[next.getMonth()]} ${next.getFullYear()}`,
-    jackpot: "$2.5M",
-  };
-}
-
 export function useNextDraw(): DrawInfo {
-  const [info, setInfo] = useState<DrawInfo>(calcDraw);
+  const [next, setNext] = useState<NextDraw>(() => computeNextDraw());
+  const [jackpot, setJackpot] = useState(FALLBACK_JACKPOT);
+
   useEffect(() => {
-    const interval = setInterval(() => setInfo(calcDraw()), 60000);
+    const controller = new AbortController();
+    fetch("/api/toto/draw", { signal: controller.signal })
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => {
+        if (typeof data?.jackpot === "string") setJackpot(data.jackpot);
+      })
+      .catch(() => {
+        // API unreachable (dev server, offline): keep the local fallback.
+      });
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const fresh = computeNextDraw();
+      setNext(prev => (prev.iso === fresh.iso ? prev : fresh));
+    }, 60000);
     return () => clearInterval(interval);
   }, []);
-  return info;
+
+  return { day: next.day, date: next.date, jackpot };
 }
