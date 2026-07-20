@@ -41,16 +41,32 @@ export const strats = {
   },
 } as const;
 
-// EV per dollar spent vs jackpot size; bar width derives as (100 + ev) / 2.
+// EV per dollar spent vs jackpot size (m = jackpot in $M); bar width
+// derives as (100 + ev) / 2.
 export const evByJackpot = [
-  { jackpot: "$1M", ev: -72 },
-  { jackpot: "$2M", ev: -55 },
-  { jackpot: "$2.5M", ev: -42 },
-  { jackpot: "$3.5M", ev: -15 },
-  { jackpot: "$4.5M", ev: 7 },
-  { jackpot: "$6M", ev: 25 },
-  { jackpot: "$8M", ev: 48 },
+  { jackpot: "$1M", m: 1, ev: -72 },
+  { jackpot: "$2M", m: 2, ev: -55 },
+  { jackpot: "$2.5M", m: 2.5, ev: -42 },
+  { jackpot: "$3.5M", m: 3.5, ev: -15 },
+  { jackpot: "$4.5M", m: 4.5, ev: 7 },
+  { jackpot: "$6M", m: 6, ev: 25 },
+  { jackpot: "$8M", m: 8, ev: 48 },
 ] as const;
+
+// EV% at an arbitrary jackpot size, linearly interpolated between the
+// table's points and extrapolated with the last segment's slope above it.
+export function evAtJackpot(millions: number): number {
+  let prev: (typeof evByJackpot)[number] = evByJackpot[0];
+  if (millions <= prev.m) return prev.ev;
+  for (const pt of evByJackpot) {
+    if (millions <= pt.m) {
+      return prev.ev + ((millions - prev.m) / (pt.m - prev.m)) * (pt.ev - prev.ev);
+    }
+    prev = pt;
+  }
+  const a = evByJackpot[evByJackpot.length - 2] ?? prev;
+  return prev.ev + ((millions - prev.m) / (prev.m - a.m)) * (prev.ev - a.ev);
+}
 
 export const frequencyTop = [
   { n: "15", count: 175 },
