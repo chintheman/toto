@@ -56,7 +56,7 @@ struct CalculatorView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("What SGD \(appState.budget.formatted()) can buy")
                 .font(.headline)
-            Text("Every combination below costs the same per line of coverage — spreading means smaller prizes land more often, concentrating means rarer but larger hits. Average return is identical either way.")
+            Text("Every combination below costs the same per line of coverage. Spreading means smaller prizes land more often; concentrating means rarer but larger hits. Average return is identical either way.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
 
@@ -64,7 +64,9 @@ struct CalculatorView: View {
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
                     Text("\(combo.count.formatted())×")
                         .font(.body.bold().monospacedDigit())
-                        .frame(width: 76, alignment: .leading)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .frame(minWidth: 76, alignment: .leading)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(combo.betType.displayName).font(.subheadline.bold())
                         Text(combo.betType.coverageDescription).font(.caption).foregroundStyle(.secondary)
@@ -79,7 +81,7 @@ struct CalculatorView: View {
                 .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 12))
             }
 
-            Text("Same expected return either way — spending pattern only changes how the losses arrive, never their average size.")
+            Text("Same expected return either way. Spending pattern only changes how the losses arrive, never their average size.")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
@@ -122,7 +124,7 @@ struct CalculatorView: View {
             Text("About \(cents)¢ back per $1, on average")
                 .font(.subheadline.bold())
 
-            Text("At the current \(jackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot. This rate depends only on the jackpot size — spending more doesn't change it, every dollar gets the same ~\(cents)¢ back. Break-even needs roughly a \(viewModel.breakEvenJackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot, but big jackpots attract more players and get split more often — so in practice, break-even draws don't really exist.")
+            Text("At the current \(jackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot. This rate depends only on the jackpot size. Spending more doesn't change it; every dollar gets the same ~\(cents)¢ back. Breaking even needs roughly a \(viewModel.breakEvenJackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot, but big jackpots attract more players and get split more often, so in practice those draws don't really exist.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }

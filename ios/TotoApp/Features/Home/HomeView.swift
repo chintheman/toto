@@ -54,7 +54,7 @@ struct HomeView: View {
     private var staleDescription: String {
         if let fetchedAt = viewModel.lastFetchedAt {
             let age = RelativeDateTimeFormatter().localizedString(for: fetchedAt, relativeTo: Date())
-            return "Couldn't refresh — showing results from \(age)."
+            return "Couldn't refresh. Showing results from \(age)."
         }
         return "Couldn't load draw data. Check your connection."
     }
@@ -93,7 +93,7 @@ struct HomeView: View {
             } else {
                 Text(viewModel.localNextDrawEstimate, style: .date)
                     .font(.title2.bold())
-                Text("Jackpot amount unavailable — showing estimated schedule only")
+                Text("Jackpot amount unavailable. Showing estimated schedule only.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -104,7 +104,7 @@ struct HomeView: View {
 
     private func latestResultCard(_ draw: Draw) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Latest Result — Draw #\(draw.drawNumber)", systemImage: "checkmark.seal")
+            Label("Latest Result · Draw #\(draw.drawNumber)", systemImage: "checkmark.seal")
                 .font(.headline)
                 .foregroundStyle(.secondary)
             Text(draw.drawDate, style: .date)
@@ -125,7 +125,7 @@ struct HomeView: View {
                     .font(.subheadline)
                 Spacer()
                 if draw.jackpotWon {
-                    Text("Won this draw!").font(.subheadline.bold()).foregroundStyle(.green)
+                    Text("Jackpot won").font(.subheadline.bold()).foregroundStyle(.green)
                 } else {
                     Text("Rolled over").font(.subheadline).foregroundStyle(.orange)
                 }
@@ -136,13 +136,17 @@ struct HomeView: View {
     }
 
     private func curatedFactsSection(for draw: Draw) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        // Show at most two facts, drawn from the winning numbers in order.
+        let factNumbers = (draw.winningNumbers + [draw.additionalNumber])
+            .filter { viewModel.curatedFacts[$0]?.first != nil }
+            .prefix(2)
+        return VStack(alignment: .leading, spacing: 12) {
             Label("Fun Facts About These Numbers", systemImage: "sparkles")
                 .font(.headline)
                 .foregroundStyle(.secondary)
 
-            ForEach(draw.winningNumbers + [draw.additionalNumber], id: \.self) { number in
-                if let facts = viewModel.curatedFacts[number], let fact = facts.first {
+            ForEach(Array(factNumbers), id: \.self) { number in
+                if let fact = viewModel.curatedFacts[number]?.first {
                     HStack(alignment: .top, spacing: 12) {
                         LotteryBallView(number: number, size: 32)
                         VStack(alignment: .leading, spacing: 4) {
@@ -154,7 +158,7 @@ struct HomeView: View {
             }
 
             Divider()
-            Text("Every number has a story — tap any ball in History → Numbers for more.")
+            Text("Every number has a story. Tap any ball in History → Numbers for more.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

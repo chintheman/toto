@@ -34,20 +34,21 @@ struct LearnView: View {
                     }
                 }
 
-                Section("Every Myth, Busted") {
-                    if let loadError, fallacies.isEmpty {
-                        // §7: no silent failure — visible error + retry.
+                if let loadError, fallacies.isEmpty {
+                    // §7: no silent failure. Visible error and retry.
+                    Section {
                         VStack(alignment: .leading, spacing: 8) {
                             Text(loadError).font(.caption).foregroundStyle(.secondary)
                             Button("Retry") { Task { await load() } }
                                 .buttonStyle(.borderedProminent)
                         }
                     }
-                    ForEach(fallacies) { fallacy in
-                        NavigationLink(value: fallacy) {
-                            HStack(spacing: 12) {
-                                Text(fallacy.emoji ?? "")
-                                    .font(.title3)
+                }
+
+                ForEach(groupedFallacies) { group in
+                    Section(group.category) {
+                        ForEach(group.items) { fallacy in
+                            NavigationLink(value: fallacy) {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(fallacy.mythStatement)
                                         .font(.subheadline.weight(.semibold))
@@ -75,6 +76,26 @@ struct LearnView: View {
         }
     }
 
+    /// Section order for the grouped list. Any category not listed here is
+    /// appended alphabetically after these.
+    private let categoryOrder = ["Randomness & memory", "Picking numbers", "Money & value", "Mind & fairness"]
+
+    private var groupedFallacies: [FallacyGroup] {
+        let groups = Dictionary(grouping: fallacies) { $0.category ?? "More myths" }
+        var result: [FallacyGroup] = []
+        for name in categoryOrder {
+            if let items = groups[name], !items.isEmpty {
+                result.append(FallacyGroup(category: name, items: items))
+            }
+        }
+        for name in groups.keys.sorted() where !categoryOrder.contains(name) {
+            if let items = groups[name] {
+                result.append(FallacyGroup(category: name, items: items))
+            }
+        }
+        return result
+    }
+
     private func load() async {
         isLoading = true
         loadError = nil
@@ -85,6 +106,12 @@ struct LearnView: View {
         }
         isLoading = false
     }
+}
+
+struct FallacyGroup: Identifiable {
+    let category: String
+    let items: [Fallacy]
+    var id: String { category }
 }
 
 struct FallacyDetailView: View {

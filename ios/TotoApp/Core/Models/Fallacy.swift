@@ -10,6 +10,7 @@ struct Fallacy: Codable, Identifiable, Hashable {
     let explanationBody: String
     let statCallout: String?
     let emoji: String?
+    let category: String?
     let displayOrder: Int
     let inOnboardingCarousel: Bool
 
@@ -25,6 +26,7 @@ struct Fallacy: Codable, Identifiable, Hashable {
         case explanationBody = "explanation_body"
         case statCallout = "stat_callout"
         case emoji
+        case category
         case displayOrder = "display_order"
         case inOnboardingCarousel = "in_onboarding_carousel"
     }
