@@ -86,6 +86,13 @@ struct NumberDetailView: View {
                             .foregroundStyle(.secondary)
                         Button("Retry") { Task { await load() } }
                             .buttonStyle(.borderedProminent)
+                    } else if !isLoading {
+                        // Fetch succeeded but this number has no active facts:
+                        // show an intentional empty state, not a bare ball.
+                        Text("No story for this number yet. Check its stats below.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -124,7 +131,12 @@ struct NumberDetailView: View {
     private func appearanceInsights(_ s: NumberStats) -> [AppearanceInsight] {
         var out: [AppearanceInsight] = []
 
-        let avg = Double(s.totalDraws) * 6.0 / 49.0
+        // Each draw exposes 7 numbers (6 winning + 1 additional), and
+        // `appearances` counts a draw when the number is ANY of those 7,
+        // so the expected rate is 7/49 per draw, not 6/49. Using 6/49 here
+        // would label almost every number "more often than average" — the
+        // exact hot-number fallacy this app exists to debunk.
+        let avg = Double(s.totalDraws) * 7.0 / 49.0
         let qualifier: String
         if Double(s.appearances) > avg * 1.08 { qualifier = "more often than average" }
         else if Double(s.appearances) < avg * 0.92 { qualifier = "less often than average" }
@@ -187,7 +199,7 @@ struct NumberDetailView: View {
             stats = NumberStats.build(
                 appearances: try await appearances,
                 total: try await total,
-                latest: (try await latest)?.drawNumber ?? 0
+                latest: (try await latest)?.drawNumber
             )
             statsFailed = false
         } catch {
@@ -214,7 +226,7 @@ struct NumberStats {
     let monCount: Int
     let thuCount: Int
 
-    static func build(appearances draws: [Draw], total: Int, latest: Int) -> NumberStats {
+    static func build(appearances draws: [Draw], total: Int, latest: Int?) -> NumberStats {
         let last = draws.max(by: { $0.drawNumber < $1.drawNumber })
 
         // Longest run of consecutive draw numbers (draw numbers are sequential).
@@ -244,7 +256,10 @@ struct NumberStats {
             totalDraws: total,
             lastDrawNumber: last?.drawNumber,
             lastDrawDate: last?.drawDate,
-            droughtDraws: last.map { max(0, latest - $0.drawNumber) },
+            // Only report a drought when we actually know the current latest
+            // draw; without it, default to no drought insight rather than a
+            // misleading "appeared in the most recent draw".
+            droughtDraws: latest.flatMap { current in last.map { max(0, current - $0.drawNumber) } },
             longestStreak: longest,
             monCount: mon,
             thuCount: thu

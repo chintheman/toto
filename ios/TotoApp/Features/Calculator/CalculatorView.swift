@@ -18,7 +18,9 @@ struct CalculatorView: View {
                     affordabilityCard
                     if let jackpot = viewModel.currentJackpot {
                         valueCard(jackpot: jackpot)
-                    } else if !viewModel.isLoading {
+                    } else if !viewModel.isLoading && viewModel.errorMessage == nil {
+                        // Only the "no data yet" state when there's no error;
+                        // otherwise the error banner above already explains it.
                         ContentUnavailableView(
                             "No jackpot data yet",
                             systemImage: "questionmark.circle",
