@@ -53,11 +53,12 @@ final class CalculatorViewModel {
         isLoading = true
         errorMessage = nil
         do {
-            if let upcoming = try await drawsRepository.upcomingDraw() {
-                currentJackpot = upcoming.estimatedJackpot
+            if let jackpot = try await drawsRepository.upcomingDraw()?.estimatedJackpot {
+                currentJackpot = jackpot
             } else if let latest = try await drawsRepository.latestDraw() {
-                // Fallback: no upcoming-draw row yet, estimate from the last
-                // known jackpot figure rather than showing nothing.
+                // Fallback: no upcoming-draw row yet (or its estimate isn't
+                // published), estimate from the last known jackpot figure
+                // rather than showing nothing.
                 currentJackpot = latest.jackpotWon ? nil : latest.jackpotAmount
             }
         } catch {

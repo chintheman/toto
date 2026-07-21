@@ -259,10 +259,14 @@ struct PicksView: View {
                 .insert(InterestRow(email: email.trimmingCharacters(in: .whitespaces), device_id: DeviceIdentity.current))
                 .execute()
             markSaved()
+        } catch let error as PostgrestError where error.code == "23505" {
+            // Unique-violation: this email is already registered, which
+            // counts as saved.
+            markSaved()
         } catch {
-            // A duplicate email is already registered — that counts as
-            // saved. Any other failure leaves the button active so the
-            // user can retry.
+            // Fallback for error shapes that don't surface a structured code:
+            // a duplicate registration still counts as saved. Any other
+            // failure leaves the button active so the user can retry.
             let text = String(describing: error).lowercased()
             if text.contains("duplicate") || text.contains("23505") {
                 markSaved()

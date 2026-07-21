@@ -135,7 +135,10 @@ struct PrizeGroup: Codable, Identifiable, Equatable {
 struct UpcomingDraw: Codable, Equatable {
     let drawNumber: Int
     let drawDate: Date
-    let estimatedJackpot: Double
+    /// Nil when the upcoming jackpot hasn't been published yet. A row can
+    /// exist (with a known date) before the estimate is known, so this must
+    /// tolerate null instead of failing the whole fetch.
+    let estimatedJackpot: Double?
     let isSnowball: Bool
 
     enum CodingKeys: String, CodingKey {
@@ -149,7 +152,7 @@ struct UpcomingDraw: Codable, Equatable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         drawNumber = try container.decode(Int.self, forKey: .drawNumber)
         drawDate = try container.decodeFlexibleDate(forKey: .drawDate)
-        estimatedJackpot = try container.decodeFlexibleDouble(forKey: .estimatedJackpot)
+        estimatedJackpot = try container.decodeFlexibleDoubleIfPresent(forKey: .estimatedJackpot)
         isSnowball = try container.decode(Bool.self, forKey: .isSnowball)
     }
 }

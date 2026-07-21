@@ -77,6 +77,14 @@ struct HistoryView: View {
                     Button("Retry") { Task { await viewModel.loadInitial() } }
                         .buttonStyle(.borderedProminent)
                 }
+            } else if viewModel.draws.isEmpty && !viewModel.isLoading {
+                // Loaded successfully but no rows: an intentional empty state
+                // instead of a blank list.
+                ContentUnavailableView(
+                    "No draws yet",
+                    systemImage: "calendar",
+                    description: Text("Results will appear here after the next draw.")
+                )
             }
         }
         .refreshable { await viewModel.refresh() }

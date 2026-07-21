@@ -86,9 +86,11 @@ final class HomeViewModel {
     func load() async {
         isLoading = true
         do {
-            async let latest = drawsRepository.latestDraw()
+            // Upcoming draw is best-effort and degrades independently: a
+            // failure there must not discard a successfully fetched latest
+            // result (the primary content).
             async let upcoming = drawsRepository.upcomingDraw()
-            let (fetchedLatest, fetchedUpcoming) = try await (latest, upcoming)
+            let fetchedLatest = try await drawsRepository.latestDraw()
 
             var facts: [Int: [NumberFact]] = [:]
             if let fetchedLatest {
@@ -100,13 +102,17 @@ final class HomeViewModel {
             // Replace on success only — a failed refresh keeps showing the
             // cached data instead of blanking the screen.
             latestDraw = fetchedLatest
-            upcomingDraw = fetchedUpcoming
             curatedFacts = facts
+            // Only overwrite the upcoming draw if its fetch actually
+            // succeeded; on failure keep whatever was already on screen.
+            if let fetchedUpcoming = try? await upcoming {
+                upcomingDraw = fetchedUpcoming
+            }
             lastFetchedAt = Date()
             errorMessage = nil
             HomeCache.save(HomeSnapshot(
                 latestDraw: fetchedLatest,
-                upcomingDraw: fetchedUpcoming,
+                upcomingDraw: upcomingDraw,
                 curatedFacts: facts,
                 fetchedAt: lastFetchedAt ?? Date()
             ))

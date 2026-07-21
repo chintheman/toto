@@ -85,8 +85,14 @@ struct HomeView: View {
             if let upcoming = viewModel.upcomingDraw {
                 Text(upcoming.drawDate, style: .date)
                     .font(.title2.bold())
-                Text("Estimated jackpot: \(upcoming.estimatedJackpot, format: .currency(code: "SGD"))")
-                    .font(.subheadline)
+                if let jackpot = upcoming.estimatedJackpot {
+                    Text("Estimated jackpot: \(jackpot, format: .currency(code: "SGD"))")
+                        .font(.subheadline)
+                } else {
+                    Text("Estimated jackpot not published yet.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
                 if upcoming.isSnowball {
                     Text("Snowball draw").font(.caption).foregroundStyle(.orange)
                 }
