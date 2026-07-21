@@ -428,7 +428,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.TotoAppTests;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TotoApp.app/TotoApp";
 			};
 			name = Release;
@@ -566,7 +566,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.TotoAppTests;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TotoApp.app/TotoApp";
 			};
 			name = Debug;
@@ -584,7 +584,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.toto;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
@@ -601,7 +601,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.toto;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
