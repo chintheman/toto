@@ -103,4 +103,16 @@ struct CarouselPalette {
     static func page(_ index: Int) -> CarouselPalette {
         pages[((index % pages.count) + pages.count) % pages.count]
     }
+
+    /// A stable light palette per myth category, so a Learn myth opens in the
+    /// same colour world as the carousel and each category reads distinctly.
+    static func forCategory(_ key: String?) -> CarouselPalette {
+        switch key {
+        case "randomness": return pages[0] // yellow
+        case "picking":    return pages[1] // blue
+        case "mind":       return pages[3] // purple
+        case "money":      return pages[4] // green
+        default:           return pages[3]
+        }
+    }
 }

@@ -8,7 +8,7 @@ struct NumbersLibrarySection: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
-                Text("Every number from 1–49 has its own fun facts. Tap one to read its story.")
+                Text("Every number from 1 to 49 has its own fun facts. Tap one to read its story.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
 
@@ -100,7 +100,7 @@ struct NumberDetailView: View {
             }
 
             if let stats {
-                Section("How \(number) Behaves") {
+                Section("\(number) in the draws") {
                     ForEach(appearanceInsights(stats)) { insight in
                         Label {
                             Text(insight.text)
@@ -128,50 +128,61 @@ struct NumberDetailView: View {
         .task { await load() }
     }
 
+    /// Builds a VARIED set of draw-history facts: only the ones that are
+    /// actually notable for this number surface, so different numbers show
+    /// different mixes rather than an identical five-line template. The core
+    /// count always shows; everything else is threshold-gated. Framing keeps
+    /// reinforcing that any streak or drought is chance, not a signal.
     private func appearanceInsights(_ s: NumberStats) -> [AppearanceInsight] {
         var out: [AppearanceInsight] = []
 
         // Each draw exposes 7 numbers (6 winning + 1 additional), and
-        // `appearances` counts a draw when the number is ANY of those 7,
-        // so the expected rate is 7/49 per draw, not 6/49. Using 6/49 here
-        // would label almost every number "more often than average" — the
-        // exact hot-number fallacy this app exists to debunk.
+        // `appearances` counts a draw when the number is any of those 7, so
+        // the expected rate is 7/49 per draw, not 6/49. Anything else labels
+        // almost every number "hot", the exact fallacy this app debunks.
         let avg = Double(s.totalDraws) * 7.0 / 49.0
+        let ratio = avg > 0 ? Double(s.appearances) / avg : 1
         let qualifier: String
-        if Double(s.appearances) > avg * 1.08 { qualifier = "more often than average" }
-        else if Double(s.appearances) < avg * 0.92 { qualifier = "less often than average" }
-        else { qualifier = "right around average" }
+        if ratio > 1.08 { qualifier = "a little more than pure chance predicts" }
+        else if ratio < 0.92 { qualifier = "a little less than pure chance predicts" }
+        else { qualifier = "right about what pure chance predicts" }
         out.append(AppearanceInsight(symbol: "chart.bar.fill",
             text: "Appeared \(s.appearances) times in \(s.totalDraws.formatted()) draws, \(qualifier)."))
 
+        // Drought: only when it's just appeared, or the gap is genuinely long.
         if let drought = s.droughtDraws {
             if drought == 0 {
-                out.append(AppearanceInsight(symbol: "checkmark.circle.fill", text: "Appeared in the most recent draw."))
-            } else {
+                out.append(AppearanceInsight(symbol: "checkmark.circle.fill",
+                    text: "Turned up in the most recent draw."))
+            } else if drought >= 8 {
                 out.append(AppearanceInsight(symbol: "hourglass",
-                    text: "Hasn't appeared in the last \(drought) draw\(drought == 1 ? "" : "s")."))
+                    text: "Quiet lately: no show in the last \(drought) draws, which says nothing about the next one."))
             }
         }
-        if let date = s.lastDrawDate, let num = s.lastDrawNumber {
-            out.append(AppearanceInsight(symbol: "calendar",
-                text: "Last appeared on \(date.formatted(date: .abbreviated, time: .omitted)), in Draw #\(num)."))
-        }
-        if s.longestStreak >= 2 {
+
+        // Streak: only a genuinely eye-catching run.
+        if s.longestStreak >= 3 {
             out.append(AppearanceInsight(symbol: "flame.fill",
-                text: "Once appeared in \(s.longestStreak) draws in a row."))
+                text: "Once hit \(s.longestStreak) draws in a row, the kind of run randomness throws up all the time."))
         }
+
+        // Day skew: only when it actually leans one way.
         let dayTotal = s.monCount + s.thuCount
         if dayTotal > 0 {
             let diff = abs(s.monCount - s.thuCount)
-            if Double(diff) / Double(dayTotal) > 0.12 {
+            if Double(diff) / Double(dayTotal) > 0.15 {
                 let leans = s.thuCount > s.monCount ? "Thursday" : "Monday"
                 out.append(AppearanceInsight(symbol: "calendar.badge.clock",
-                    text: "Leans \(leans): \(s.thuCount) Thursdays vs \(s.monCount) Mondays."))
-            } else {
-                out.append(AppearanceInsight(symbol: "calendar",
-                    text: "Splits evenly between Monday and Thursday draws."))
+                    text: "Leans \(leans) so far: \(s.thuCount) on Thursdays, \(s.monCount) on Mondays. Coincidence, not a pattern."))
             }
         }
+
+        // Last-seen date: only when it hasn't just appeared (otherwise redundant).
+        if let date = s.lastDrawDate, let num = s.lastDrawNumber, (s.droughtDraws ?? 1) > 0 {
+            out.append(AppearanceInsight(symbol: "calendar",
+                text: "Last seen \(date.formatted(date: .abbreviated, time: .omitted)), in Draw #\(num.formatted(.number.grouping(.never)))."))
+        }
+
         return out
     }
 

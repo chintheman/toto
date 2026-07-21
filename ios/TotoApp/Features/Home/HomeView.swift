@@ -12,7 +12,10 @@ struct HomeView: View {
                     }
                     nextDrawCard
                     if let draw = viewModel.latestDraw {
-                        latestResultCard(draw)
+                        NavigationLink(value: draw) {
+                            latestResultCard(draw)
+                        }
+                        .buttonStyle(.plain)
                         curatedFactsSection(for: draw)
                     }
                 }
@@ -20,6 +23,9 @@ struct HomeView: View {
             }
             .refreshable { await viewModel.load() }
             .navigationTitle("TOTO")
+            .navigationDestination(for: Draw.self) { draw in
+                DrawDetailView(draw: draw)
+            }
             .task { await viewModel.load() }
             .overlay {
                 if viewModel.isLoading && viewModel.latestDraw == nil {
@@ -86,7 +92,7 @@ struct HomeView: View {
                 Text(upcoming.drawDate, style: .date)
                     .font(.title2.bold())
                 if let jackpot = upcoming.estimatedJackpot {
-                    Text("Estimated jackpot: \(jackpot, format: .currency(code: "SGD"))")
+                    Text("Estimated jackpot: \(jackpot, format: .currency(code: "SGD").precision(.fractionLength(0)))")
                         .font(.subheadline)
                 } else {
                     Text("Estimated jackpot not published yet.")
@@ -110,9 +116,15 @@ struct HomeView: View {
 
     private func latestResultCard(_ draw: Draw) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Latest Result · Draw #\(draw.drawNumber)", systemImage: "checkmark.seal")
-                .font(.headline)
-                .foregroundStyle(.secondary)
+            HStack {
+                Label("Latest Result · Draw #\(draw.drawNumber, format: .number.grouping(.never))", systemImage: "checkmark.seal")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.footnote.bold())
+                    .foregroundStyle(.tertiary)
+            }
             Text(draw.drawDate, style: .date)
                 .font(.subheadline)
 
@@ -125,16 +137,23 @@ struct HomeView: View {
                 LotteryBallView(number: draw.additionalNumber, size: 40, isAdditional: true)
             }
 
-            // §2: the draw's jackpot amount is shown alongside its outcome.
-            HStack {
-                Text("Jackpot: \(draw.jackpotAmount, format: .currency(code: "SGD").precision(.fractionLength(0)))")
-                    .font(.subheadline)
-                Spacer()
-                if draw.jackpotWon {
-                    Text("Won by a player").font(.subheadline.bold()).foregroundStyle(.green)
-                } else {
-                    Text("Rolled over").font(.subheadline).foregroundStyle(.orange)
+            // §2: make it unambiguous whether the amount was won or rolled over.
+            if draw.jackpotWon {
+                Label {
+                    Text("A player won the \(draw.jackpotAmount, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot.")
+                        .font(.subheadline.bold())
+                } icon: {
+                    Image(systemName: "trophy.fill")
                 }
+                .foregroundStyle(.green)
+            } else {
+                Label {
+                    Text("No winner. The \(draw.jackpotAmount, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot rolled over to the next draw.")
+                        .font(.subheadline)
+                } icon: {
+                    Image(systemName: "arrow.uturn.forward")
+                }
+                .foregroundStyle(.orange)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

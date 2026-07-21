@@ -98,7 +98,7 @@ private struct DrawRow: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Draw #\(draw.drawNumber)").font(.subheadline.bold())
+                Text("Draw #\(draw.drawNumber, format: .number.grouping(.never))").font(.subheadline.bold())
                 Text(draw.drawDate, style: .date).font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
@@ -140,7 +140,8 @@ struct DrawDetailView: View {
                     Text("Jackpot (Group 1)")
                     Spacer()
                     if draw.jackpotWon {
-                        Text(draw.jackpotAmount, format: .currency(code: "SGD").precision(.fractionLength(0)))
+                        Text("\(draw.jackpotAmount, format: .currency(code: "SGD").precision(.fractionLength(0))) won")
+                            .foregroundStyle(.green)
                     } else {
                         Text("\(draw.jackpotAmount, format: .currency(code: "SGD").precision(.fractionLength(0))), rolled over")
                             .foregroundStyle(.orange)
@@ -162,7 +163,7 @@ struct DrawDetailView: View {
                         HStack {
                             Text(groupLabel(group.groupNumber))
                             Spacer()
-                            Text(group.prizePerWinner, format: .currency(code: "SGD"))
+                            Text(group.prizePerWinner, format: .currency(code: "SGD").precision(.fractionLength(0)))
                             Text("· \(group.winnerCount) winner\(group.winnerCount == 1 ? "" : "s")")
                                 .foregroundStyle(.secondary)
                                 .font(.caption)
@@ -176,7 +177,7 @@ struct DrawDetailView: View {
                 Link("View original source", destination: URL(string: draw.sourceUrl) ?? URL(string: "https://singaporepools.com.sg")!)
             }
         }
-        .navigationTitle("Draw #\(draw.drawNumber)")
+        .navigationTitle("Draw #\(draw.drawNumber, format: .number.grouping(.never))")
         .task { await loadPrizeGroups() }
     }
 

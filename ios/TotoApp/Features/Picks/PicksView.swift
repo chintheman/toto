@@ -116,7 +116,7 @@ enum PicksMath {
         guard let best, best.pAny > 0 else {
             return PickRecommendation(
                 title: "No play reaches that target",
-                odds: "—",
+                odds: "n/a",
                 oddsNote: "",
                 math: "At this budget, no single prize tier a bet can reach pays that much. Try a smaller target or bigger budget."
             )
