@@ -100,3 +100,39 @@ FROM number_facts;
 
 Start with a couple of numbers end-to-end, show me the before/after, and we'll
 lock the pattern before doing all 49.
+
+## Also: sweep the `fallacies` table for em-dashes
+
+Separate from `number_facts`, the same project has a **`public.fallacies`**
+table (~20 rows) whose text is shown on the app's Learn page. The app owner
+wants **all unnecessary em-dashes (—) and en-dashes (–) removed** from
+user-facing copy across the app, because they read as "too AI". The app's own
+Swift copy is already clean; the remaining dashes live in this table.
+
+Sweep these text columns and rewrite any `—`/`–` into ordinary punctuation
+(a full stop, comma, or a reworded clause, whichever reads best). Keep real
+hyphens inside compound words (e.g. `pari-mutuel`, `sunk-cost`, `high-low`).
+
+```sql
+-- Find the offenders
+SELECT slug, myth_statement, truth_label, verdict_label, explanation_body, stat_callout
+FROM fallacies
+WHERE myth_statement LIKE '%—%' OR truth_label LIKE '%—%'
+   OR verdict_label LIKE '%—%' OR explanation_body LIKE '%—%'
+   OR stat_callout   LIKE '%—%'
+   OR myth_statement LIKE '%–%' OR explanation_body LIKE '%–%';
+```
+
+Rewrite row by row with targeted `UPDATE`s. Example:
+
+```sql
+-- "...winners — never the millions of losing tickets."  becomes two sentences
+UPDATE fallacies
+SET explanation_body = replace(explanation_body,
+  'the winners — never', 'the winners, never')
+WHERE slug = 'someone-always-wins';
+```
+
+Do NOT blind-replace ` — ` everywhere; read each sentence and pick the
+punctuation that keeps the grammar clean. Match the app's tone: smart, plain,
+a little playful, no em-dashes.
