@@ -22,7 +22,7 @@ enum PickGoal: String, CaseIterable, Identifiable {
         switch self {
         case .jackpot: return "Maximise your chance at Group 1, however small"
         case .win100: return "A modest win, as often as the math allows"
-        case .win1000: return "A meaningful win — rarer, needs more matches"
+        case .win1000: return "A meaningful win. Rarer, needs more matches"
         case .double: return "Win at least 2× whatever you spend"
         }
     }
@@ -63,10 +63,10 @@ enum PicksMath {
         let totalCombinations = 13_983_816.0
         let odds = Int((totalCombinations / Double(max(budget, 1))).rounded())
         return PickRecommendation(
-            title: "\(budget.formatted())× Ordinary — all different",
+            title: "\(budget.formatted())× Ordinary, all different",
             odds: "1 in \(odds.formatted())",
             oddsNote: "chance of hitting the jackpot",
-            math: "Every $1 line has the same 1-in-13,983,816 jackpot chance, no matter the bet type. So the best jackpot strategy is simply the most distinct lines: \(budget.formatted()) different Ordinary entries. System bets don't improve this — they just package the same lines differently."
+            math: "Every $1 line has the same 1 in 13,983,816 jackpot chance, no matter the bet type. So the best jackpot strategy is simply the most distinct lines: \(budget.formatted()) different Ordinary entries. System bets don't improve this; they just package the same lines differently."
         )
     }
 
@@ -137,7 +137,7 @@ enum PicksMath {
             title: "\(best.count.formatted())× \(best.candidate.name)",
             odds: "≈ 1 in \(odds.formatted())",
             oddsNote: "chance of winning \(targetLabel) (estimate)",
-            math: "\(overlapNote)To win \(targetLabel), one of your \(best.count.formatted()) entries needs \(needLabel) among its \(best.candidate.numbersChosen) picks — roughly a 1-in-\(odds.formatted()) draw. This structure gives the best odds of any at this budget. Estimate only: the bigger prize groups are pool-shared, so exact payouts vary by draw."
+            math: "\(overlapNote)To win \(targetLabel), one of your \(best.count.formatted()) entries needs \(needLabel) among its \(best.candidate.numbersChosen) picks: roughly a 1 in \(odds.formatted()) draw. This structure gives the best odds of any at this budget. Estimate only, since the bigger prize groups are shared between winners, so exact payouts vary by draw."
         )
     }
 }

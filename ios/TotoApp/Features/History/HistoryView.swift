@@ -49,7 +49,7 @@ struct HistoryView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle")
                         .foregroundStyle(.orange)
-                    Text("Couldn't refresh — showing earlier results.")
+                    Text("Couldn't refresh. Showing earlier results.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Spacer()
@@ -134,7 +134,7 @@ struct DrawDetailView: View {
                     if draw.jackpotWon {
                         Text(draw.jackpotAmount, format: .currency(code: "SGD").precision(.fractionLength(0)))
                     } else {
-                        Text("\(draw.jackpotAmount, format: .currency(code: "SGD").precision(.fractionLength(0))) — rolled over")
+                        Text("\(draw.jackpotAmount, format: .currency(code: "SGD").precision(.fractionLength(0))), rolled over")
                             .foregroundStyle(.orange)
                     }
                 }

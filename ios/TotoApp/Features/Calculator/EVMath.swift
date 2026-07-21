@@ -48,11 +48,11 @@ enum BetType: String, CaseIterable, Identifiable {
     /// One-line description for the Calculator's "What $X can buy" rows.
     var coverageDescription: String {
         switch self {
-        case .ordinary: return "6 numbers — one line each"
-        case .system7: return "7 numbers — 7 lines of coverage"
-        case .system8: return "8 numbers — 28 lines of coverage"
-        case .system9: return "9 numbers — 84 lines of coverage"
-        case .system10: return "10 numbers — 210 lines of coverage"
+        case .ordinary: return "6 numbers, one line each"
+        case .system7: return "7 numbers, 7 lines of coverage"
+        case .system8: return "8 numbers, 28 lines of coverage"
+        case .system9: return "9 numbers, 84 lines of coverage"
+        case .system10: return "10 numbers, 210 lines of coverage"
         }
     }
 }
