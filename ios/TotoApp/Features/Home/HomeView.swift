@@ -125,7 +125,7 @@ struct HomeView: View {
                     .font(.subheadline)
                 Spacer()
                 if draw.jackpotWon {
-                    Text("Jackpot won").font(.subheadline.bold()).foregroundStyle(.green)
+                    Text("Won by a player").font(.subheadline.bold()).foregroundStyle(.green)
                 } else {
                     Text("Rolled over").font(.subheadline).foregroundStyle(.orange)
                 }

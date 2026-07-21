@@ -210,27 +210,42 @@ struct PicksView: View {
         .cardStyle()
     }
 
+    @ViewBuilder
     private var premiumTeaser: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Want picks tailored to you?").font(.subheadline.bold())
-            Text("More detailed, customised combinations are coming in a future premium version. Leave your email for 50% off at launch.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            HStack(spacing: 8) {
-                TextField("you@email.com", text: $email)
-                    .textFieldStyle(.roundedBorder)
-                    .keyboardType(.emailAddress)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                Button(emailSaved ? "✓ Saved" : "Notify me") {
-                    Task { await saveEmail() }
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(emailSaved || !email.contains("@"))
+        if emailSaved {
+            // Remembered across launches, so we never ask again.
+            VStack(alignment: .leading, spacing: 8) {
+                Label("You're on the list", systemImage: "checkmark.circle.fill")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.green)
+                Text("Thanks for signing up. We'll email you the moment the premium version launches, with your 50% off locked in.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .cardStyle()
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Want picks tailored to you?").font(.subheadline.bold())
+                Text("More detailed, customised combinations are coming in a future premium version. Leave your email for 50% off at launch.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                HStack(spacing: 8) {
+                    TextField("you@email.com", text: $email)
+                        .textFieldStyle(.roundedBorder)
+                        .keyboardType(.emailAddress)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    Button("Notify me") {
+                        Task { await saveEmail() }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!email.contains("@"))
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .cardStyle()
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .cardStyle()
     }
 
     private func saveEmail() async {
