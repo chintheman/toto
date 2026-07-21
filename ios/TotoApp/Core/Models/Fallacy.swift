@@ -21,6 +21,19 @@ struct Fallacy: Codable, Identifiable, Hashable {
     /// truth_label; older Learn-only rows fall back to their verdict.
     var truthHeadline: String { truthLabel ?? verdictLabel }
 
+    /// Code-driven display title for the myth's category, phrased as a
+    /// first-person belief to grab attention. Keyed off the stable
+    /// `category_key`, so it's independent of the DB `category` text.
+    var categoryTitle: String {
+        switch categoryKey {
+        case "randomness": return "I can spot which numbers are due"
+        case "picking":    return "I can pick smarter numbers"
+        case "money":      return "I can spend my way to better odds"
+        case "mind":       return "A fair game is a good bet"
+        default:           return category ?? "More myths"
+        }
+    }
+
     enum CodingKeys: String, CodingKey {
         case slug, title
         case mythStatement = "myth_statement"

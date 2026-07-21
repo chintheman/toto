@@ -191,7 +191,8 @@ private struct CarouselPage: View {
 }
 
 /// The truth line with a highlighter-marker behind its lower portion.
-private struct MarkerText: View {
+/// Shared with the Learn detail so both read identically.
+struct MarkerText: View {
     let text: String
     let ink: Color
 
@@ -215,7 +216,8 @@ private struct MarkerText: View {
 
 // MARK: - Vignettes (flat shapes, no image assets)
 
-private struct MythVignette: View {
+/// Shared with the Learn detail so an onboarding myth opens with its vignette.
+struct MythVignette: View {
     let index: Int
     let palette: CarouselPalette
 
@@ -299,7 +301,7 @@ private struct BirthdayVignette: View {
                         .frame(width: 24, height: 32)
                 }
             }
-            Text("1–31: everyone's birthday · 32–49: room to breathe")
+            Text("1 to 31: everyone's birthday · 32 to 49: room to breathe")
                 .font(.system(size: 11, weight: .bold))
                 .foregroundStyle(palette.ink.opacity(0.7))
         }
@@ -342,75 +344,5 @@ private struct MoreTicketsVignette: View {
                 Text("still 58¢ / $1").font(.system(size: 12, weight: .bold)).foregroundStyle(palette.ink)
             }
         }
-    }
-}
-
-/// Design response §2/§4: the dark "focus mode" myth card used in Learn.
-struct MythDetailCard: View {
-    let fallacy: Fallacy
-
-    private let cardColor = Color(hex: 0x0A0A10)
-
-    var body: some View {
-        let style = fallacy.style
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 8) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8).fill(.white.opacity(0.08))
-                    Image(systemName: style.symbol).font(.footnote).foregroundStyle(style.tint)
-                }
-                .frame(width: 30, height: 30)
-                if let category = fallacy.category {
-                    Text(category)
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(style.tint)
-                        .lineLimit(2)
-                }
-            }
-
-            Text(fallacy.mythStatement)
-                .font(.system(size: 22, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.92))
-                .padding(.top, 16)
-
-            RoundedRectangle(cornerRadius: 2)
-                .fill(CategoryStyle.truthGreen)
-                .frame(width: 44, height: 3)
-                .padding(.top, 22)
-                .padding(.bottom, 12)
-
-            Text(fallacy.truthHeadline)
-                .font(.system(size: 26, weight: .heavy))
-                .foregroundStyle(CategoryStyle.truthGreen)
-
-            Text(fallacy.explanationBody)
-                .font(.subheadline)
-                .lineSpacing(4)
-                .foregroundStyle(.white.opacity(0.62))
-                .padding(.top, 10)
-
-            if let stat = fallacy.statCallout {
-                HStack(spacing: 6) {
-                    Text("◆").foregroundStyle(style.tint)
-                    Text(stat).foregroundStyle(.white.opacity(0.75))
-                }
-                .font(.caption.monospaced())
-                .padding(.horizontal, 13)
-                .padding(.vertical, 9)
-                .background(.white.opacity(0.06), in: Capsule())
-                .overlay(Capsule().stroke(.white.opacity(0.1)))
-                .padding(.top, 18)
-            }
-        }
-        .padding(.horizontal, 22)
-        .padding(.vertical, 26)
-        .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 20).fill(cardColor)
-                RadialGradient(colors: [style.tint.opacity(0.35), .clear],
-                               center: UnitPoint(x: 0.5, y: -0.1), startRadius: 0, endRadius: 320)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-            }
-        )
     }
 }
