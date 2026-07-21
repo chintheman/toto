@@ -67,4 +67,24 @@ struct DrawsRepository {
             .execute()
             .value
     }
+
+    /// Every draw a number has appeared in (no limit), for computing stats.
+    func allAppearances(ofNumber number: Int) async throws -> [Draw] {
+        try await client
+            .from("draws")
+            .select()
+            .or("winning_numbers.cs.{\(number)},additional_number.eq.\(number)")
+            .order("draw_number", ascending: false)
+            .execute()
+            .value
+    }
+
+    /// Total number of draws on record (head request, count only).
+    func totalDrawCount() async throws -> Int {
+        let response = try await client
+            .from("draws")
+            .select("*", head: true, count: .exact)
+            .execute()
+        return response.count ?? 0
+    }
 }
