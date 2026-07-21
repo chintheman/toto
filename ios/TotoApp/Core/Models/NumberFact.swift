@@ -7,6 +7,7 @@ struct NumberFact: Codable, Identifiable, Equatable {
     let body: String
     let category: Category
     let priority: Int
+    let source: String?
 
     enum Category: String, Codable, CaseIterable {
         case math, culture, superstition
@@ -17,6 +18,6 @@ struct NumberFact: Codable, Identifiable, Equatable {
     enum CodingKeys: String, CodingKey {
         case id
         case numberValue = "number_value"
-        case headline, body, category, priority
+        case headline, body, category, priority, source
     }
 }

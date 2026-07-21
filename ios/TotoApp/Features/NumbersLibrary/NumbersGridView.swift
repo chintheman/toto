@@ -71,6 +71,12 @@ struct NumberDetailView: View {
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
+                        if let source = fact.source, !source.isEmpty {
+                            Label(source, systemImage: "checkmark.seal")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .padding(.top, 4)
+                        }
                         Text("A different fact shows each visit")
                             .font(.caption2)
                             .foregroundStyle(.tertiary)

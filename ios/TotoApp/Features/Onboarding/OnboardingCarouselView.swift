@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// Design-changes §6: full-screen first-launch carousel. Dark gradient,
-/// segmented progress bar (not dots), myth → verdict → why structure,
-/// quiet Skip. Skippable — the same content stays available in Learn.
+/// Design response §1: light, loud, Wrapped-style onboarding. One saturated
+/// background per page, dark ink type, a flat-shape vignette that proves each
+/// myth, a marker-highlighted truth line, and a full-width CTA. Skippable;
+/// the same myths live on in the Learn tab.
 struct OnboardingCarouselView: View {
     let onFinished: () -> Void
 
@@ -18,73 +19,89 @@ struct OnboardingCarouselView: View {
         self.onFinished = onFinished
     }
 
-    static let backgroundGradient = LinearGradient(
-        colors: [Color(red: 0.043, green: 0.043, blue: 0.071), Color(red: 0.169, green: 0.165, blue: 0.333)],
-        startPoint: .top,
-        endPoint: .bottom
-    )
+    private var palette: CarouselPalette { CarouselPalette.page(currentPage) }
 
     var body: some View {
         ZStack {
-            Self.backgroundGradient
+            palette.bg
                 .ignoresSafeArea()
+                .animation(.easeInOut(duration: 0.45), value: currentPage)
+
+            softCircles
 
             if isLoading {
-                ProgressView()
-                    .tint(.white)
+                ProgressView().tint(palette.ink)
             } else if let loadError {
-                onboardingLoadFailure(loadError)
+                loadFailure(loadError)
             } else {
-                VStack(spacing: 0) {
-                    progressBar
-                    header
-                    TabView(selection: $currentPage) {
-                        ForEach(Array(fallacies.enumerated()), id: \.element.id) { index, fallacy in
-                            FallacyPageView(fallacy: fallacy)
-                                .tag(index)
-                        }
-                    }
-                    .tabViewStyle(.page(indexDisplayMode: .never))
-                    footer
-                }
+                content
             }
         }
         .task { await load() }
+    }
+
+    private var softCircles: some View {
+        ZStack {
+            Circle().fill(.white.opacity(0.3)).frame(width: 460, height: 460).offset(x: -180, y: -320)
+            Circle().fill(.white.opacity(0.3)).frame(width: 340, height: 340).offset(x: 190, y: 80)
+        }
+        .ignoresSafeArea()
+        .animation(.easeInOut(duration: 0.45), value: currentPage)
+    }
+
+    private var content: some View {
+        VStack(spacing: 0) {
+            progressBar
+            header
+            TabView(selection: $currentPage) {
+                ForEach(Array(fallacies.enumerated()), id: \.element.id) { index, fallacy in
+                    CarouselPage(fallacy: fallacy, index: index, palette: CarouselPalette.page(index))
+                        .tag(index)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            footer
+        }
     }
 
     private var progressBar: some View {
         HStack(spacing: 5) {
             ForEach(fallacies.indices, id: \.self) { index in
                 Capsule()
-                    .fill(index <= currentPage ? Color.white : Color.white.opacity(0.2))
-                    .frame(height: 3)
+                    .fill(index <= currentPage ? palette.ink : .black.opacity(0.15))
+                    .frame(height: 4)
             }
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 24)
         .padding(.top, 14)
         .animation(.easeInOut(duration: 0.3), value: currentPage)
     }
 
     private var header: some View {
         HStack {
-            Text("MYTH \(currentPage + 1) OF \(fallacies.count)")
-                .font(.caption.weight(.semibold))
-                .tracking(1)
-                .foregroundStyle(.white.opacity(0.45))
+            Text("MYTH \(currentPage + 1) / \(fallacies.count)")
+                .font(.caption.weight(.heavy))
+                .tracking(1.5)
+                .foregroundStyle(palette.bg)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(palette.ink, in: Capsule())
+                .fixedSize()
             Spacer()
             Button("Skip") { onFinished() }
-                .font(.footnote)
-                .foregroundStyle(.white.opacity(0.45))
+                .font(.subheadline)
+                .foregroundStyle(palette.ink.opacity(0.55))
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 10)
+        .padding(.horizontal, 24)
+        .padding(.top, 14)
+        .animation(.easeInOut(duration: 0.3), value: currentPage)
     }
 
     private var footer: some View {
         VStack(spacing: 10) {
             Button {
                 if currentPage < fallacies.count - 1 {
-                    withAnimation { currentPage += 1 }
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { currentPage += 1 }
                 } else {
                     onFinished()
                 }
@@ -92,31 +109,25 @@ struct OnboardingCarouselView: View {
                 Text(currentPage == fallacies.count - 1 ? "Done" : "Next myth")
                     .font(.body.weight(.semibold))
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 15)
-                    .background(.white, in: RoundedRectangle(cornerRadius: 14))
-                    .foregroundStyle(Color(red: 0.043, green: 0.043, blue: 0.071))
+                    .padding(.vertical, 16)
+                    .background(palette.ink, in: RoundedRectangle(cornerRadius: 16))
+                    .foregroundStyle(palette.bg)
             }
             Text("Review these anytime in the Learn tab")
                 .font(.caption2)
-                .foregroundStyle(.white.opacity(0.35))
+                .foregroundStyle(palette.ink.opacity(0.45))
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 24)
         .padding(.bottom, 28)
+        .animation(.easeInOut(duration: 0.3), value: currentPage)
     }
 
-    private func onboardingLoadFailure(_ message: String) -> some View {
+    private func loadFailure(_ message: String) -> some View {
         VStack(spacing: 16) {
-            Text("Couldn't load")
-                .font(.headline)
-                .foregroundStyle(.white)
-            Text(message)
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.7))
-            Button("Retry") { Task { await load() } }
-                .buttonStyle(.bordered)
-                .tint(.white)
-            Button("Continue anyway") { onFinished() }
-                .buttonStyle(.borderedProminent)
+            Text("Couldn't load").font(.headline).foregroundStyle(palette.ink)
+            Text(message).font(.caption).foregroundStyle(palette.ink.opacity(0.7)).multilineTextAlignment(.center)
+            Button("Retry") { Task { await load() } }.buttonStyle(.bordered).tint(palette.ink)
+            Button("Continue anyway") { onFinished() }.buttonStyle(.borderedProminent).tint(palette.ink)
         }
         .padding()
     }
@@ -126,9 +137,7 @@ struct OnboardingCarouselView: View {
         loadError = nil
         do {
             fallacies = try await repository.onboardingFallacies()
-            if fallacies.isEmpty {
-                loadError = "No content available yet."
-            }
+            if fallacies.isEmpty { loadError = "No content available yet." }
         } catch {
             loadError = error.localizedDescription
         }
@@ -136,79 +145,265 @@ struct OnboardingCarouselView: View {
     }
 }
 
-/// One myth page: tinted emoji circle + THE MYTH chip → myth quote (no
-/// strikethrough) → THE TRUTH divider → green truth headline (the
-/// takeaway) → body → mono stat chip. Shared with Learn's detail view.
-struct FallacyPageView: View {
+/// One carousel page: vignette, myth, marker-highlighted truth, body, stat.
+private struct CarouselPage: View {
     let fallacy: Fallacy
-
-    private static let tints: [Color] = [
-        Color(red: 1.0, green: 0.54, blue: 0.4).opacity(0.18),
-        Color(red: 0.5, green: 0.83, blue: 0.98).opacity(0.16),
-        Color(red: 0.96, green: 0.56, blue: 0.69).opacity(0.16),
-        Color(red: 0.7, green: 0.62, blue: 0.86).opacity(0.18),
-        Color(red: 1.0, green: 0.84, blue: 0.31).opacity(0.16),
-    ]
+    let index: Int
+    let palette: CarouselPalette
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Spacer()
+        VStack(spacing: 18) {
+            Spacer(minLength: 8)
 
+            MythVignette(index: index, palette: palette)
+                .frame(height: 150)
+
+            Text(fallacy.mythStatement)
+                .font(.system(size: 24, weight: .bold))
+                .foregroundStyle(palette.ink)
+                .multilineTextAlignment(.center)
+
+            MarkerText(text: fallacy.truthHeadline, ink: palette.ink)
+
+            Text(fallacy.explanationBody)
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(palette.ink.opacity(0.75))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 300)
+
+            if let stat = fallacy.statCallout {
+                Text(stat)
+                    .font(.system(size: 13, weight: .bold, design: .monospaced))
+                    .foregroundStyle(palette.ink)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(.white.opacity(0.55), in: Capsule())
+                    .overlay(Capsule().stroke(palette.ink, lineWidth: 2))
+            }
+
+            Spacer(minLength: 8)
+        }
+        .padding(.horizontal, 28)
+    }
+}
+
+/// The truth line with a highlighter-marker behind its lower portion.
+private struct MarkerText: View {
+    let text: String
+    let ink: Color
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: 34, weight: .black))
+            .foregroundStyle(ink)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 6)
+            .background(
+                GeometryReader { geo in
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(.white)
+                        .frame(height: geo.size.height * 0.42)
+                        .frame(maxHeight: .infinity, alignment: .bottom)
+                }
+            )
+    }
+}
+
+// MARK: - Vignettes (flat shapes, no image assets)
+
+private struct MythVignette: View {
+    let index: Int
+    let palette: CarouselPalette
+
+    var body: some View {
+        switch index {
+        case 0: HotNumberVignette(palette: palette)
+        case 1: OverdueVignette(palette: palette)
+        case 2: BirthdayVignette(palette: palette)
+        case 3: PatternVignette(palette: palette)
+        default: MoreTicketsVignette(palette: palette)
+        }
+    }
+}
+
+private func inkBall(_ label: String, palette: CarouselPalette, size: CGFloat = 40) -> some View {
+    ZStack {
+        Circle().fill(palette.ink)
+        Text(label).font(.system(size: size * 0.4, weight: .bold)).foregroundStyle(palette.bg)
+    }
+    .frame(width: size, height: size)
+}
+
+private func openBall(_ label: String, palette: CarouselPalette, size: CGFloat = 40) -> some View {
+    ZStack {
+        Circle().fill(.white)
+        Circle().stroke(palette.ink, lineWidth: 2)
+        Text(label).font(.system(size: size * 0.4, weight: .bold)).foregroundStyle(palette.ink)
+    }
+    .frame(width: size, height: size)
+}
+
+private func equalsSign(_ palette: CarouselPalette) -> some View {
+    Text("=").font(.system(size: 28, weight: .heavy)).foregroundStyle(palette.ink.opacity(0.6))
+}
+
+private struct HotNumberVignette: View {
+    let palette: CarouselPalette
+    var body: some View {
+        HStack(spacing: 8) {
+            inkBall("8", palette: palette)
+            inkBall("8", palette: palette)
+            inkBall("8", palette: palette)
+            equalsSign(palette)
+            ZStack {
+                Circle().stroke(style: StrokeStyle(lineWidth: 2, dash: [5, 4])).foregroundStyle(palette.ink)
+                Text("?").font(.system(size: 18, weight: .bold)).foregroundStyle(palette.ink)
+            }
+            .frame(width: 40, height: 40)
+        }
+    }
+}
+
+private struct OverdueVignette: View {
+    let palette: CarouselPalette
+    private let columns = Array(repeating: GridItem(.fixed(16), spacing: 8), count: 8)
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: 8) {
+            ForEach(0..<24, id: \.self) { i in
+                if i == 12 {
+                    Circle().stroke(style: StrokeStyle(lineWidth: 1.5, dash: [3, 2])).foregroundStyle(palette.ink)
+                        .frame(width: 16, height: 16)
+                } else {
+                    Circle().fill(palette.ink).frame(width: 16, height: 16)
+                }
+            }
+        }
+        .frame(width: 8 * 16 + 7 * 8)
+    }
+}
+
+private struct BirthdayVignette: View {
+    let palette: CarouselPalette
+    var body: some View {
+        VStack(spacing: 10) {
+            ZStack {
+                ForEach(0..<9, id: \.self) { i in
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(palette.bg)
+                        .overlay(RoundedRectangle(cornerRadius: 4).stroke(palette.ink, lineWidth: 1.5))
+                        .frame(width: 26, height: 56)
+                        .rotationEffect(.degrees(Double(i - 4) * 8))
+                        .offset(x: Double(i - 4) * 8)
+                }
+            }
+            .frame(height: 80)
+            Text("1–31: everyone's birthday · 32–49: room to breathe")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(palette.ink.opacity(0.7))
+        }
+    }
+}
+
+private struct PatternVignette: View {
+    let palette: CarouselPalette
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 5) {
+                ForEach([1, 2, 3, 4, 5, 6], id: \.self) { inkBall("\($0)", palette: palette, size: 30) }
+            }
+            equalsSign(palette)
+            HStack(spacing: 5) {
+                ForEach([7, 19, 23, 31, 40, 44], id: \.self) { openBall("\($0)", palette: palette, size: 30) }
+            }
+        }
+    }
+}
+
+private struct MoreTicketsVignette: View {
+    let palette: CarouselPalette
+    private func ticket(_ label: String, width: CGFloat) -> some View {
+        RoundedRectangle(cornerRadius: 5)
+            .fill(palette.bg)
+            .overlay(RoundedRectangle(cornerRadius: 5).stroke(palette.ink, lineWidth: 1.5))
+            .overlay(Text(label).font(.system(size: 10, weight: .bold)).foregroundStyle(palette.ink).padding(4))
+            .frame(width: width, height: 62)
+    }
+    var body: some View {
+        HStack(spacing: 12) {
+            ticket("58¢ / $1", width: 52)
+            equalsSign(palette)
+            ZStack {
+                ForEach(0..<5, id: \.self) { i in
+                    ticket("still 58¢", width: 46)
+                        .rotationEffect(.degrees(Double(i - 2) * 9))
+                        .offset(x: Double(i - 2) * 9)
+                }
+            }
+            .frame(width: 100)
+        }
+    }
+}
+
+/// Design response §2/§4: the dark "focus mode" myth card used in Learn.
+struct MythDetailCard: View {
+    let fallacy: Fallacy
+
+    private let cardColor = Color(hex: 0x0A0A10)
+
+    var body: some View {
+        let style = fallacy.style
+        VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
                 ZStack {
-                    Circle().fill(Self.tints[abs(fallacy.displayOrder) % Self.tints.count])
-                    Text(fallacy.emoji ?? "🎲").font(.system(size: 26))
+                    RoundedRectangle(cornerRadius: 13).fill(style.tint)
+                    Image(systemName: style.symbol).font(.title3).foregroundStyle(.white)
                 }
-                .frame(width: 52, height: 52)
-
+                .frame(width: 48, height: 48)
                 Text("THE MYTH")
                     .font(.caption2.weight(.bold))
                     .tracking(1.5)
-                    .foregroundStyle(Color(red: 1.0, green: 0.54, blue: 0.5))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 5)
-                    .background(Color(red: 1.0, green: 0.32, blue: 0.32).opacity(0.14), in: Capsule())
+                    .foregroundStyle(.white.opacity(0.5))
             }
 
             Text(fallacy.mythStatement)
-                .font(.system(size: 24, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.9))
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.92))
                 .padding(.top, 16)
 
-            HStack(spacing: 10) {
-                Rectangle().fill(.white.opacity(0.15)).frame(height: 1)
-                Text("THE TRUTH")
-                    .font(.caption2.weight(.bold))
-                    .tracking(1.5)
-                    .foregroundStyle(Color(red: 0.29, green: 0.87, blue: 0.5))
-                    .fixedSize()
-                Rectangle().fill(.white.opacity(0.15)).frame(height: 1)
-            }
-            .padding(.vertical, 24)
+            RoundedRectangle(cornerRadius: 2)
+                .fill(CategoryStyle.truthGreen)
+                .frame(width: 44, height: 3)
+                .padding(.vertical, 18)
 
             Text(fallacy.truthHeadline)
-                .font(.system(size: 21, weight: .heavy))
-                .foregroundStyle(Color(red: 0.29, green: 0.87, blue: 0.5))
+                .font(.system(size: 26, weight: .heavy))
+                .foregroundStyle(CategoryStyle.truthGreen)
 
             Text(fallacy.explanationBody)
                 .font(.subheadline)
                 .lineSpacing(4)
-                .foregroundStyle(.white.opacity(0.75))
+                .foregroundStyle(.white.opacity(0.62))
                 .padding(.top, 10)
 
             if let stat = fallacy.statCallout {
-                Text(stat)
-                    .font(.caption.monospaced())
-                    .foregroundStyle(.white.opacity(0.7))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 9)
-                    .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 10))
-                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(.white.opacity(0.12)))
-                    .padding(.top, 18)
+                HStack(spacing: 6) {
+                    Text("◆").foregroundStyle(style.tint)
+                    Text(stat).foregroundStyle(.white.opacity(0.75))
+                }
+                .font(.caption.monospaced())
+                .padding(.horizontal, 12)
+                .padding(.vertical, 9)
+                .background(.white.opacity(0.06), in: Capsule())
+                .padding(.top, 18)
             }
-
-            Spacer()
         }
-        .padding(.horizontal, 28)
+        .padding(22)
+        .background(
+            ZStack {
+                RoundedRectangle(cornerRadius: 20).fill(cardColor)
+                RadialGradient(colors: [style.tint.opacity(0.35), .clear], center: .topLeading, startRadius: 0, endRadius: 260)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+            }
+        )
     }
 }

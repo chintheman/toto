@@ -54,3 +54,53 @@ extension View {
         modifier(CardBackground())
     }
 }
+
+extension Color {
+    init(hex: UInt) {
+        self.init(
+            .sRGB,
+            red: Double((hex >> 16) & 0xFF) / 255,
+            green: Double((hex >> 8) & 0xFF) / 255,
+            blue: Double(hex & 0xFF) / 255,
+            opacity: 1
+        )
+    }
+}
+
+/// SF Symbol + tint per myth category (design response §3, replaces emoji).
+/// The truth green is a single shade across all categories.
+struct CategoryStyle {
+    let symbol: String
+    let tint: Color
+
+    static let truthGreen = Color(hex: 0x34D178)
+
+    static func forKey(_ key: String?) -> CategoryStyle {
+        switch key {
+        case "randomness": return CategoryStyle(symbol: "die.face.5.fill", tint: Color(hex: 0x8B7CF6))
+        case "picking":    return CategoryStyle(symbol: "number.square.fill", tint: Color(hex: 0x2FBDB3))
+        case "money":      return CategoryStyle(symbol: "banknote.fill", tint: Color(hex: 0xE6A23C))
+        case "mind":       return CategoryStyle(symbol: "brain.head.profile", tint: Color(hex: 0xEF7FA4))
+        default:           return CategoryStyle(symbol: "sparkles", tint: Color(hex: 0x8B7CF6))
+        }
+    }
+}
+
+/// Per-page onboarding palette (design response §1). Saturated light
+/// background + dark ink, in myth order. Deliberately not the category tints.
+struct CarouselPalette {
+    let bg: Color
+    let ink: Color
+
+    static let pages: [CarouselPalette] = [
+        CarouselPalette(bg: Color(hex: 0xFFD84D), ink: Color(hex: 0x231A00)),
+        CarouselPalette(bg: Color(hex: 0xA8DCFF), ink: Color(hex: 0x07304E)),
+        CarouselPalette(bg: Color(hex: 0xFFC9D9), ink: Color(hex: 0x571130)),
+        CarouselPalette(bg: Color(hex: 0xD4C6FF), ink: Color(hex: 0x2A1A62)),
+        CarouselPalette(bg: Color(hex: 0xB9ECC4), ink: Color(hex: 0x0B3F22)),
+    ]
+
+    static func page(_ index: Int) -> CarouselPalette {
+        pages[((index % pages.count) + pages.count) % pages.count]
+    }
+}

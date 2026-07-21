@@ -11,8 +11,11 @@ struct Fallacy: Codable, Identifiable, Hashable {
     let statCallout: String?
     let emoji: String?
     let category: String?
+    let categoryKey: String?
     let displayOrder: Int
     let inOnboardingCarousel: Bool
+
+    var style: CategoryStyle { CategoryStyle.forKey(categoryKey) }
 
     /// The green "THE TRUTH" headline. Carousel rows carry a dedicated
     /// truth_label; older Learn-only rows fall back to their verdict.
@@ -27,6 +30,7 @@ struct Fallacy: Codable, Identifiable, Hashable {
         case statCallout = "stat_callout"
         case emoji
         case category
+        case categoryKey = "category_key"
         case displayOrder = "display_order"
         case inOnboardingCarousel = "in_onboarding_carousel"
     }
