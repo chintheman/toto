@@ -78,7 +78,12 @@ struct LearnView: View {
 
     /// Section order for the grouped list. Any category not listed here is
     /// appended alphabetically after these.
-    private let categoryOrder = ["Randomness & memory", "Picking numbers", "Money & value", "Mind & fairness"]
+    private let categoryOrder = [
+        "You think numbers run hot, cold, or overdue",
+        "You think the way you pick changes your odds",
+        "You think there's a smarter way to spend",
+        "You think a fair game is a good bet",
+    ]
 
     private var groupedFallacies: [FallacyGroup] {
         let groups = Dictionary(grouping: fallacies) { $0.category ?? "More myths" }
