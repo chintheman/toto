@@ -42,9 +42,12 @@ struct OnboardingCarouselView: View {
 
     private var softCircles: some View {
         ZStack {
-            Circle().fill(.white.opacity(0.3)).frame(width: 460, height: 460).offset(x: -180, y: -320)
-            Circle().fill(.white.opacity(0.3)).frame(width: 340, height: 340).offset(x: 190, y: 80)
+            Circle().fill(.white.opacity(0.3)).frame(width: 230, height: 230)
+                .offset(x: -150, y: -360)
+            Circle().fill(.white.opacity(0.3)).frame(width: 170, height: 170)
+                .offset(x: 160, y: 230)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
         .animation(.easeInOut(duration: 0.45), value: currentPage)
     }
@@ -200,9 +203,10 @@ private struct MarkerText: View {
             .padding(.horizontal, 6)
             .background(
                 GeometryReader { geo in
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(.white)
-                        .frame(height: geo.size.height * 0.42)
+                    // Highlighter stripe: white at 85% over the bottom 38%.
+                    Rectangle()
+                        .fill(.white.opacity(0.85))
+                        .frame(height: geo.size.height * 0.38)
                         .frame(maxHeight: .infinity, alignment: .bottom)
                 }
             )
@@ -256,7 +260,8 @@ private struct HotNumberVignette: View {
             inkBall("8", palette: palette)
             equalsSign(palette)
             ZStack {
-                Circle().stroke(style: StrokeStyle(lineWidth: 2, dash: [5, 4])).foregroundStyle(palette.ink)
+                Circle().fill(.white.opacity(0.7))
+                Circle().stroke(style: StrokeStyle(lineWidth: 3, dash: [5, 4])).foregroundStyle(palette.ink)
                 Text("?").font(.system(size: 18, weight: .bold)).foregroundStyle(palette.ink)
             }
             .frame(width: 40, height: 40)
@@ -286,19 +291,16 @@ private struct BirthdayVignette: View {
     let palette: CarouselPalette
     var body: some View {
         VStack(spacing: 10) {
-            ZStack {
-                ForEach(0..<9, id: \.self) { i in
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(palette.bg)
-                        .overlay(RoundedRectangle(cornerRadius: 4).stroke(palette.ink, lineWidth: 1.5))
-                        .frame(width: 26, height: 56)
-                        .rotationEffect(.degrees(Double(i - 4) * 8))
-                        .offset(x: Double(i - 4) * 8)
+            HStack(spacing: -14) {
+                ForEach(0..<9, id: \.self) { _ in
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(palette.ink.opacity(0.85))
+                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(palette.bg, lineWidth: 2))
+                        .frame(width: 24, height: 32)
                 }
             }
-            .frame(height: 80)
             Text("1–31: everyone's birthday · 32–49: room to breathe")
-                .font(.system(size: 10, weight: .medium))
+                .font(.system(size: 11, weight: .bold))
                 .foregroundStyle(palette.ink.opacity(0.7))
         }
     }
@@ -321,25 +323,24 @@ private struct PatternVignette: View {
 
 private struct MoreTicketsVignette: View {
     let palette: CarouselPalette
-    private func ticket(_ label: String, width: CGFloat) -> some View {
-        RoundedRectangle(cornerRadius: 5)
-            .fill(palette.bg)
-            .overlay(RoundedRectangle(cornerRadius: 5).stroke(palette.ink, lineWidth: 1.5))
-            .overlay(Text(label).font(.system(size: 10, weight: .bold)).foregroundStyle(palette.ink).padding(4))
-            .frame(width: width, height: 62)
-    }
     var body: some View {
-        HStack(spacing: 12) {
-            ticket("58¢ / $1", width: 52)
-            equalsSign(palette)
-            ZStack {
-                ForEach(0..<5, id: \.self) { i in
-                    ticket("still 58¢", width: 46)
-                        .rotationEffect(.degrees(Double(i - 2) * 9))
-                        .offset(x: Double(i - 2) * 9)
-                }
+        HStack(alignment: .bottom, spacing: 14) {
+            VStack(spacing: 6) {
+                RoundedRectangle(cornerRadius: 8).fill(palette.ink).frame(width: 44, height: 58)
+                Text("58¢ / $1").font(.system(size: 12, weight: .bold)).foregroundStyle(palette.ink)
             }
-            .frame(width: 100)
+            Text("=").font(.system(size: 22, weight: .heavy)).foregroundStyle(palette.ink).padding(.bottom, 22)
+            VStack(spacing: 6) {
+                HStack(spacing: -26) {
+                    ForEach(0..<5, id: \.self) { _ in
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(palette.ink.opacity(0.85))
+                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(palette.bg, lineWidth: 2))
+                            .frame(width: 44, height: 58)
+                    }
+                }
+                Text("still 58¢ / $1").font(.system(size: 12, weight: .bold)).foregroundStyle(palette.ink)
+            }
         }
     }
 }
@@ -353,16 +354,18 @@ struct MythDetailCard: View {
     var body: some View {
         let style = fallacy.style
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 12) {
+            HStack(spacing: 8) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 13).fill(style.tint)
-                    Image(systemName: style.symbol).font(.title3).foregroundStyle(.white)
+                    RoundedRectangle(cornerRadius: 8).fill(.white.opacity(0.08))
+                    Image(systemName: style.symbol).font(.footnote).foregroundStyle(style.tint)
                 }
-                .frame(width: 48, height: 48)
-                Text("THE MYTH")
-                    .font(.caption2.weight(.bold))
-                    .tracking(1.5)
-                    .foregroundStyle(.white.opacity(0.5))
+                .frame(width: 30, height: 30)
+                if let category = fallacy.category {
+                    Text(category)
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(style.tint)
+                        .lineLimit(2)
+                }
             }
 
             Text(fallacy.mythStatement)
@@ -373,7 +376,8 @@ struct MythDetailCard: View {
             RoundedRectangle(cornerRadius: 2)
                 .fill(CategoryStyle.truthGreen)
                 .frame(width: 44, height: 3)
-                .padding(.vertical, 18)
+                .padding(.top, 22)
+                .padding(.bottom, 12)
 
             Text(fallacy.truthHeadline)
                 .font(.system(size: 26, weight: .heavy))
@@ -391,17 +395,20 @@ struct MythDetailCard: View {
                     Text(stat).foregroundStyle(.white.opacity(0.75))
                 }
                 .font(.caption.monospaced())
-                .padding(.horizontal, 12)
+                .padding(.horizontal, 13)
                 .padding(.vertical, 9)
                 .background(.white.opacity(0.06), in: Capsule())
+                .overlay(Capsule().stroke(.white.opacity(0.1)))
                 .padding(.top, 18)
             }
         }
-        .padding(22)
+        .padding(.horizontal, 22)
+        .padding(.vertical, 26)
         .background(
             ZStack {
                 RoundedRectangle(cornerRadius: 20).fill(cardColor)
-                RadialGradient(colors: [style.tint.opacity(0.35), .clear], center: .topLeading, startRadius: 0, endRadius: 260)
+                RadialGradient(colors: [style.tint.opacity(0.35), .clear],
+                               center: UnitPoint(x: 0.5, y: -0.1), startRadius: 0, endRadius: 320)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
             }
         )
