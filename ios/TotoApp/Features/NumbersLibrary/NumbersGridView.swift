@@ -41,11 +41,11 @@ struct NumberDetailView: View {
     let number: Int
 
     @State private var fact: NumberFact?
-    @State private var recentDraws: [Draw] = []
+    @State private var stats: NumberStats?
     @State private var isLoading = true
     @State private var loadFailed = false
-    @State private var recentDrawsFailed = false
-    /// Recorded once per screen visit — retries reuse the same rotation
+    @State private var statsFailed = false
+    /// Recorded once per screen visit, so retries reuse the same rotation
     /// index instead of skipping facts.
     @State private var visitCount: Int?
 
@@ -92,23 +92,25 @@ struct NumberDetailView: View {
                 .listRowBackground(Color.clear)
             }
 
-            if !recentDraws.isEmpty || recentDrawsFailed {
-                Section("Recent Appearances") {
-                    if recentDrawsFailed {
-                        HStack {
-                            Text("Couldn't load recent appearances").foregroundStyle(.secondary)
-                            Spacer()
-                            Button("Retry") { Task { await load() } }
+            if let stats {
+                Section("How \(number) Behaves") {
+                    ForEach(appearanceInsights(stats)) { insight in
+                        Label {
+                            Text(insight.text)
+                        } icon: {
+                            Image(systemName: insight.symbol).foregroundStyle(Theme.ballColor(for: number))
                         }
                         .font(.subheadline)
                     }
-                    ForEach(recentDraws) { draw in
-                        HStack {
-                            Text("Draw #\(draw.drawNumber)")
-                            Spacer()
-                            Text(draw.drawDate, style: .date).font(.caption).foregroundStyle(.secondary)
-                        }
+                }
+            } else if statsFailed {
+                Section {
+                    HStack {
+                        Text("Couldn't load appearance stats").foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Retry") { Task { await load() } }
                     }
+                    .font(.subheadline)
                 }
             }
         }
@@ -119,19 +121,53 @@ struct NumberDetailView: View {
         .task { await load() }
     }
 
+    private func appearanceInsights(_ s: NumberStats) -> [AppearanceInsight] {
+        var out: [AppearanceInsight] = []
+
+        let avg = Double(s.totalDraws) * 6.0 / 49.0
+        let qualifier: String
+        if Double(s.appearances) > avg * 1.08 { qualifier = "more often than average" }
+        else if Double(s.appearances) < avg * 0.92 { qualifier = "less often than average" }
+        else { qualifier = "right around average" }
+        out.append(AppearanceInsight(symbol: "chart.bar.fill",
+            text: "Appeared \(s.appearances) times in \(s.totalDraws.formatted()) draws, \(qualifier)."))
+
+        if let drought = s.droughtDraws {
+            if drought == 0 {
+                out.append(AppearanceInsight(symbol: "checkmark.circle.fill", text: "Appeared in the most recent draw."))
+            } else {
+                out.append(AppearanceInsight(symbol: "hourglass",
+                    text: "Hasn't appeared in the last \(drought) draw\(drought == 1 ? "" : "s")."))
+            }
+        }
+        if let date = s.lastDrawDate, let num = s.lastDrawNumber {
+            out.append(AppearanceInsight(symbol: "calendar",
+                text: "Last appeared on \(date.formatted(date: .abbreviated, time: .omitted)), in Draw #\(num)."))
+        }
+        if s.longestStreak >= 2 {
+            out.append(AppearanceInsight(symbol: "flame.fill",
+                text: "Once appeared in \(s.longestStreak) draws in a row."))
+        }
+        let dayTotal = s.monCount + s.thuCount
+        if dayTotal > 0 {
+            let diff = abs(s.monCount - s.thuCount)
+            if Double(diff) / Double(dayTotal) > 0.12 {
+                let leans = s.thuCount > s.monCount ? "Thursday" : "Monday"
+                out.append(AppearanceInsight(symbol: "calendar.badge.clock",
+                    text: "Leans \(leans): \(s.thuCount) Thursdays vs \(s.monCount) Mondays."))
+            } else {
+                out.append(AppearanceInsight(symbol: "calendar",
+                    text: "Splits evenly between Monday and Thursday draws."))
+            }
+        }
+        return out
+    }
+
     private func load() async {
         isLoading = true
         loadFailed = false
         do {
-            async let loadedFacts = factsRepository.allFacts(forNumber: number)
-            async let loadedDraws = drawsRepository.draws(containingNumber: number)
-            let facts = try await loadedFacts
-            do {
-                recentDraws = try await loadedDraws
-                recentDrawsFailed = false
-            } catch {
-                recentDrawsFailed = true
-            }
+            let facts = try await factsRepository.allFacts(forNumber: number)
             if facts.isEmpty {
                 fact = nil
             } else {
@@ -142,6 +178,76 @@ struct NumberDetailView: View {
         } catch {
             loadFailed = true
         }
+
+        // Appearance stats load independently, with their own failure state.
+        do {
+            async let appearances = drawsRepository.allAppearances(ofNumber: number)
+            async let total = drawsRepository.totalDrawCount()
+            async let latest = drawsRepository.latestDraw()
+            stats = NumberStats.build(
+                appearances: try await appearances,
+                total: try await total,
+                latest: (try await latest)?.drawNumber ?? 0
+            )
+            statsFailed = false
+        } catch {
+            statsFailed = true
+        }
         isLoading = false
+    }
+}
+
+struct AppearanceInsight: Identifiable {
+    let symbol: String
+    let text: String
+    var id: String { text }
+}
+
+/// Appearance statistics for a single number, computed from its draw history.
+struct NumberStats {
+    let appearances: Int
+    let totalDraws: Int
+    let lastDrawNumber: Int?
+    let lastDrawDate: Date?
+    let droughtDraws: Int?
+    let longestStreak: Int
+    let monCount: Int
+    let thuCount: Int
+
+    static func build(appearances draws: [Draw], total: Int, latest: Int) -> NumberStats {
+        let last = draws.max(by: { $0.drawNumber < $1.drawNumber })
+
+        // Longest run of consecutive draw numbers (draw numbers are sequential).
+        let ascending = draws.map(\.drawNumber).sorted()
+        var longest = ascending.isEmpty ? 0 : 1
+        var run = longest
+        if ascending.count > 1 {
+            for i in 1..<ascending.count {
+                run = ascending[i] == ascending[i - 1] + 1 ? run + 1 : 1
+                longest = max(longest, run)
+            }
+        }
+
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Singapore") ?? .current
+        var mon = 0, thu = 0
+        for draw in draws {
+            switch calendar.component(.weekday, from: draw.drawDate) {
+            case 2: mon += 1
+            case 5: thu += 1
+            default: break
+            }
+        }
+
+        return NumberStats(
+            appearances: draws.count,
+            totalDraws: total,
+            lastDrawNumber: last?.drawNumber,
+            lastDrawDate: last?.drawDate,
+            droughtDraws: last.map { max(0, latest - $0.drawNumber) },
+            longestStreak: longest,
+            monCount: mon,
+            thuCount: thu
+        )
     }
 }
