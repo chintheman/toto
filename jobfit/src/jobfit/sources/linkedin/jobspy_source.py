@@ -61,7 +61,7 @@ class JobSpyLinkedIn(LinkedInProvider):
                     hours_old=profile.posted_within_hours,
                     is_remote=RemotePolicy.REMOTE in profile.remote or None,
                 )
-            except Exception as exc:  # noqa: BLE001 - third-party, raises broadly
+            except Exception as exc:
                 notes.append(f"jobspy '{term}' failed ({type(exc).__name__}: {exc})")
                 continue
 

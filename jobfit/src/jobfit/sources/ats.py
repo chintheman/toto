@@ -231,11 +231,17 @@ class SmartRecruiters(AtsBoard):
             sections = (response.json().get("jobAd") or {}).get("sections") or {}
         except (httpx.HTTPError, ValueError):
             return None
-        return "\n\n".join(
-            _text(section.get("text"))
-            for key in ("companyDescription", "jobDescription", "qualifications", "additionalInformation")
-            if (section := sections.get(key))
-        ).strip() or None
+        blocks = [
+            body
+            for key in (
+                "companyDescription",
+                "jobDescription",
+                "qualifications",
+                "additionalInformation",
+            )
+            if (section := sections.get(key)) and (body := _text(section.get("text")))
+        ]
+        return "\n\n".join(blocks).strip() or None
 
 
 class Recruitee(AtsBoard):

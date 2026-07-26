@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+from collections.abc import Iterable
 from datetime import date, datetime
 from enum import StrEnum
 from typing import Annotated, Self
@@ -186,12 +187,12 @@ class FactBase(BaseModel):
     def get(self, fact_id: str) -> Fact | None:
         return next((f for f in self.facts if f.id == fact_id), None)
 
-    def subset(self, fact_ids: object) -> tuple[Fact, ...]:
+    def subset(self, fact_ids: Iterable[str]) -> tuple[Fact, ...]:
         """The facts for `fact_ids`, raising on any id that does not exist.
 
         Used to build the *only* context a tailoring or entailment call may see.
         """
-        return tuple(self[str(i)] for i in fact_ids)  # type: ignore[union-attr]
+        return tuple(self[fact_id] for fact_id in fact_ids)
 
     @property
     def all_numbers(self) -> frozenset[str]:
@@ -346,9 +347,11 @@ class FitReport(BaseModel):
         scored = [c for c in self.coverage if c.requirement.kind is not RequirementKind.SIGNAL]
         if not scored:
             return 0.0
-        weight = lambda c: c.requirement.weight * (  # noqa: E731
-            2.0 if c.requirement.kind is RequirementKind.MUST else 1.0
-        )
+
+        def weight(coverage: Coverage) -> float:
+            must = coverage.requirement.kind is RequirementKind.MUST
+            return coverage.requirement.weight * (2.0 if must else 1.0)
+
         total = sum(weight(c) for c in scored)
         earned = sum(weight(c) * c.credit for c in scored)
         return round(100.0 * earned / total, 1) if total else 0.0

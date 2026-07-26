@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import os
 from abc import abstractmethod
+from collections.abc import Callable
 from enum import StrEnum
 
 from jobfit.domain.models import SourceName
@@ -72,8 +73,10 @@ def resolve_provider(
     """
     from jobfit.sources.linkedin import guest, jobspy_source, licensed, serp
 
-    chosen = LinkedInRoute(route or os.getenv("JOBFIT_LINKEDIN_ROUTE", LinkedInRoute.LICENSED))
-    builders = {
+    configured = os.getenv("JOBFIT_LINKEDIN_ROUTE") or LinkedInRoute.LICENSED.value
+    chosen = LinkedInRoute(route) if route else LinkedInRoute(configured)
+
+    builders: dict[LinkedInRoute, Callable[[], LinkedInProvider]] = {
         LinkedInRoute.LICENSED: licensed.LicensedLinkedIn,
         LinkedInRoute.SERP: serp.SerpLinkedIn,
         LinkedInRoute.GUEST: guest.GuestLinkedIn,

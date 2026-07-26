@@ -94,16 +94,7 @@ class GateResult(BaseModel):
 # Words that start sentences or are ordinary English but capitalise; excluding them keeps
 # the unknown-proper-noun warning signal-to-noise tolerable.
 _STOPWORDS = frozenset(
-    """
-    a an and are as at be been building built but by for from had has have i if in into is it
-    its led my of on or over per she so that the their them they this to was we were what when
-    where which who will with within would you your he him her his our us also after before
-    across during while than then there here about above below between under again further
-    both each few more most other some such only own same too very can just don should now
-    january february march april may june july august september october november december
-    jan feb mar apr jun jul aug sep sept oct nov dec present current monday tuesday wednesday
-    thursday friday saturday sunday
-    """.split()
+    ["a", "an", "and", "are", "as", "at", "be", "been", "building", "built", "but", "by", "for", "from", "had", "has", "have", "i", "if", "in", "into", "is", "it", "its", "led", "my", "of", "on", "or", "over", "per", "she", "so", "that", "the", "their", "them", "they", "this", "to", "was", "we", "were", "what", "when", "where", "which", "who", "will", "with", "within", "would", "you", "your", "he", "him", "her", "his", "our", "us", "also", "after", "before", "across", "during", "while", "than", "then", "there", "here", "about", "above", "below", "between", "under", "again", "further", "both", "each", "few", "more", "most", "other", "some", "such", "only", "own", "same", "too", "very", "can", "just", "don", "should", "now", "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december", "jan", "feb", "mar", "apr", "jun", "jul", "aug", "sep", "sept", "oct", "nov", "dec", "present", "current", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 )
 
 _TOKEN_RE = re.compile(r"[A-Za-z0-9&.'’-]+")

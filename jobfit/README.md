@@ -49,16 +49,51 @@ The dangerous failure is not an obviously invented claim. It is a *mutation*: pl
 one word from the truth, invisible in a polished PDF, and indefensible in a reference
 check. Check 1 targets mutations specifically, by similarity rather than by exact match.
 
+## Credits
+
+Free first run, then pay as you go. The ledger rules exist because the obvious
+alternative fails in a way that costs money or trust:
+
+- **Append-only, no balance column.** A balance is the sum of the ledger, so it can never
+  disagree with the history — the number *is* the history.
+- **Reserve, then settle.** Work is paid for before it runs and settled at its true cost
+  afterwards. Charging after the fact loses money on every crash; charging before it
+  without refunds steals on every failure. A failed run costs nothing.
+- **Idempotency keys on every write.** Stripe replays webhooks by design, clients retry,
+  users double-click. Replay returns the original entry instead of minting a second one.
+- **Integer micro-credits.** A ledger is a sum, and float error accumulates across a sum.
+- **Two meters.** Discovery is vendor spend per record; generation is model tokens.
+  Separate, so repricing one never disturbs the other and a reseller can see where their
+  margin goes.
+
+Resale falls out of this rather than being bolted on: an API key owns a credit pool, so a
+reseller buys in bulk and spends on a client's behalf at their own markup.
+
+The free grant is sized to cover one real search plus three tailored application sets —
+the whole product, not a demo that stops before the documents. A test fails if a price
+change quietly breaks that promise.
+
 ## Status
 
-Working: domain model, fact base loader and auditor, verification gate (checks 1–3), test
-suite. In progress: sources, scoring, tailoring, rendering, credits.
+| Area | State |
+|---|---|
+| Domain model, fact base, search profiles | working |
+| Verification gate — checks 1–3 (deterministic) | working |
+| Sources — 6 ATS boards, 4 LinkedIn routes | working, fixture-verified only |
+| Credit ledger, pricing, free tier | working |
+| Enrich, extract, scoring matrix | not started |
+| Tailoring, gate checks 5–6 (model-based) | not started |
+| PDF render, ATS parse-back (check 4) | not started |
+| Stripe webhooks, API, web UI | not started |
 
-Run the tests that decide whether the honesty claim is true:
+67 tests pass. **No source has been run against a live API** — this environment's network
+policy blocks all of them, so normalisation is verified against recorded payloads and
+nothing more.
 
 ```bash
 uv venv && uv pip install -e ".[dev]"
-uv run pytest tests/test_verify.py -v
+uv run pytest -q                    # everything
+uv run pytest tests/test_verify.py  # the tests that decide if "honest" is true
 ```
 
 ## Sourcing and the law
