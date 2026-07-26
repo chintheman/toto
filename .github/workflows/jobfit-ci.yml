@@ -1,10 +1,14 @@
-name: ci
+# Lives at the repository root because GitHub only reads workflows from
+# `.github/workflows/` there — a copy under `jobfit/` is never executed. On extracting
+# `jobfit/` into its own repository (`git subtree split -P jobfit`), move this file to
+# that repo's root and drop the `working-directory` default and the path filters.
+name: jobfit ci
 
 on:
   push:
-    paths: ["jobfit/**", ".github/workflows/ci.yml"]
+    paths: ["jobfit/**", ".github/workflows/jobfit-ci.yml"]
   pull_request:
-    paths: ["jobfit/**", ".github/workflows/ci.yml"]
+    paths: ["jobfit/**", ".github/workflows/jobfit-ci.yml"]
 
 defaults:
   run:
