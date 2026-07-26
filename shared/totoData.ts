@@ -1,8 +1,10 @@
 // Analysis dataset shared by the site and the explainer video, so a data
 // refresh updates both at once. Derived from 1,000+ Singapore TOTO draws.
 
+import { evAtJackpot as evPercentAtJackpot, breakEvenJackpot } from "./evMath";
+
 // C(49,6) — total combinations; jackpot odds for N distinct combos = N in this.
-export const TOTAL_COMBINATIONS = 13_983_816;
+export { TOTAL_COMBINATIONS } from "./evMath";
 
 export const strats = {
   "1k": {
@@ -11,7 +13,10 @@ export const strats = {
     cost: 100,
     any: "49.3%",
     g3: "1 in 969",
-    g2: "1 in 150K",
+    // 100 combinations × P(5 main + additional) = 100 × 6/13,983,816.
+    // Was "1 in 150K", which made G2 rarer than the jackpot — impossible,
+    // since every combination is 6× more likely to hit G2 than G1.
+    g2: "1 in 23K",
     g1: "1 in 140K",
     m: "12× System 7 + 16× Ordinary ($100)",
     w: "You want the best chance of winning something — any prize, any draw.",
@@ -41,32 +46,30 @@ export const strats = {
   },
 } as const;
 
-// EV per dollar spent vs jackpot size (m = jackpot in $M); bar width
-// derives as (100 + ev) / 2.
-export const evByJackpot = [
-  { jackpot: "$1M", m: 1, ev: -72 },
-  { jackpot: "$2M", m: 2, ev: -55 },
-  { jackpot: "$2.5M", m: 2.5, ev: -42 },
-  { jackpot: "$3.5M", m: 3.5, ev: -15 },
-  { jackpot: "$4.5M", m: 4.5, ev: 7 },
-  { jackpot: "$6M", m: 6, ev: 25 },
-  { jackpot: "$8M", m: 8, ev: 48 },
-] as const;
+// Jackpot sizes charted on the EV curve. The top of the range sits above
+// break-even (~$9.23M) so the chart shows where the line actually crosses
+// instead of stopping short of it.
+const EV_CHART_POINTS = [1, 2, 2.5, 3.5, 4.5, 6, 8, 10] as const;
 
-// EV% at an arbitrary jackpot size, linearly interpolated between the
-// table's points and extrapolated with the last segment's slope above it.
-export function evAtJackpot(millions: number): number {
-  let prev: (typeof evByJackpot)[number] = evByJackpot[0];
-  if (millions <= prev.m) return prev.ev;
-  for (const pt of evByJackpot) {
-    if (millions <= pt.m) {
-      return prev.ev + ((millions - prev.m) / (pt.m - prev.m)) * (pt.ev - prev.ev);
-    }
-    prev = pt;
-  }
-  const a = evByJackpot[evByJackpot.length - 2] ?? prev;
-  return prev.ev + ((millions - prev.m) / (prev.m - a.m)) * (prev.ev - a.ev);
+function formatMillions(m: number): string {
+  return `$${m}M`;
 }
+
+// EV per dollar spent vs jackpot size (m = jackpot in $M), derived from the
+// shared combinatorial model rather than hardcoded. Previously this was a
+// table of seven hand-entered constants that claimed +7% at $4.5M and +48%
+// at $8M; the derivation gives -33.8% and -8.8%.
+export const evByJackpot = EV_CHART_POINTS.map(m => ({
+  jackpot: formatMillions(m),
+  m,
+  ev: Math.round(evPercentAtJackpot(m) * 10) / 10,
+}));
+
+// The jackpot size, in millions, at which a ticket crosses into +EV.
+export const BREAK_EVEN_MILLIONS = Math.round((breakEvenJackpot() / 1_000_000) * 100) / 100;
+
+// EV% at an arbitrary jackpot size, computed exactly from the model.
+export { evAtJackpot } from "./evMath";
 
 export const frequencyTop = [
   { n: "15", count: 175 },
@@ -84,4 +87,7 @@ export const frequencyBottom = [
   { n: "45", count: 119 },
 ] as const;
 
-export const maxFreq = 175;
+// Derived rather than hand-maintained: a data refresh that updates the
+// frequency tables now rescales every bar in the site and the video
+// automatically, instead of silently leaving them on a stale maximum.
+export const maxFreq = Math.max(...frequencyTop.map(f => f.count), ...frequencyBottom.map(f => f.count));

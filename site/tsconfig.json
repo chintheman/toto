@@ -18,5 +18,7 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"]
+  "include": ["src", "../shared"],
+  "//": "Test files run under `bun test` and use the bun:test module, which this DOM-targeted config has no types for. They are typechecked by `bun test` itself.",
+  "exclude": ["../shared/**/*.test.ts"]
 }
