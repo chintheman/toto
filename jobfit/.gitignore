@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+.env
+.env.local
+*.db
+*.sqlite3
+
+# Generated artefacts and real user data. The example profile IS committed; yours is not.
+out/
+profile/facts.yaml
+profile/voice.md
+profile/preferences.yaml
+
+node_modules/
+.next/
