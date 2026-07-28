@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		03B6D075430BF71A0297B120 /* NumbersGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AEF979A3562D25BC2AF343 /* NumbersGridView.swift */; };
 		1A48B5AC15DEA57DF504D073 /* EVMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A33C0AE2F0AE0AA227152C77 /* EVMathTests.swift */; };
+		2379458E301877C4005E3982 /* PicksMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2379458D301877C4005E3982 /* PicksMathTests.swift */; };
 		24C18D52FABFAEA25CE9A022 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B362D563372A90383A74DE /* AppState.swift */; };
 		28791042727C1D08598B2098 /* DeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A84D91E1EE190B734022FFFE /* DeviceIdentity.swift */; };
 		3222729315CEC0D64C818A70 /* EVMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4204F7B1DA09647F19361C9B /* EVMath.swift */; };
@@ -31,8 +32,8 @@
 		D56E8446494ED41A9FB71E46 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3A801FCF3882D944FCCD65 /* HomeView.swift */; };
 		D5B2446AD15F2CF08AF4D5BB /* SupabaseClients.swift in Sources */ = {isa = PBXBuildFile; fileRef = F616FFD6EA046642E44580C8 /* SupabaseClients.swift */; };
 		DA842781AE9CBC5EC11B87BF /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 8472279831D97348333F31CE /* Supabase */; };
-		EF478C4B957BEC5B433C3A8A /* NumberFact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E2F01AA8742F08514D1913 /* NumberFact.swift */; };
 		E1A7C93F42B85D60F1234A01 /* PicksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B8DA4E53C96E71A2345B12 /* PicksView.swift */; };
+		EF478C4B957BEC5B433C3A8A /* NumberFact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E2F01AA8742F08514D1913 /* NumberFact.swift */; };
 		F3B225DE7A6934F5A298F3EB /* OnboardingCarouselView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10AD7006FB52D6382A904C36 /* OnboardingCarouselView.swift */; };
 		FF5018873BB14C7ADF8DAAF0 /* AppStorageKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7E90385BC1D3FAB0F7D376 /* AppStorageKeys.swift */; };
 /* End PBXBuildFile section */
@@ -52,6 +53,7 @@
 		10AD7006FB52D6382A904C36 /* OnboardingCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCarouselView.swift; sourceTree = "<group>"; };
 		1293250E6FAB7EF80C3AB454 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		1C6F6B7A434ABC8D6BAFC27D /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		2379458D301877C4005E3982 /* PicksMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicksMathTests.swift; sourceTree = "<group>"; };
 		2A005339E7E7EE5ACA5924B2 /* Fallacy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fallacy.swift; sourceTree = "<group>"; };
 		2EB9FF8B4386BCABCB8B3A24 /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
 		32A1BA679B229ECADAB31BEC /* TotoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotoApp.swift; sourceTree = "<group>"; };
@@ -60,7 +62,7 @@
 		4204F7B1DA09647F19361C9B /* EVMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVMath.swift; sourceTree = "<group>"; };
 		51E2F01AA8742F08514D1913 /* NumberFact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFact.swift; sourceTree = "<group>"; };
 		6640EBFF3074A66C5DE39A4B /* NextDrawSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextDrawSchedule.swift; sourceTree = "<group>"; };
-		7274431146B4EE54C88F0051 /* TotoApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TotoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7274431146B4EE54C88F0051 /* TotoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TotoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		78AEF979A3562D25BC2AF343 /* NumbersGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumbersGridView.swift; sourceTree = "<group>"; };
 		7F73DFB22FE27B6CC420F099 /* CalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorView.swift; sourceTree = "<group>"; };
 		833D6E49F7A5DD34BD4A295E /* DrawsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawsRepository.swift; sourceTree = "<group>"; };
@@ -74,8 +76,8 @@
 		B4FF35248C4A89CB8C103DD0 /* CalculatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewModel.swift; sourceTree = "<group>"; };
 		CC3A801FCF3882D944FCCD65 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		CE7E90385BC1D3FAB0F7D376 /* AppStorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorageKeys.swift; sourceTree = "<group>"; };
-		D5756DF252E82BA12D2657D4 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		D2B8DA4E53C96E71A2345B12 /* PicksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicksView.swift; sourceTree = "<group>"; };
+		D5756DF252E82BA12D2657D4 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		DD169980FF63D940F0F6C7BD /* FallaciesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallaciesRepository.swift; sourceTree = "<group>"; };
 		F616FFD6EA046642E44580C8 /* SupabaseClients.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClients.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -115,6 +117,7 @@
 		0F65BFB64CDA72A0DC02FD36 /* TotoAppTests */ = {
 			isa = PBXGroup;
 			children = (
+				2379458D301877C4005E3982 /* PicksMathTests.swift */,
 				A33C0AE2F0AE0AA227152C77 /* EVMathTests.swift */,
 			);
 			path = TotoAppTests;
@@ -197,14 +200,6 @@
 			path = Features;
 			sourceTree = "<group>";
 		};
-		C3D9EB5F64DA7F82B3456C23 /* Picks */ = {
-			isa = PBXGroup;
-			children = (
-				D2B8DA4E53C96E71A2345B12 /* PicksView.swift */,
-			);
-			path = Picks;
-			sourceTree = "<group>";
-		};
 		790A12E4ADDC065C86D2F9FD /* Core */ = {
 			isa = PBXGroup;
 			children = (
@@ -234,6 +229,14 @@
 				2EB9FF8B4386BCABCB8B3A24 /* HistoryViewModel.swift */,
 			);
 			path = History;
+			sourceTree = "<group>";
+		};
+		C3D9EB5F64DA7F82B3456C23 /* Picks */ = {
+			isa = PBXGroup;
+			children = (
+				D2B8DA4E53C96E71A2345B12 /* PicksView.swift */,
+			);
+			path = Picks;
 			sourceTree = "<group>";
 		};
 		CD58B8C18FAF9921D0AB0A08 /* Resources */ = {
@@ -325,9 +328,6 @@
 					0A99E78DBD823657204DF033 = {
 						DevelopmentTeam = "";
 					};
-					66EA2DEBC696C51D9D36EC03 = {
-						DevelopmentTeam = "";
-					};
 				};
 			};
 			buildConfigurationList = 4DD772E0378659A8B47FC860 /* Build configuration list for PBXProject "TotoApp" */;
@@ -401,6 +401,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2379458E301877C4005E3982 /* PicksMathTests.swift in Sources */,
 				1A48B5AC15DEA57DF504D073 /* EVMathTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -428,7 +429,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.TotoAppTests;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TotoApp.app/TotoApp";
 			};
 			name = Release;
@@ -566,7 +567,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.TotoAppTests;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1";
+				TARGETED_DEVICE_FAMILY = 1;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TotoApp.app/TotoApp";
 			};
 			name = Debug;
@@ -576,6 +577,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = JU475PP468;
 				INFOPLIST_FILE = TotoApp/Info.plist;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -584,7 +586,11 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.toto;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -593,6 +599,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = JU475PP468;
 				INFOPLIST_FILE = TotoApp/Info.plist;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -601,7 +608,11 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.toto;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
