@@ -3,7 +3,10 @@ import Supabase
 
 /// Only ONE Supabase project is ever configured here: `toto-data`, the
 /// public-readable project (draws, facts, fallacies). Its anon key is safe
-/// to ship in this binary because RLS grants it SELECT-only, and it has no
+/// to ship in this binary because RLS grants it SELECT-only on every table
+/// except `premium_interest`, which allows anon INSERT only (no SELECT,
+/// UPDATE, or DELETE) so the email-signup flow can register interest
+/// without ever exposing the signup list to an anonymous client. It has no
 /// visibility into `toto-recommendation` (the private project holding the
 /// paid recommendation engine's algorithm and heuristic data).
 ///
