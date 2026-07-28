@@ -1,6 +1,12 @@
 // Single source of truth for the TOTO draw schedule (see AGENTS.md:
 // draws Mon & Thu at 6:30pm SGT; all time logic is SGT, UTC+8, no DST).
 export const DRAW_DAYS = [1, 4]; // Monday=1, Thursday=4
+
+// Placeholder jackpot shown when the live figure is unavailable. Lives here
+// so the API and the site read the same constant instead of each keeping
+// their own copy and drifting apart.
+export const FALLBACK_JACKPOT = "$2.5M";
+
 export const DRAW_HOUR = 18;
 export const DRAW_MIN = 30;
 export const SG_OFFSET = 8;

@@ -36,9 +36,111 @@ struct PickRecommendation {
 }
 
 enum PicksMath {
-    /// Approximate prize per line by match count (SG Pools tiers; the 5- and
-    /// 6-match groups are pool-shared, so these are reference estimates).
-    private static let approximatePrize: [Int: Double] = [3: 10, 4: 50, 5: 1500, 6: 1_500_000]
+    /// Reference jackpot used when sizing goals. The upcoming draw's
+    /// `estimatedJackpot` should be threaded through here once PicksView can
+    /// reach it; until then this is a placeholder of the right magnitude.
+    static let referenceJackpot = 1_500_000.0
+
+    /// Prize group for a single line matching `main` of the six main numbers,
+    /// where `additional` is 1 when the line also holds the drawn additional
+    /// number.
+    ///
+    /// Singapore Pools splits the 5-, 4- and 3-match lines into two groups
+    /// each depending on the additional number. Keying prizes off the main
+    /// match count alone — as this file used to — collapses G2 into G3, G4
+    /// into G5 and G6 into G7, so the additional-number tiers simply never
+    /// pay out. That understated "win at least $100" by 3.4x on budgets too
+    /// small for a system bet, because G4 (~$391) was invisible and the model
+    /// demanded five matches to clear $100 instead of four-plus-additional.
+    static func prizeGroup(main: Int, additional: Int) -> Int? {
+        switch (main, additional) {
+        case (6, _): return 1
+        case (5, 1): return 2
+        case (5, 0): return 3
+        case (4, 1): return 4
+        case (4, 0): return 5
+        case (3, 1): return 6
+        case (3, 0): return 7
+        default: return nil
+        }
+    }
+
+    /// Prize per line for a group. Shares `PrizeGroupEstimate` with
+    /// EVMath.swift so the app cannot carry two disagreeing prize tables.
+    static func prizeAmount(group: Int, jackpot: Double) -> Double {
+        switch group {
+        case 1: return jackpot
+        case 2: return PrizeGroupEstimate.g2Typical
+        case 3: return PrizeGroupEstimate.g3Typical
+        case 4: return PrizeGroupEstimate.g4Typical
+        case 5: return PrizeGroupEstimate.g5Fixed
+        case 6: return PrizeGroupEstimate.g6Fixed
+        case 7: return PrizeGroupEstimate.g7Fixed
+        default: return 0
+        }
+    }
+
+    /// Total payout of one k-number entry when `main` of its numbers are
+    /// winning numbers and `additional` (0 or 1) is the drawn additional
+    /// number. Sums across every C(k,6) sub-line the entry covers, which is
+    /// why a system entry can collect several tiers from one draw.
+    static func entryPayout(main: Int, additional: Int, numbersChosen k: Int, jackpot: Double) -> Double {
+        guard main >= 3 else { return 0 }
+        let others = k - main - additional
+        var total = 0.0
+        for j in 3...main {
+            for i in 0...additional {
+                let othersNeeded = 6 - j - i
+                guard othersNeeded >= 0, let group = prizeGroup(main: j, additional: i) else { continue }
+                let lines = Combinatorics.nCr(main, j)
+                    * Combinatorics.nCr(additional, i)
+                    * Combinatorics.nCr(others, othersNeeded)
+                guard lines > 0 else { continue }
+                total += lines * prizeAmount(group: group, jackpot: jackpot)
+            }
+        }
+        return total
+    }
+
+    /// P(one k-number entry pays at least `target`), over the exact joint
+    /// distribution of (main matches, additional matched).
+    static func probabilityReaching(target: Double, numbersChosen k: Int, jackpot: Double) -> Double {
+        var probability = 0.0
+        for main in 0...6 {
+            for additional in 0...1 {
+                let others = k - main - additional
+                guard others >= 0 else { continue }
+                let stateProbability = Combinatorics.nCr(6, main)
+                    * Combinatorics.nCr(1, additional)
+                    * Combinatorics.nCr(42, others)
+                    / Combinatorics.nCr(49, k)
+                guard stateProbability > 0 else { continue }
+                if entryPayout(main: main, additional: additional, numbersChosen: k, jackpot: jackpot) >= target {
+                    probability += stateProbability
+                }
+            }
+        }
+        return probability
+    }
+
+    /// The least demanding outcome that still reaches `target`, for the
+    /// explanation copy: the fewest main matches that can get there, and
+    /// whether the additional number is needed at that count.
+    static func easiestQualifyingOutcome(
+        target: Double,
+        numbersChosen k: Int,
+        jackpot: Double
+    ) -> (main: Int, needsAdditional: Bool)? {
+        for main in 3...6 {
+            if entryPayout(main: main, additional: 0, numbersChosen: k, jackpot: jackpot) >= target {
+                return (main, false)
+            }
+            if entryPayout(main: main, additional: 1, numbersChosen: k, jackpot: jackpot) >= target {
+                return (main, true)
+            }
+        }
+        return nil
+    }
 
     static func recommendation(budget: Int, goal: PickGoal) -> PickRecommendation {
         switch goal {
@@ -87,29 +189,22 @@ enum PicksMath {
             SystemCandidate(name: "System 9", unitCost: 84, numbersChosen: 9),
         ].filter { budget >= $0.unitCost }
 
-        var best: (candidate: SystemCandidate, count: Int, need: Int, pAny: Double)?
+        var best: (candidate: SystemCandidate, count: Int, pAny: Double)?
 
         for system in candidates {
             let count = budget / system.unitCost
-            let k = system.numbersChosen
-
-            func entryPayout(matches m: Int) -> Double {
-                var total = 0.0
-                for j in 3...m {
-                    total += Combinatorics.nCr(m, j) * Combinatorics.nCr(k - m, 6 - j) * (approximatePrize[j] ?? 0)
-                }
-                return total
-            }
-
-            guard let need = (3...6).first(where: { entryPayout(matches: $0) >= target }) else { continue }
-
-            var pEntry = 0.0
-            for m in need...6 {
-                pEntry += Combinatorics.nCr(6, m) * Combinatorics.nCr(43, k - m) / Combinatorics.nCr(49, k)
-            }
+            let pEntry = probabilityReaching(
+                target: target,
+                numbersChosen: system.numbersChosen,
+                jackpot: referenceJackpot
+            )
+            guard pEntry > 0 else { continue }
+            // Entries share one draw, so they are not strictly independent.
+            // Distinct entries are mildly negatively correlated, which makes
+            // this slightly conservative — hence "estimate" in the copy.
             let pAny = 1 - pow(1 - pEntry, Double(count))
             if best == nil || pAny > best!.pAny {
-                best = (system, count, need, pAny)
+                best = (system, count, pAny)
             }
         }
 
@@ -123,12 +218,21 @@ enum PicksMath {
         }
 
         let odds = Int((1 / best.pAny).rounded())
-        let needLabel = [
-            3: "just 3 winning numbers",
-            4: "4 winning numbers",
-            5: "5 winning numbers",
-            6: "all 6 winning numbers",
-        ][best.need] ?? "\(best.need) winning numbers"
+        let outcome = easiestQualifyingOutcome(
+            target: target,
+            numbersChosen: best.candidate.numbersChosen,
+            jackpot: referenceJackpot
+        )
+        let needLabel: String = {
+            guard let outcome else { return "the right combination" }
+            let base = [
+                3: "just 3 winning numbers",
+                4: "4 winning numbers",
+                5: "5 winning numbers",
+                6: "all 6 winning numbers",
+            ][outcome.main] ?? "\(outcome.main) winning numbers"
+            return outcome.needsAdditional ? "\(base) plus the additional number" : base
+        }()
         let overlapNote = best.candidate.numbersChosen > 6
             ? "A \(best.candidate.name) entry overlaps its lines heavily, so one lucky draw pays several prize tiers at once. "
             : ""

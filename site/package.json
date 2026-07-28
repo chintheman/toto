@@ -15,7 +15,9 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build",
+    "test": "bun test ../shared",
     "preview": "vite preview"
   }
 }
