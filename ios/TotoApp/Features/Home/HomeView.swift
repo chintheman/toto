@@ -6,7 +6,7 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 14) {
                     if viewModel.errorMessage != nil {
                         refreshFailedBanner
                     }
@@ -84,7 +84,7 @@ struct HomeView: View {
     private var nextDrawCard: some View {
         // The jackpot amount is the headline number here, not the date — a
         // draw date on its own tells you nothing about whether to care.
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Label("Next Draw", systemImage: "calendar")
                     .sectionHeaderStyle()
@@ -98,11 +98,12 @@ struct HomeView: View {
                     .foregroundStyle(.secondary)
 
                 if let jackpot = upcoming.estimatedJackpot {
-                    Text("Estimated jackpot")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    // The card is already titled "Next Draw" and this is the
+                    // only large number on it — a separate "Estimated
+                    // jackpot" caption line above was redundant with that
+                    // context, and cost a full text row.
                     Text(jackpot, format: .currency(code: "SGD").precision(.fractionLength(0)))
-                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                        .font(.system(.title, design: .rounded, weight: .bold))
                         .monospacedDigit()
                         .foregroundStyle(.primary)
                         .lineLimit(1)
@@ -129,7 +130,7 @@ struct HomeView: View {
     }
 
     private func latestResultCard(_ draw: Draw) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Label("Latest Result · Draw #\(draw.drawNumber, format: .number.grouping(.never))", systemImage: "checkmark.seal")
                     .sectionHeaderStyle()
@@ -143,11 +144,11 @@ struct HomeView: View {
 
             HStack(spacing: 8) {
                 ForEach(draw.winningNumbers, id: \.self) { number in
-                    LotteryBallView(number: number, size: 40)
+                    LotteryBallView(number: number, size: 34)
                 }
                 Text("+")
                     .foregroundStyle(.secondary)
-                LotteryBallView(number: draw.additionalNumber, size: 40, isAdditional: true)
+                LotteryBallView(number: draw.additionalNumber, size: 34, isAdditional: true)
             }
 
             // §2: make it unambiguous whether the amount was won or rolled over.
@@ -195,11 +196,15 @@ struct HomeView: View {
                             Text(fact.headline)
                                 .font(.headline)
                                 .foregroundStyle(.primary)
+                            // This is a teaser, not the full story — the
+                            // detail page (one tap away) shows fact.body in
+                            // full, so capping it here avoids a dense wall
+                            // of paragraph text on the Home preview.
                             Text(fact.body)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
-                                .lineSpacing(3)
-                                .fixedSize(horizontal: false, vertical: true)
+                                .lineLimit(2)
+                                .lineSpacing(2)
                         }
                         Spacer(minLength: 0)
                         Image(systemName: "chevron.right")

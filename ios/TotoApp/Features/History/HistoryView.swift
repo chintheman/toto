@@ -58,11 +58,13 @@ struct HistoryView: View {
                 }
                 .listRowBackground(Color.orange.opacity(0.1))
             }
-            ForEach(viewModel.draws) { draw in
-                NavigationLink(value: draw) {
-                    DrawRow(draw: draw)
+            Section("Draw History") {
+                ForEach(viewModel.draws) { draw in
+                    NavigationLink(value: draw) {
+                        DrawRow(draw: draw)
+                    }
+                    .task { await viewModel.loadMoreIfNeeded(currentItem: draw) }
                 }
-                .task { await viewModel.loadMoreIfNeeded(currentItem: draw) }
             }
         }
         .overlay {
@@ -98,13 +100,17 @@ private struct DrawRow: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Draw #\(draw.drawNumber, format: .number.grouping(.never))").font(.title3.bold())
+                // The section header above already reads "Draw History" —
+                // repeating "Draw" on every single row was redundant and,
+                // at larger text sizes, wrapped onto two lines and squeezed
+                // the number balls.
+                Text("#\(draw.drawNumber, format: .number.grouping(.never))").font(.title3.bold())
                 Text(draw.drawDate, style: .date).font(.subheadline).foregroundStyle(.secondary)
             }
             Spacer()
             HStack(spacing: 4) {
                 ForEach(draw.winningNumbers, id: \.self) { number in
-                    LotteryBallView(number: number, size: 30)
+                    LotteryBallView(number: number, size: 28)
                 }
             }
         }
