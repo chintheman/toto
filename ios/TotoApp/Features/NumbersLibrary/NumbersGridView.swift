@@ -65,20 +65,21 @@ struct NumberDetailView: View {
                     LotteryBallView(number: number, size: 80)
                     if let fact {
                         Text(fact.headline)
-                            .font(.headline)
+                            .font(.title2.bold())
                             .multilineTextAlignment(.center)
                         Text(fact.body)
-                            .font(.subheadline)
+                            .font(.body)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
+                            .lineSpacing(3)
                         if let source = fact.source, !source.isEmpty {
                             Label(source, systemImage: "checkmark.seal")
-                                .font(.caption2)
+                                .font(.footnote)
                                 .foregroundStyle(.secondary)
                                 .padding(.top, 4)
                         }
                         Text("A different fact shows each visit")
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(.tertiary)
                     } else if loadFailed {
                         Text("Couldn't load this number's story")
@@ -102,12 +103,21 @@ struct NumberDetailView: View {
             if let stats {
                 Section("\(number) in the draws") {
                     ForEach(appearanceInsights(stats)) { insight in
-                        Label {
+                        let label = Label {
                             Text(insight.text)
                         } icon: {
                             Image(systemName: insight.symbol).foregroundStyle(Theme.ballColor(for: number))
                         }
-                        .font(.subheadline)
+                        .font(.body)
+
+                        // Only the "last seen in Draw #N" insight links
+                        // anywhere; a NavigationLink here shows the
+                        // standard List disclosure chevron automatically.
+                        if let draw = insight.linkedDraw {
+                            NavigationLink(value: draw) { label }
+                        } else {
+                            label
+                        }
                     }
                 }
             } else if statsFailed {
@@ -178,9 +188,10 @@ struct NumberDetailView: View {
         }
 
         // Last-seen date: only when it hasn't just appeared (otherwise redundant).
-        if let date = s.lastDrawDate, let num = s.lastDrawNumber, (s.droughtDraws ?? 1) > 0 {
+        if let date = s.lastDrawDate, let num = s.lastDrawNumber, let lastDraw = s.lastDraw, (s.droughtDraws ?? 1) > 0 {
             out.append(AppearanceInsight(symbol: "calendar",
-                text: "Last seen \(date.formatted(date: .abbreviated, time: .omitted)), in Draw #\(num.formatted(.number.grouping(.never)))."))
+                text: "Last seen \(date.formatted(date: .abbreviated, time: .omitted)), in Draw #\(num.formatted(.number.grouping(.never))).",
+                linkedDraw: lastDraw))
         }
 
         return out
@@ -223,6 +234,9 @@ struct NumberDetailView: View {
 struct AppearanceInsight: Identifiable {
     let symbol: String
     let text: String
+    /// Non-nil only for the "last seen in Draw #N" insight, so it can push
+    /// to that draw's own page instead of sitting as inert text.
+    var linkedDraw: Draw? = nil
     var id: String { text }
 }
 
@@ -232,6 +246,9 @@ struct NumberStats {
     let totalDraws: Int
     let lastDrawNumber: Int?
     let lastDrawDate: Date?
+    /// The actual last-seen Draw, so "last seen in Draw #N" can link to it —
+    /// lastDrawNumber/lastDrawDate alone weren't enough to navigate anywhere.
+    let lastDraw: Draw?
     let droughtDraws: Int?
     let longestStreak: Int
     let monCount: Int
@@ -267,6 +284,7 @@ struct NumberStats {
             totalDraws: total,
             lastDrawNumber: last?.drawNumber,
             lastDrawDate: last?.drawDate,
+            lastDraw: last,
             // Only report a drought when we actually know the current latest
             // draw; without it, default to no drought insight rather than a
             // misleading "appeared in the most recent draw".

@@ -94,8 +94,13 @@ final class HomeViewModel {
 
             var facts: [Int: [NumberFact]] = [:]
             if let fetchedLatest {
+                // limitPerNumber: 5, not 1 — Home picks 2 numbers' facts so
+                // their categories differ (see HomeView.pickDiverseFacts),
+                // which needs alternatives to fall back to beyond each
+                // number's single highest-priority fact.
                 facts = try await factsRepository.topFacts(
-                    forNumbers: fetchedLatest.winningNumbers + [fetchedLatest.additionalNumber]
+                    forNumbers: fetchedLatest.winningNumbers + [fetchedLatest.additionalNumber],
+                    limitPerNumber: 5
                 )
             }
 

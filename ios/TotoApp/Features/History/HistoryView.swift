@@ -98,17 +98,17 @@ private struct DrawRow: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Draw #\(draw.drawNumber, format: .number.grouping(.never))").font(.subheadline.bold())
-                Text(draw.drawDate, style: .date).font(.caption).foregroundStyle(.secondary)
+                Text("Draw #\(draw.drawNumber, format: .number.grouping(.never))").font(.title3.bold())
+                Text(draw.drawDate, style: .date).font(.subheadline).foregroundStyle(.secondary)
             }
             Spacer()
             HStack(spacing: 4) {
                 ForEach(draw.winningNumbers, id: \.self) { number in
-                    LotteryBallView(number: number, size: 26)
+                    LotteryBallView(number: number, size: 30)
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 6)
     }
 }
 
