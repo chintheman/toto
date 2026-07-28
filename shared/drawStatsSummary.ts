@@ -37,6 +37,33 @@ export const frequencyBottom = [
 
 export const maxFreq = 175;
 
+export interface PairCount {
+  pair: [number, number];
+  count: number;
+}
+
+/** Expected co-appearances for any pair in a fair draw: draws x C(47,4)/C(49,6). */
+export const EXPECTED_PAIR_CO_APPEARANCES = 15.216836734693878;
+
+/** Most and least frequent pairs, plus anything tied with them. */
+export const mostCommonPair: PairCount = { pair: [2, 15], count: 30 };
+export const runnerUpPair: PairCount = { pair: [5, 49], count: 29 };
+export const rarestPair: PairCount = { pair: [14, 34], count: 5 };
+export const rarestPairTies: PairCount[] = [{ pair: [27, 45], count: 5 }];
+export const mostCommonConsecutivePair: PairCount = { pair: [20, 21], count: 20 };
+export const consecutivePairTies: PairCount[] = [{ pair: [23, 24], count: 20 }, { pair: [48, 49], count: 20 }];
+
+/** The number whose Monday vs Thursday appearance rates differ most. */
+export const BIGGEST_WEEKDAY_GAP = { n: 46, mon: 11.073825503355705, thu: 16.518650088809945, gap: 5.44482458545424 };
+
+/** Any one number's chance of appearing in any one draw: 6 of 49. */
+export const SINGLE_NUMBER_APPEARANCE_RATE = 12.244897959183673;
+
+/** Formats a pair for copy, e.g. "2–15" (en dash). */
+export function pairLabel(p: PairCount): string {
+  return `${p.pair[0]}–${p.pair[1]}`;
+}
+
 /** Share of all draws in which a number appears, as a percentage. */
 export function appearanceRate(count: number): number {
   return (count / TOTAL_DRAWS) * 100;

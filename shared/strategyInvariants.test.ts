@@ -6,9 +6,17 @@
 // itself can't catch this class of bug — these tests check the published
 // numbers against independent mathematical constraints instead.
 import { describe, expect, test } from "bun:test";
-import { strats, TOTAL_COMBINATIONS } from "./totoData";
+import {
+  strats,
+  TOTAL_COMBINATIONS,
+  SPREAD_ANY_PRIZE,
+  SPREAD_ANY_PRIZE_CEILING,
+  CONCENTRATED_ANY_PRIZE,
+  SYSTEM_9_COMBOS,
+  SYSTEM_7_COUNT_FOR_EQUAL_COST,
+} from "./totoData";
 import { generatePortfolio, type StrategyKey } from "./ticketGenerator";
-import { probabilityAnyPrize } from "./evMath";
+import { probabilityAnyPrize, nCr } from "./evMath";
 
 function subsets6(a: readonly number[]): number[][] {
   if (a.length === 6) return [a as number[]];
@@ -112,6 +120,49 @@ describe("Boole's inequality — a portfolio can never beat the union bound", ()
       const ceiling = (n * (WAYS[1]! + WAYS[2]! + WAYS[3]!)) / TOTAL_COMBINATIONS;
       expect(publishedP).toBeLessThanOrEqual(ceiling * 1.001);
     }
+  });
+});
+
+describe("the $84 spread-vs-concentration figures quoted in site copy", () => {
+  // These lived as prose in App.tsx ("~49% vs ~22%") where no test could see
+  // them. Both were wrong, and the spread figure was not just optimistic but
+  // impossible — 49% sits above the union bound for 12 System 7s. Moving them
+  // into totoData.ts is only half the fix; this is the half that keeps them
+  // honest.
+  test("both portfolios really do cost the same $84", () => {
+    expect(SYSTEM_9_COMBOS).toBe(nCr(9, 6));
+    expect(SYSTEM_7_COUNT_FOR_EQUAL_COST * nCr(7, 6)).toBe(SYSTEM_9_COMBOS);
+  });
+
+  test("the spread figure never beats the union bound", () => {
+    // P(at least one of 12 System 7s pays) <= 12 x P(one System 7 pays).
+    // True regardless of how the 12 tickets overlap.
+    expect(SPREAD_ANY_PRIZE).toBeLessThanOrEqual(SPREAD_ANY_PRIZE_CEILING);
+    expect(SPREAD_ANY_PRIZE_CEILING).toBeCloseTo(12 * probabilityAnyPrize(7) * 100, 6);
+  });
+
+  test("the concentrated figure is exact, not a backtest", () => {
+    // A System 9 pays iff >=3 of the 6 winners fall inside its 9 numbers —
+    // closed form, so this admits no sampling tolerance at all.
+    expect(CONCENTRATED_ANY_PRIZE).toBe(probabilityAnyPrize(9) * 100);
+  });
+
+  test("spread still beats concentration, which is the whole claim", () => {
+    expect(SPREAD_ANY_PRIZE).toBeGreaterThan(CONCENTRATED_ANY_PRIZE);
+  });
+});
+
+describe("pool-constrained strategies can't out-win their own pool", () => {
+  // "mega" draws every ticket from a 14-number pool, so it cannot win
+  // anything unless at least 3 of the 6 winning numbers land inside those
+  // 14 — an exact ceiling on its any-prize rate, independent of how the
+  // tickets are dealt. Nothing checked this before.
+  test("mega's any-prize rate stays under its 14-number containment bound", () => {
+    const pool = generatePortfolio("mega", 1).pool;
+    expect(pool).not.toBeNull();
+    const ceiling = probabilityAnyPrize(pool!.length) * 100;
+    const published = Number.parseFloat(strats.mega.any);
+    expect(published).toBeLessThanOrEqual(ceiling);
   });
 });
 
