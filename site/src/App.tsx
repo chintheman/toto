@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useId } from "react";
 import { theme, Section, ScribbleDivider } from "./brand";
 import { BarChart3, Share2, Sparkles, AlertTriangle, ChevronDown } from "lucide-react";
 import { useNextDraw } from "./useNextDraw";
-import { strats, evByJackpot, evAtJackpot, frequencyTop, frequencyBottom, maxFreq } from "../../shared/totoData";
+import { strats, evByJackpot, evAtJackpot, frequencyTop, frequencyBottom, maxFreq, BREAK_EVEN_MILLIONS } from "../../shared/totoData";
 import { generatePortfolio, type Portfolio, type StrategyKey } from "../../shared/ticketGenerator";
 import { myths, funFacts as sharedFunFacts } from "../../shared/content";
 
@@ -10,10 +10,20 @@ import { myths, funFacts as sharedFunFacts } from "../../shared/content";
 
 const funFacts = sharedFunFacts.map(f => ({ ...f, color: theme[f.accent] }));
 
+const BUDGET_OPTIONS = ["20", "50", "100", "200", "500"] as const;
+type BudgetOption = (typeof BUDGET_OPTIONS)[number];
+
+// How many myths show before "see all" expands the list.
+const MYTHS_PREVIEW_COUNT = 4;
+
+// `bar` is the share of each dollar that comes back as prize money, so a
+// full bar means break-even. The old formula, (100 + ev) / 2, rendered
+// -72% EV as a 14%-wide bar, which was not proportional to anything a
+// reader could interpret.
 const evData = evByJackpot.map(r => ({
   jackpot: r.jackpot,
   ev: r.ev < 0 ? `−${-r.ev}%` : `+${r.ev}%`,
-  bar: Math.round((100 + r.ev) / 2),
+  bar: Math.min(100, Math.round(100 + r.ev)),
   positive: r.ev > 0,
 }));
 
@@ -39,9 +49,15 @@ function LotteryBall({ n, size = 48, color = theme.terracotta }: { n: string | n
 function FrequencyBar({ label, count, max, hot }: { label: string; count: number; max: number; hot: boolean }) {
   const pct = Math.round((count / max) * 100);
   return (
-    <div className="flex items-center gap-3">
+    // The bar encodes its value purely as CSS width, so it needs an
+    // accessible label — otherwise the whole chart is meaningless non-visually.
+    <div
+      className="flex items-center gap-3"
+      role="img"
+      aria-label={`Number ${label}: drawn ${count} times, ${pct}% of the most frequent number`}
+    >
       <LotteryBall n={label} size={32} color={hot ? theme.terracotta : theme.sage} />
-      <div className="flex-1 h-4 rounded-full overflow-hidden" style={{ background: theme.beige }}>
+      <div className="flex-1 h-4 rounded-full overflow-hidden" style={{ background: theme.beige }} aria-hidden="true">
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{
@@ -61,6 +77,7 @@ function Accordion({ title, children, defaultOpen = false, accent = theme.terrac
   title: string; children: React.ReactNode; defaultOpen?: boolean; accent?: string;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const panelId = useId();
   return (
     <div
       className="rounded-2xl overflow-hidden transition-all"
@@ -69,16 +86,26 @@ function Accordion({ title, children, defaultOpen = false, accent = theme.terrac
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-4 px-6 py-5 text-left"
+        aria-expanded={open}
+        aria-controls={panelId}
       >
-        <div className="w-1.5 h-6 rounded-full flex-shrink-0" style={{ background: open ? accent : theme.beigeDark }} />
+        <div className="w-1.5 h-6 rounded-full flex-shrink-0" style={{ background: open ? accent : theme.beigeDark }} aria-hidden="true" />
         <span className="flex-1 font-serif text-lg" style={{ color: theme.brown }}>{title}</span>
         <ChevronDown
           size={18}
           className={`transition-transform duration-300 flex-shrink-0 ${open ? "rotate-180" : ""}`}
           style={{ color: theme.brownLight }}
+          aria-hidden="true"
         />
       </button>
-      <div className={`transition-all duration-400 overflow-hidden ${open ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"}`}>
+      {/* `hidden` (not just max-h-0) so a collapsed panel leaves the
+          accessibility tree and the tab order instead of trapping keyboard
+          users in invisible content. */}
+      <div
+        id={panelId}
+        hidden={!open}
+        className={`transition-all duration-300 overflow-hidden ${open ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"}`}
+      >
         <div className="px-6 pb-6 text-base leading-relaxed space-y-3" style={{ color: theme.brownLight }}>
           {children}
         </div>
@@ -90,26 +117,33 @@ function Accordion({ title, children, defaultOpen = false, accent = theme.terrac
 function StatCard({ n, emoji, stat, label, detail, color }: typeof funFacts[0]) {
   const [flipped, setFlipped] = useState(false);
   return (
-    <div
-      className="rounded-2xl p-5 cursor-pointer select-none transition-all hover:-translate-y-0.5 hover:shadow-md"
+    // A real <button> so the flip detail is reachable by keyboard — this was
+    // a click-only <div>, which put the explanation behind a mouse.
+    <button
+      type="button"
+      aria-pressed={flipped}
+      className="w-full text-left rounded-2xl p-5 cursor-pointer select-none transition-all hover:-translate-y-0.5 hover:shadow-md"
       style={{ background: theme.creamWarm, border: `1px solid ${flipped ? color + "40" : theme.beige}`, minHeight: 150 }}
       onClick={() => setFlipped(!flipped)}
     >
       {!flipped ? (
         <div className="flex flex-col gap-2 h-full">
-          <span className="text-2xl">{emoji}</span>
+          <span className="text-2xl" aria-hidden="true">{emoji}</span>
           <div className="font-serif text-xl font-bold" style={{ color }}>{stat}</div>
           <div className="text-sm font-medium leading-snug" style={{ color: theme.brown }}>{label}</div>
-          <div className="text-sm sm:text-xs mt-auto pt-2" style={{ color: theme.brownLight + "99" }}>tap to find out why →</div>
+          {/* Full-opacity brownLight: the previous `+ "99"` (60% alpha over
+              cream) fell well under the 4.5:1 contrast minimum, and this is
+              the only text telling users the card is interactive. */}
+          <div className="text-sm sm:text-xs mt-auto pt-2" style={{ color: theme.brownLight }}>tap to find out why →</div>
         </div>
       ) : (
         <div className="flex flex-col gap-2 h-full">
           <div className="font-serif text-sm font-bold" style={{ color }}>{n}</div>
           <p className="text-sm leading-relaxed flex-1" style={{ color: theme.brownLight }}>{detail}</p>
-          <div className="text-sm mt-auto pt-2" style={{ color: theme.brownLight + "99" }}>← tap to flip back</div>
+          <div className="text-sm mt-auto pt-2" style={{ color: theme.brownLight }}>← tap to flip back</div>
         </div>
       )}
-    </div>
+    </button>
   );
 }
 
@@ -141,8 +175,8 @@ function EVChecker() {
       <p className="text-sm mt-2" style={{ color: theme.brownLight }}>
         Every $1 played returns ≈ <strong style={{ color: theme.brown }}>${(1 + ev / 100).toFixed(2)}</strong> on average —{" "}
         {positive
-          ? "positive EV. This is one of the rare draws where the math is on your side."
-          : "you're paying for entertainment, not value. Wait for $4.5M+."}
+          ? `positive EV — but only above $${BREAK_EVEN_MILLIONS}M, which Singapore TOTO reaches rarely. Prize sharing is not modelled here, so treat this as the optimistic bound.`
+          : `you're paying for entertainment, not value. Break-even needs roughly $${BREAK_EVEN_MILLIONS}M.`}
       </p>
     </div>
   );
@@ -150,17 +184,23 @@ function EVChecker() {
 
 function TicketPortfolio({ portfolio, onShuffle }: { portfolio: Portfolio; onShuffle: () => void }) {
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const copy = () => {
     const lines = portfolio.tickets.map(
       t => `${t.type === "S7" ? "System 7" : "Ordinary"}: ${t.numbers.join(" ")}`
     );
-    navigator.clipboard
-      ?.writeText(lines.join("\n"))
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      })
-      .catch(() => {});
+    const succeed = () => {
+      setCopyFailed(false);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+    // navigator.clipboard is undefined outside secure contexts, so this used
+    // to no-op silently and leave the button stuck on its idle label.
+    if (!navigator.clipboard) {
+      setCopyFailed(true);
+      return;
+    }
+    navigator.clipboard.writeText(lines.join("\n")).then(succeed).catch(() => setCopyFailed(true));
   };
   return (
     <div className="rounded-2xl p-5 mt-4" style={{ background: theme.creamWarm, border: `1px solid ${theme.beige}` }}>
@@ -184,10 +224,16 @@ function TicketPortfolio({ portfolio, onShuffle }: { portfolio: Portfolio; onShu
             className="px-4 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80"
             style={{ background: theme.terracotta, color: "#fff" }}
           >
-            {copied ? "✓ Copied" : "Copy list"}
+            {copied ? "✓ Copied" : copyFailed ? "Copy unavailable" : "Copy list"}
           </button>
         </div>
       </div>
+
+      {copyFailed && (
+        <p className="text-xs mb-3" style={{ color: theme.brownLight }}>
+          Your browser blocked clipboard access. Select the tickets below and copy them manually.
+        </p>
+      )}
 
       {portfolio.pool && (
         <div className="flex flex-wrap items-center gap-1.5 mb-4">
@@ -199,9 +245,9 @@ function TicketPortfolio({ portfolio, onShuffle }: { portfolio: Portfolio; onShu
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        {portfolio.tickets.map((t, i) => (
+        {portfolio.tickets.map(t => (
           <div
-            key={i}
+            key={`${t.type}-${t.numbers.join("-")}`}
             className="flex items-center gap-1.5 rounded-xl px-3 py-2"
             style={{ background: theme.cream, border: `1px solid ${theme.beige}` }}
           >
@@ -230,8 +276,8 @@ function TicketPortfolio({ portfolio, onShuffle }: { portfolio: Portfolio; onShu
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function Toto() {
-  const [amt, setAmt] = useState("100");
-  const [goal, setGoal] = useState("1k");
+  const [amt, setAmt] = useState<BudgetOption>("100");
+  const [goal, setGoal] = useState<StrategyKey>("1k");
   const [showAllMyths, setShowAllMyths] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showTickets, setShowTickets] = useState(false);
@@ -246,47 +292,20 @@ export default function Toto() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const s = strats[goal as keyof typeof strats];
-  const bdgt = parseInt(amt);
+  const s = strats[goal];
+  const bdgt = parseInt(amt, 10);
   const ok = bdgt >= s.cost;
+  // The generated portfolio is a fixed size per strategy, so anything above
+  // its cost goes unspent. Surface that instead of silently ignoring it.
+  const unspent = ok ? bdgt - s.cost : 0;
 
   const portfolio = useMemo(
-    () => (showTickets && ok ? generatePortfolio(goal as StrategyKey, seed) : null),
+    () => (showTickets && ok ? generatePortfolio(goal, seed) : null),
     [showTickets, ok, goal, seed]
   );
 
   return (
     <>
-      <style>{`
-        html { scroll-behavior: smooth; }
-        body { background: ${theme.cream}; }
-        .font-serif  { font-family: 'Playfair Display', Georgia, serif; }
-        .font-body   { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-
-        .grain-overlay::before {
-          content: '';
-          position: fixed; top: 0; left: 0;
-          width: 100%; height: 100%;
-          pointer-events: none; z-index: 100; opacity: 0.025;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-        }
-
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-        .float   { animation: float 5s ease-in-out infinite; }
-        .float-1 { animation-delay: 0s; }
-        .float-2 { animation-delay: 0.8s; }
-        .float-3 { animation-delay: 1.6s; }
-        .float-4 { animation-delay: 2.4s; }
-
-        @keyframes spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        .spin-slow { animation: spin-slow 30s linear infinite; }
-
-        .myth-card:hover { transform: translateX(4px); }
-        .myth-card { transition: transform 0.2s ease; }
-
-        select { appearance: none; cursor: pointer; }
-        select:focus { outline: 2px solid ${theme.terracotta}55; outline-offset: 2px; }
-      `}</style>
 
       <div className="grain-overlay font-body min-h-screen" style={{ background: theme.cream, color: theme.brown }}>
 
@@ -311,16 +330,22 @@ export default function Toto() {
           </div>
         </header>
 
+        {/* The nav above is the page's only `banner` landmark; the hero is a
+            plain section, and everything below it lives in `main` so screen
+            readers get a skip target. */}
+        <main>
+
         {/* ── Hero ── */}
         <Section>
-          <header className="px-6 pt-20 pb-12 text-center relative overflow-hidden" style={{ minHeight: 480 }}>
+          <section className="px-6 pt-20 pb-12 text-center relative overflow-hidden" style={{ minHeight: 480 }}>
             {/* Background image */}
             <div
               className="absolute inset-0 bg-cover bg-center pointer-events-none"
               style={{ backgroundImage: "url('/images/toto-hero.jpg')", opacity: 0.12 }}
             />
-            {/* Floating balls decoration */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {/* Floating balls decoration — aria-hidden so screen readers do
+                not announce "15 40 28 49" as if it were content. */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
               <div className="absolute top-12 left-[8%] float float-1 opacity-30">
                 <LotteryBall n={15} size={52} color={theme.terracotta} />
               </div>
@@ -341,8 +366,15 @@ export default function Toto() {
             <div className="max-w-3xl mx-auto relative z-10">
               <div className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm sm:text-base font-medium mb-5 sm:mb-7"
                 style={{ background: `${theme.terracotta}18`, color: theme.terracotta, border: `1px solid ${theme.terracotta}35` }}>
-                <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
-                Next Draw · {draw.day} {draw.date} · <strong>{draw.jackpot} jackpot</strong>
+                {/* The pulsing dot means "live". Only show it when the
+                    jackpot actually came from the API — it used to pulse
+                    beside the hardcoded fallback too. */}
+                <span
+                  className={`w-2 h-2 rounded-full bg-current ${draw.jackpotIsLive ? "animate-pulse" : "opacity-40"}`}
+                  aria-hidden="true"
+                />
+                Next Draw · {draw.day} {draw.date} ·{" "}
+                <strong>{draw.jackpot} jackpot{draw.jackpotIsLive ? "" : " (estimate)"}</strong>
               </div>
               <h1 className="font-serif mb-5" style={{ fontSize: "clamp(2.4rem, 7vw, 4.5rem)", lineHeight: 1.08, letterSpacing: "-0.02em", color: theme.brown }}>
                 TOTO Strategy<br />
@@ -363,7 +395,7 @@ export default function Toto() {
                 </a>
               </div>
             </div>
-          </header>
+          </section>
         </Section>
 
         <div className="max-w-5xl mx-auto px-4">
@@ -385,8 +417,8 @@ export default function Toto() {
 
               {/* Flip cards */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
-                {funFacts.map((f, i) => (
-                  <StatCard key={i} {...f} />
+                {funFacts.map(f => (
+                  <StatCard key={f.n} {...f} />
                 ))}
               </div>
 
@@ -425,7 +457,7 @@ export default function Toto() {
                 <span className="text-[11px] sm:text-xs tracking-widest uppercase" style={{ color: theme.brownLight }}>myth-busting</span>
               </div>
               <h2 className="font-serif mb-3" style={{ fontSize: "clamp(1.8rem, 4vw, 2.5rem)", letterSpacing: "-0.02em" }}>
-                7 Things People Believe<br />
+                {myths.length} Things People Believe<br />
                 <span style={{ color: theme.sage }}>That Are Simply Wrong</span>
               </h2>
               <p className="text-[13px] sm:text-sm mb-8 max-w-xl" style={{ color: theme.brownLight }}>
@@ -433,9 +465,12 @@ export default function Toto() {
               </p>
 
               <div className="space-y-3">
-                {(showAllMyths ? myths : myths.slice(0, 4)).map((m, i) => (
+                {/* Keyed by the myth text, not the index: this list changes
+                    length when "see all" toggles, so index keys made React
+                    reuse the wrong card. */}
+                {(showAllMyths ? myths : myths.slice(0, MYTHS_PREVIEW_COUNT)).map(m => (
                   <div
-                    key={i}
+                    key={m.m}
                     className="myth-card rounded-2xl overflow-hidden"
                     style={{ background: theme.creamWarm, border: `1px solid ${theme.beige}` }}
                   >
@@ -485,10 +520,15 @@ export default function Toto() {
 
                 <div className="space-y-3">
                   <Accordion title="📊 When is it even worth playing?" defaultOpen accent={theme.terracotta}>
-                    <p><strong style={{ color: theme.brown }}>Expected Value (EV)</strong> is simple: for every $1 you spend, how much prize money do you get back on average? Below ~$3.5M jackpot, that's about 30–50¢. Above $4.5M, you're over $1.</p>
+                    <p><strong style={{ color: theme.brown }}>Expected Value (EV)</strong> is simple: for every $1 you spend, how much prize money do you get back on average? At a typical $2–5M jackpot it's roughly 52–66¢. You only cross $1 above ~${BREAK_EVEN_MILLIONS}M — a level Singapore TOTO reaches only after a long run of rollovers.</p>
                     <div className="rounded-xl p-4 my-3" style={{ background: theme.cream, border: `1px solid ${theme.beige}` }}>
-                      {evData.map((r, i) => (
-                        <div key={i} className="flex items-center gap-3 py-1.5">
+                      {evData.map(r => (
+                        <div
+                          key={r.jackpot}
+                          className="flex items-center gap-3 py-1.5"
+                          role="img"
+                          aria-label={`${r.jackpot} jackpot: expected value ${r.ev}`}
+                        >
                           <span className="w-14 text-[11px] sm:text-xs font-medium text-right" style={{ color: theme.brown }}>{r.jackpot}</span>
                           <div className="flex-1 h-5 rounded-full overflow-hidden" style={{ background: theme.beige }}>
                             <div
@@ -506,12 +546,12 @@ export default function Toto() {
                       ))}
                     </div>
                     <EVChecker />
-                    <p><strong style={{ color: theme.brown }}>Bottom line:</strong> Wait for $4M+. Everything below that is expensive entertainment.</p>
+                    <p><strong style={{ color: theme.brown }}>Bottom line:</strong> at every jackpot Singapore TOTO realistically reaches, this is expensive entertainment. Break-even needs about ${BREAK_EVEN_MILLIONS}M, and that figure ignores prize sharing — which gets worse precisely when the jackpot gets big.</p>
                   </Accordion>
 
                   <Accordion title="🔄 Spread your tickets — don't pile into one system" accent={theme.sage}>
                     <p>A System 9 ticket ($84) covers 84 combinations — but only across 9 numbers. If those 9 numbers miss, you win nothing.</p>
-                    <p>12 ordinary tickets at $7 each cover the same 84 combinations but spread across up to 72 different numbers. Same spend, far better coverage.</p>
+                    <p>12 System 7 tickets at $7 each cover the same 84 combinations, but spread across up to 49 different numbers. Same spend, far better coverage.</p>
                     <p><strong style={{ color: theme.brown }}>Backtest result:</strong> The spread strategy wins a prize in ~49% of draws vs ~22% for the concentrated approach.</p>
                   </Accordion>
 
@@ -545,25 +585,27 @@ export default function Toto() {
                 {/* Inputs */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                   <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: theme.brownLight }}>How much do you want to spend?</label>
+                    <label htmlFor="budget-select" className="block text-sm font-medium mb-2" style={{ color: theme.brownLight }}>How much do you want to spend?</label>
                     <div className="relative">
                       <select
+                        id="budget-select"
                         value={amt}
-                        onChange={e => setAmt(e.target.value)}
+                        onChange={e => setAmt(e.target.value as BudgetOption)}
                         className="w-full px-5 py-3.5 rounded-full text-sm font-medium pr-10"
                         style={{ background: theme.cream, color: theme.brown, border: `1px solid ${theme.beigeDark}` }}
                       >
-                        {["20","50","100","200","500"].map(v => <option key={v} value={v}>${v}</option>)}
+                        {BUDGET_OPTIONS.map(v => <option key={v} value={v}>${v}</option>)}
                       </select>
                       <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: theme.brownLight }} />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: theme.brownLight }}>What are you hoping to win?</label>
+                    <label htmlFor="goal-select" className="block text-sm font-medium mb-2" style={{ color: theme.brownLight }}>What are you hoping to win?</label>
                     <div className="relative">
                       <select
+                        id="goal-select"
                         value={goal}
-                        onChange={e => setGoal(e.target.value)}
+                        onChange={e => setGoal(e.target.value as StrategyKey)}
                         className="w-full px-5 py-3.5 rounded-full text-sm font-medium pr-10"
                         style={{ background: theme.cream, color: theme.brown, border: `1px solid ${theme.beigeDark}` }}
                       >
@@ -602,13 +644,19 @@ export default function Toto() {
                         { v: s.g3,   label: "Win ~$1,000",    color: theme.sage },
                         { v: s.g2,   label: "Win ~$100,000",  color: theme.brownLight },
                         { v: s.g1,   label: "Win jackpot",    color: theme.terracotta },
-                      ].map((item, i) => (
-                        <div key={i} className="text-center p-4 rounded-xl" style={{ background: `${item.color}12` }}>
+                      ].map(item => (
+                        <div key={item.label} className="text-center p-4 rounded-xl" style={{ background: `${item.color}12` }}>
                           <div className="font-serif font-bold text-xl mb-1" style={{ color: item.color }}>{item.v}</div>
                           <div className="text-[11px] sm:text-xs leading-tight" style={{ color: theme.brownLight }}>{item.label}</div>
                         </div>
                       ))}
                     </div>
+                  )}
+
+                  {unspent > 0 && (
+                    <p className="text-sm mt-4 px-4 py-3 rounded-xl" style={{ background: `${theme.beige}66`, color: theme.brownLight }}>
+                      This portfolio costs <strong style={{ color: theme.brown }}>${s.cost}</strong>, so <strong style={{ color: theme.brown }}>${unspent}</strong> of your ${bdgt} stays in your pocket. Spending it on more tickets would raise your odds proportionally — and your expected loss with them.
+                    </p>
                   )}
 
                   {ok && !portfolio && (
@@ -658,13 +706,13 @@ export default function Toto() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { color: theme.terracotta, n: "01", title: "Only play when jackpot hits $4M+", body: "Below that, every dollar buys ~30–50¢ of expected prize money. Above $4.5M, you're in positive EV territory. The jackpot size is the only variable you control." },
+                  { color: theme.terracotta, n: "01", title: "Bigger jackpots lose you less, not nothing", body: `Every dollar buys about 52–66¢ of expected prize money at a typical $2–5M jackpot. Break-even needs roughly $${BREAK_EVEN_MILLIONS}M. The only variable you fully control is whether you buy at all.` },
                   { color: theme.sage,       n: "02", title: "Spread across all 49 numbers",    body: "12× System 7 covers every number for $84. One System 9 covers 9 numbers for the same price. Same cost, completely different odds profile." },
                   { color: theme.brownLight, n: "03", title: "Keep your tickets independent",    body: "Minimise overlap between tickets. If one misses, the others should still have a chance. This is the Liu & Teo (2024) insight — it's peer-reviewed and it works." },
                   { color: theme.terracotta, n: "04", title: "Pick one goal and own the trade-off", body: "Frequent small wins vs jackpot upside. The calculator above shows exactly what you're trading. Neither is wrong — just be honest with yourself about what you want." },
-                ].map(({ color, n, title, body }, i) => (
+                ].map(({ color, n, title, body }) => (
                   <div
-                    key={i}
+                    key={n}
                     className="rounded-2xl p-6 transition-all hover:-translate-y-0.5 hover:shadow-md"
                     style={{ background: `${color}0c`, border: `1px solid ${color}28` }}
                   >
@@ -679,8 +727,12 @@ export default function Toto() {
             </section>
           </Section>
 
-          {/* ── Footer ── */}
           <ScribbleDivider />
+        </div>
+        </main>
+
+        {/* ── Footer ── */}
+        <div className="max-w-5xl mx-auto px-4">
           <footer className="px-4 sm:px-6 py-8 text-center" style={{ borderTop: `1px solid ${theme.beige}` }}>
             <p className="text-[10px] sm:text-[11px]" style={{ color: theme.brownLight }}>
               The draw is fair. No strategy guarantees a win. Play responsibly.

@@ -18,5 +18,7 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"]
+  "include": ["src", "../shared"],
+  "//": "Test files and the Bun codegen script use bun-only globals, which this DOM-targeted config has no types for. `bun test` typechecks them instead.",
+  "exclude": ["../shared/**/*.test.ts", "../shared/scripts/**"]
 }
