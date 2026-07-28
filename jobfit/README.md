@@ -42,6 +42,12 @@ catch.
 Any fatal finding fails the draft and triggers regeneration. After the retry budget is
 spent the failure is surfaced, never shipped.
 
+The same principle runs earlier in the pipeline. Requirement extraction must quote the
+posting verbatim, checked against the source text — an invented requirement reaches you as
+a confident, well-formatted gap you would act on, which is worse than missing it. Scoring
+validates each citation against the shortlist the judge was actually shown, so a judge
+that recalls a fact instead of retrieving one produces a stated gap, not a match.
+
 Number licensing is **per citation**, not global — a bullet may only use numbers from the
 facts *it* cites, so a metric cannot launder itself from one job into another.
 
@@ -81,14 +87,16 @@ change quietly breaks that promise.
 | Verification gate — checks 1–3 (deterministic) | working |
 | Sources — 6 ATS boards, 4 LinkedIn routes | working, fixture-verified only |
 | Credit ledger, pricing, free tier | working |
-| Enrich, extract, scoring matrix | not started |
+| Requirement extraction, coverage matrix | working, model calls stubbed in tests |
 | Tailoring, gate checks 5–6 (model-based) | not started |
 | PDF render, ATS parse-back (check 4) | not started |
 | Stripe webhooks, API, web UI | not started |
 
-67 tests pass. **No source has been run against a live API** — this environment's network
-policy blocks all of them, so normalisation is verified against recorded payloads and
-nothing more.
+87 tests pass. Two caveats worth stating plainly: **no source has been run against a live
+API** — this environment's network policy blocks all of them, so normalisation is verified
+against recorded payloads and nothing more — and **no model call has been made against the
+real API** either. The pipeline tests stub the client and make it misbehave on purpose,
+which proves the checks around the model hold, not that the model behaves.
 
 ```bash
 uv venv && uv pip install -e ".[dev]"
