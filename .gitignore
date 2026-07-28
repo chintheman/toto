@@ -3,3 +3,4 @@ dist/
 .DS_Store
 *.mp4
 !video/public/*.mp3
+ios/TotoApp.xcodeproj/project.xcworkspace/xcuserdata/
