@@ -67,17 +67,23 @@ final class CalculatorViewModel {
     /// skipping any preset that would show the same figure as today's, so
     /// the same number never appears twice in the row.
     func jackpotChips() -> [JackpotChip] {
+        Self.jackpotChips(currentJackpot: currentJackpot)
+    }
+
+    /// Pure core of `jackpotChips()`, taking the live jackpot explicitly so
+    /// the dedup logic is testable without a `DrawsRepository`/network call.
+    static func jackpotChips(currentJackpot: Double?) -> [JackpotChip] {
         var chips: [JackpotChip] = []
         var shownMillions: Set<Double> = []
 
         if let currentJackpot {
-            chips.append(JackpotChip(id: "live", selection: .live, label: "Today · \(Self.formatMillions(currentJackpot))"))
+            chips.append(JackpotChip(id: "live", selection: .live, label: "Today · \(formatMillions(currentJackpot))"))
             shownMillions.insert((currentJackpot / 1_000_000 * 10).rounded() / 10)
         }
 
         for millions in JackpotPreset.millionsValues where !shownMillions.contains(millions) {
             let dollars = millions * 1_000_000
-            chips.append(JackpotChip(id: "preset-\(millions)", selection: .preset(dollars), label: Self.formatMillions(dollars)))
+            chips.append(JackpotChip(id: "preset-\(millions)", selection: .preset(dollars), label: formatMillions(dollars)))
         }
         return chips
     }
