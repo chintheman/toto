@@ -174,47 +174,44 @@ struct HomeView: View {
     }
 
     private func curatedFactsSection(for draw: Draw) -> some View {
-        // Show at most two facts, drawn from the winning numbers in order.
-        let factNumbers = Array(
-            (draw.winningNumbers + [draw.additionalNumber])
-                .filter { viewModel.curatedFacts[$0]?.first != nil }
-                .prefix(2)
+        let picks = pickDiverseFacts(
+            numbers: draw.winningNumbers + [draw.additionalNumber],
+            factsByNumber: viewModel.curatedFacts,
+            limit: 2
         )
         return VStack(alignment: .leading, spacing: 14) {
             Label("Fun Facts About These Numbers", systemImage: "sparkles")
                 .sectionHeaderStyle()
 
-            ForEach(factNumbers.indices, id: \.self) { index in
-                let number = factNumbers[index]
-                if let fact = viewModel.curatedFacts[number]?.first {
-                    if index > 0 { Divider() }
-                    // Each fact pushes straight to that number's own page —
-                    // previously this whole section was read-only.
-                    NavigationLink(value: number) {
-                        HStack(alignment: .top, spacing: 12) {
-                            LotteryBallView(number: number, size: 36)
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(fact.headline)
-                                    .font(.headline)
-                                    .foregroundStyle(.primary)
-                                Text(fact.body)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                    .lineSpacing(3)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-                            Spacer(minLength: 0)
-                            Image(systemName: "chevron.right")
-                                .font(.footnote.bold())
-                                .foregroundStyle(.tertiary)
-                                .padding(.top, 3)
+            ForEach(picks.indices, id: \.self) { index in
+                let (number, fact) = picks[index]
+                if index > 0 { Divider() }
+                // Each fact pushes straight to that number's own page —
+                // previously this whole section was read-only.
+                NavigationLink(value: number) {
+                    HStack(alignment: .top, spacing: 12) {
+                        LotteryBallView(number: number, size: 36)
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(fact.headline)
+                                .font(.headline)
+                                .foregroundStyle(.primary)
+                            Text(fact.body)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .lineSpacing(3)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
-                        .contentShape(Rectangle())
-                        .accessibilityElement(children: .combine)
-                        .accessibilityHint("Opens number \(number)'s page")
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.bold())
+                            .foregroundStyle(.tertiary)
+                            .padding(.top, 3)
                     }
-                    .buttonStyle(.plain)
+                    .contentShape(Rectangle())
+                    .accessibilityElement(children: .combine)
+                    .accessibilityHint("Opens number \(number)'s page")
                 }
+                .buttonStyle(.plain)
             }
 
             Divider()
@@ -225,6 +222,31 @@ struct HomeView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle()
     }
+}
+
+/// Picks one fact per number for the Home preview, preferring a category
+/// that isn't already used by an earlier pick. Two facts of the exact same
+/// shape (e.g. both "appeared N times in Y draws, vs Z expected") read as
+/// duplicates even though the numbers differ, which defeats the point of a
+/// varied fun-facts preview. Falls back to a number's top-priority fact if
+/// none of its candidates offer an unused category, rather than showing
+/// nothing for that number.
+private func pickDiverseFacts(
+    numbers: [Int],
+    factsByNumber: [Int: [NumberFact]],
+    limit: Int
+) -> [(number: Int, fact: NumberFact)] {
+    var chosen: [(number: Int, fact: NumberFact)] = []
+    var usedCategories: Set<NumberFact.Category> = []
+
+    for number in numbers {
+        guard chosen.count < limit,
+              let candidates = factsByNumber[number], !candidates.isEmpty else { continue }
+        let pick = candidates.first { !usedCategories.contains($0.category) } ?? candidates[0]
+        chosen.append((number, pick))
+        usedCategories.insert(pick.category)
+    }
+    return chosen
 }
 
 #Preview {
