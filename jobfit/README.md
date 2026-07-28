@@ -136,8 +136,23 @@ src/jobfit/
   billing/             append-only credit ledger, meters, Stripe
 ```
 
-This directory is self-contained and carries its own `pyproject.toml`, licence and
-history, so it lifts into a standalone repository with `git subtree split -P jobfit`.
+## Extracting into its own repository
+
+jobfit belongs in its own repo and is written to live there. It is developing inside
+another repository only because this build environment's proxy refuses
+`POST /user/repos` — sessions are pinned to the repositories they were started with, so
+the repo has to be created by a human, once:
+
+```bash
+# after creating an empty github.com/<owner>/jobfit
+./extract.sh <owner>/jobfit
+```
+
+`extract.sh` runs `git subtree split -P jobfit`, which rewrites history with this
+directory as the root and drops every commit that never touched it. Nothing needs editing
+afterwards: `.github/workflows/ci.yml`, `LICENSE` and `pyproject.toml` already sit at what
+becomes the root, so the first push is green. The split is idempotent — run it again after
+more work lands and it produces the same history plus the new commits.
 
 ## Licence
 
