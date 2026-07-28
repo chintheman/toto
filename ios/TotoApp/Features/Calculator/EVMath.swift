@@ -73,6 +73,14 @@ enum PrizeGroupEstimate {
     static let g4Typical = 391.0
 }
 
+/// Standard jackpot sizes for "what if the jackpot were $X" exploration —
+/// the same 8 benchmark points already charted on the companion research
+/// site (shared/totoData.ts's EV_CHART_POINTS), so the two surfaces agree
+/// on what counts as a representative jackpot size.
+enum JackpotPreset {
+    static let millionsValues: [Double] = [1, 2, 2.5, 3.5, 4.5, 6, 8, 10]
+}
+
 struct BetOdds {
     let betType: BetType
     let probabilityAnyPrize: Double

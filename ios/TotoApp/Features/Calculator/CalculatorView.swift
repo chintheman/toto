@@ -16,8 +16,8 @@ struct CalculatorView: View {
                     }
                     BudgetCard()
                     affordabilityCard
-                    if let jackpot = viewModel.currentJackpot {
-                        valueCard(jackpot: jackpot)
+                    if viewModel.currentJackpot != nil {
+                        valueCard
                     } else if !viewModel.isLoading && viewModel.errorMessage == nil {
                         // Only the "no data yet" state when there's no error;
                         // otherwise the error banner above already explains it.
@@ -55,48 +55,63 @@ struct CalculatorView: View {
     }
 
     private var affordabilityCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("What SGD \(appState.budget.formatted()) can buy")
-                .font(.headline)
+                .font(.title2.bold())
             Text("Every combination below costs the same per line of coverage. Spreading means smaller prizes land more often; concentrating means rarer but larger hits. Average return is identical either way.")
-                .font(.footnote)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
 
             ForEach(viewModel.affordableCombos(budget: appState.budget)) { combo in
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
                     Text("\(combo.count.formatted())×")
-                        .font(.body.bold().monospacedDigit())
+                        .font(.title3.bold().monospacedDigit())
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
-                        .frame(minWidth: 76, alignment: .leading)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(combo.betType.displayName).font(.subheadline.bold())
-                        Text(combo.betType.coverageDescription).font(.caption).foregroundStyle(.secondary)
+                        .frame(minWidth: 84, alignment: .leading)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(combo.betType.displayName).font(.headline)
+                        Text(combo.betType.coverageDescription).font(.subheadline).foregroundStyle(.secondary)
                     }
                     Spacer()
                     Text("$\(combo.spend.formatted()) of $\(appState.budget.formatted())")
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.trailing)
                 }
-                .padding(10)
+                .padding(12)
                 .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 12))
             }
 
             Text("Same expected return either way. Spending pattern only changes how the losses arrive, never their average size.")
-                .font(.caption2)
+                .font(.footnote)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle()
     }
 
-    private func valueCard(jackpot: Double) -> some View {
+    private var valueCard: some View {
+        let displayedJackpot = viewModel.displayedJackpot ?? 0
         let ev = viewModel.ordinaryEV ?? 0
         let cents = Int((ev * 100).rounded())
+        let isHypothetical = viewModel.isShowingHypothetical
         return VStack(alignment: .leading, spacing: 12) {
-            Text("Value of this draw").font(.headline)
+            Text("Value of this draw").font(.title2.bold())
 
+            jackpotChipRow
+
+            if isHypothetical {
+                // Must stay unmissable — this app has a documented history
+                // of a draw once being visually implied as +EV when it
+                // wasn't, and a "what if" example must never repeat that.
+                Label("Example only — not tonight's actual jackpot", systemImage: "questionmark.circle.fill")
+                    .font(.footnote.bold())
+                    .foregroundStyle(.orange)
+            }
+
+            // Gauge size is deliberately untouched — only the surrounding
+            // text grows.
             GeometryReader { proxy in
                 ZStack(alignment: .leading) {
                     Capsule()
@@ -120,18 +135,43 @@ struct CalculatorView: View {
                 Spacer()
                 Text("BREAK-EVEN")
             }
-            .font(.caption2.weight(.medium))
+            .font(.caption.weight(.medium))
             .foregroundStyle(.secondary)
 
             Text("About \(cents)¢ back per $1, on average")
-                .font(.subheadline.bold())
+                .font(.title3.bold())
 
-            Text("At the current \(jackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot. This rate depends only on the jackpot size. Spending more doesn't change it; every dollar gets the same ~\(cents)¢ back. Breaking even needs roughly a \(viewModel.breakEvenJackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot, but big jackpots attract more players and get split more often, so in practice those draws don't really exist.")
-                .font(.footnote)
+            Text("At \(isHypothetical ? "an example" : "the current") \(displayedJackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot. This rate depends only on the jackpot size. Spending more doesn't change it; every dollar gets the same ~\(cents)¢ back. Breaking even needs roughly a \(viewModel.breakEvenJackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot, but big jackpots attract more players and get split more often, so in practice those draws don't really exist.")
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle()
+    }
+
+    private var jackpotChipRow: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(viewModel.jackpotChips()) { chip in
+                    let isSelected = chip.selection == viewModel.jackpotSelection
+                    Button {
+                        viewModel.selectJackpot(chip.selection)
+                    } label: {
+                        Text(chip.label)
+                            .font(.subheadline.bold())
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(
+                                Capsule().fill(isSelected ? Color.accentColor : Color.secondary.opacity(0.15))
+                            )
+                            .foregroundStyle(isSelected ? Color.white : Color.primary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+                }
+            }
+            .padding(.vertical, 2)
+        }
     }
 
     private var disclaimer: some View {
@@ -143,7 +183,8 @@ struct CalculatorView: View {
 }
 
 /// Shared budget input (design-changes §4/§5): typeable amount + slider,
-/// $1–$100,000, en-SG thousands formatting, one app-wide source of truth.
+/// AppState.budgetRange ($1–$500), en-SG thousands formatting, one
+/// app-wide source of truth.
 struct BudgetCard: View {
     @Environment(AppState.self) private var appState
     var showsSyncedPill = false
@@ -182,11 +223,11 @@ struct BudgetCard: View {
             )
 
             HStack {
-                Text("$1")
+                Text("$\(AppState.budgetRange.lowerBound)")
                 Spacer()
-                Text("$100,000")
+                Text("$\(AppState.budgetRange.upperBound)")
             }
-            .font(.caption2)
+            .font(.caption)
             .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -10,16 +10,90 @@ struct AffordableCombo: Identifiable {
     var id: String { betType.id }
 }
 
+/// Which jackpot the "Value of this draw" card is currently valuing:
+/// tonight's real live/estimated figure, or a preset the user tapped to
+/// explore a different jackpot size hypothetically.
+enum JackpotSelection: Equatable {
+    case live
+    case preset(Double) // dollars
+}
+
+/// One tappable chip in the jackpot-size row.
+struct JackpotChip: Identifiable, Equatable {
+    let id: String
+    let selection: JackpotSelection
+    let label: String
+}
+
 @Observable
 final class CalculatorViewModel {
     private(set) var currentJackpot: Double?
     private(set) var isLoading = true
     private(set) var errorMessage: String?
+    /// Defaults to live on every load — a background refresh should never
+    /// silently swap out from under a jackpot size the user deliberately
+    /// picked, but a fresh app launch always starts from "today's real
+    /// jackpot," not whatever preset was last explored.
+    private(set) var jackpotSelection: JackpotSelection = .live
 
     private let drawsRepository: DrawsRepository
 
     init(drawsRepository: DrawsRepository = DrawsRepository()) {
         self.drawsRepository = drawsRepository
+    }
+
+    func selectJackpot(_ selection: JackpotSelection) {
+        jackpotSelection = selection
+    }
+
+    /// The jackpot the EV/gauge/explanation are actually valuing right now.
+    var displayedJackpot: Double? {
+        switch jackpotSelection {
+        case .live: return currentJackpot
+        case .preset(let dollars): return dollars
+        }
+    }
+
+    /// True when what's on screen is a "what if this were the jackpot"
+    /// example rather than tonight's real draw — must stay unmissable, since
+    /// this project has a documented history of a draw being visually
+    /// implied as +EV when it wasn't.
+    var isShowingHypothetical: Bool {
+        if case .preset = jackpotSelection { return true }
+        return false
+    }
+
+    /// Today's live jackpot first (if known), then the standard presets —
+    /// skipping any preset that would show the same figure as today's, so
+    /// the same number never appears twice in the row.
+    func jackpotChips() -> [JackpotChip] {
+        Self.jackpotChips(currentJackpot: currentJackpot)
+    }
+
+    /// Pure core of `jackpotChips()`, taking the live jackpot explicitly so
+    /// the dedup logic is testable without a `DrawsRepository`/network call.
+    static func jackpotChips(currentJackpot: Double?) -> [JackpotChip] {
+        var chips: [JackpotChip] = []
+        var shownMillions: Set<Double> = []
+
+        if let currentJackpot {
+            chips.append(JackpotChip(id: "live", selection: .live, label: "Today · \(formatMillions(currentJackpot))"))
+            shownMillions.insert((currentJackpot / 1_000_000 * 10).rounded() / 10)
+        }
+
+        for millions in JackpotPreset.millionsValues where !shownMillions.contains(millions) {
+            let dollars = millions * 1_000_000
+            chips.append(JackpotChip(id: "preset-\(millions)", selection: .preset(dollars), label: formatMillions(dollars)))
+        }
+        return chips
+    }
+
+    private static func formatMillions(_ dollars: Double) -> String {
+        let millions = dollars / 1_000_000
+        if millions == millions.rounded() {
+            return "$\(Int(millions))M"
+        }
+        return "$\(String(format: "%.1f", millions))M"
     }
 
     /// Design-changes §4: every affordable bet type, count-formatted, with
@@ -35,8 +109,8 @@ final class CalculatorViewModel {
     }
 
     var ordinaryEV: Double? {
-        guard let currentJackpot else { return nil }
-        return EVMath.expectedValue(betType: .ordinary, jackpot: currentJackpot)
+        guard let displayedJackpot else { return nil }
+        return EVMath.expectedValue(betType: .ordinary, jackpot: displayedJackpot)
     }
 
     var breakEvenJackpot: Double {

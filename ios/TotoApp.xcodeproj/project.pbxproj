@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		03B6D075430BF71A0297B120 /* NumbersGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AEF979A3562D25BC2AF343 /* NumbersGridView.swift */; };
 		1A48B5AC15DEA57DF504D073 /* EVMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A33C0AE2F0AE0AA227152C77 /* EVMathTests.swift */; };
+		F4CE30A27A1C90D1235AC9BA /* CalculatorViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C246038659FA72EC66E64E8 /* CalculatorViewModelTests.swift */; };
 		2379458E301877C4005E3982 /* PicksMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2379458D301877C4005E3982 /* PicksMathTests.swift */; };
 		24C18D52FABFAEA25CE9A022 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B362D563372A90383A74DE /* AppState.swift */; };
 		28791042727C1D08598B2098 /* DeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A84D91E1EE190B734022FFFE /* DeviceIdentity.swift */; };
@@ -54,6 +55,7 @@
 		1293250E6FAB7EF80C3AB454 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		1C6F6B7A434ABC8D6BAFC27D /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		2379458D301877C4005E3982 /* PicksMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicksMathTests.swift; sourceTree = "<group>"; };
+		9C246038659FA72EC66E64E8 /* CalculatorViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewModelTests.swift; sourceTree = "<group>"; };
 		2A005339E7E7EE5ACA5924B2 /* Fallacy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fallacy.swift; sourceTree = "<group>"; };
 		2EB9FF8B4386BCABCB8B3A24 /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
 		32A1BA679B229ECADAB31BEC /* TotoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotoApp.swift; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 			children = (
 				2379458D301877C4005E3982 /* PicksMathTests.swift */,
 				A33C0AE2F0AE0AA227152C77 /* EVMathTests.swift */,
+				9C246038659FA72EC66E64E8 /* CalculatorViewModelTests.swift */,
 			);
 			path = TotoAppTests;
 			sourceTree = "<group>";
@@ -403,6 +406,7 @@
 			files = (
 				2379458E301877C4005E3982 /* PicksMathTests.swift in Sources */,
 				1A48B5AC15DEA57DF504D073 /* EVMathTests.swift in Sources */,
+				F4CE30A27A1C90D1235AC9BA /* CalculatorViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
