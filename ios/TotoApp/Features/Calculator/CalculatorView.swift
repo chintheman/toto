@@ -16,8 +16,8 @@ struct CalculatorView: View {
                     }
                     BudgetCard()
                     affordabilityCard
-                    if let jackpot = viewModel.currentJackpot {
-                        valueCard(jackpot: jackpot)
+                    if viewModel.currentJackpot != nil {
+                        valueCard
                     } else if !viewModel.isLoading && viewModel.errorMessage == nil {
                         // Only the "no data yet" state when there's no error;
                         // otherwise the error banner above already explains it.
@@ -91,11 +91,24 @@ struct CalculatorView: View {
         .cardStyle()
     }
 
-    private func valueCard(jackpot: Double) -> some View {
+    private var valueCard: some View {
+        let displayedJackpot = viewModel.displayedJackpot ?? 0
         let ev = viewModel.ordinaryEV ?? 0
         let cents = Int((ev * 100).rounded())
+        let isHypothetical = viewModel.isShowingHypothetical
         return VStack(alignment: .leading, spacing: 12) {
             Text("Value of this draw").font(.title2.bold())
+
+            jackpotChipRow
+
+            if isHypothetical {
+                // Must stay unmissable — this app has a documented history
+                // of a draw once being visually implied as +EV when it
+                // wasn't, and a "what if" example must never repeat that.
+                Label("Example only — not tonight's actual jackpot", systemImage: "questionmark.circle.fill")
+                    .font(.footnote.bold())
+                    .foregroundStyle(.orange)
+            }
 
             // Gauge size is deliberately untouched — only the surrounding
             // text grows.
@@ -128,12 +141,37 @@ struct CalculatorView: View {
             Text("About \(cents)¢ back per $1, on average")
                 .font(.title3.bold())
 
-            Text("At the current \(jackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot. This rate depends only on the jackpot size. Spending more doesn't change it; every dollar gets the same ~\(cents)¢ back. Breaking even needs roughly a \(viewModel.breakEvenJackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot, but big jackpots attract more players and get split more often, so in practice those draws don't really exist.")
+            Text("At \(isHypothetical ? "an example" : "the current") \(displayedJackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot. This rate depends only on the jackpot size. Spending more doesn't change it; every dollar gets the same ~\(cents)¢ back. Breaking even needs roughly a \(viewModel.breakEvenJackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot, but big jackpots attract more players and get split more often, so in practice those draws don't really exist.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle()
+    }
+
+    private var jackpotChipRow: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(viewModel.jackpotChips()) { chip in
+                    let isSelected = chip.selection == viewModel.jackpotSelection
+                    Button {
+                        viewModel.selectJackpot(chip.selection)
+                    } label: {
+                        Text(chip.label)
+                            .font(.subheadline.bold())
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(
+                                Capsule().fill(isSelected ? Color.accentColor : Color.secondary.opacity(0.15))
+                            )
+                            .foregroundStyle(isSelected ? Color.white : Color.primary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+                }
+            }
+            .padding(.vertical, 2)
+        }
     }
 
     private var disclaimer: some View {
