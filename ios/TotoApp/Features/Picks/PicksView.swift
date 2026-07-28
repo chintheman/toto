@@ -325,7 +325,7 @@ struct PicksView: View {
                 Label("You're on the list", systemImage: "checkmark.circle.fill")
                     .font(.headline)
                     .foregroundStyle(.green)
-                Text("Thanks for signing up. We'll email you the moment the premium version launches, with your 50% off locked in.")
+                Text("Thanks for signing up — you'll be the first to hear about promos and updates. We'll email you the moment the premium version launches, with your 50% off locked in.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
