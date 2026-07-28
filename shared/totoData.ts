@@ -25,25 +25,27 @@ export { TOTAL_COMBINATIONS } from "./evMath";
 // specific combination per draw — there is no scenario where two different
 // sub-lines of the same System entry simultaneously qualify, so there is
 // nothing for a Monte Carlo to average over and no double-counting to worry
-// about. Treating them as simulated quantities is how "1k" ended up
-// advertising G2 at 1 in 150K against a 1 in 140K jackpot — impossible,
-// since G2 is exactly 6x more likely than G1 for any portfolio — and later
-// how a 6,000,000-trial run still landed outside the true value (21.7K
-// simulated against a 23.3K analytic ceiling for N=100): with only ~4.3e-5
-// hit probability per combo, a few hundred total hits across the whole run
+// about. Treating them as simulated quantities is how "1k" once advertised
+// G2 at 1 in 150K against a 1 in 140K jackpot — impossible, since G2 is
+// exactly 6x more likely than G1 for any portfolio — and later how a
+// 6,000,000-trial run still landed outside the true value (21.7K simulated
+// against a 23.3K analytic ceiling for N=100): with only ~4.3e-5 hit
+// probability per combo, a few hundred total hits across the whole run
 // carries several percent of sampling noise, enough to cross an exact bound
 // in either direction.
 //
 // G3 ("5 of 6", no additional) has no such shortcut: System-bet entries
 // share numbers across their C(k,6) sub-lines, so a single well-matched
 // System 7 can produce several simultaneous G3-or-better hits from one
-// draw. That correlation is real (verified: a System-7 entry containing 5+
-// winning numbers routinely lights up multiple of its 7 sub-lines at once),
-// and it pulls the true rate well below the naive per-combo sum — the
-// measured rate for "1k" is 1 in 941 (20M-trial run, CI [928, 954]) for a
-// portfolio whose 100 combos would suggest ~1 in 540 if they were
-// independent. There's no closed form for that without modelling the exact
-// deal pattern, so G3 stays a Monte Carlo estimate
+// draw. That correlation is real and measurable: "100k" (10x System 7 +
+// 30x Ordinary) lands at 1 in 835 for G3-or-better, against the ~1 in 540
+// a naive independent-combo estimate would predict for 100 combos. "1k" is
+// now a deliberate control for this — 100 combos, zero System bets — and it
+// measures 1 in ~540, matching the independent prediction almost exactly.
+// That gap is the entire reason "1k" no longer uses System bets: they were
+// quietly lowering the any-prize and G3-or-better rates for the packaging,
+// not helping. There's no closed form for the correlated case without
+// modelling the exact deal pattern, so G3 stays a Monte Carlo estimate
 // (scripts/simulateStrategies.ts, 500 portfolios x 40,000 draws).
 function exactG1(costDollars: number): string {
   const oneIn = TOTAL_COMBINATIONS / costDollars;
@@ -56,26 +58,26 @@ function exactG2(costDollars: number): string {
 
 export const strats = {
   "1k": {
-    name: "G3+ Optimised",
-    tag: "Balanced spread",
+    name: "Pure Spread",
+    tag: "Best any-prize odds",
     cost: 100,
-    any: "51.9%",
-    g3: "1 in 941",
+    any: "86.5%",
+    g3: "1 in 540",
     g2: exactG2(100),
     g1: exactG1(100),
-    m: "12× System 7 + 16× Ordinary ($100)",
-    w: "You want a good chance of winning something — any prize, any draw.",
+    m: "100× Ordinary, no System bets ($100)",
+    w: "You want the best chance of winning something — any prize, any draw. System-bet sub-lines correlate with each other, which quietly lowers this; 100 fully independent lines don't have that problem.",
   },
   "100k": {
     name: "G2 Hunter",
-    tag: "Most tickets, widest spread",
+    tag: "Fewer, larger tickets",
     cost: 100,
     any: "61.0%",
     g3: "1 in 835",
     g2: exactG2(100),
     g1: exactG1(100),
     m: "10× System 7 + 30× Ordinary ($100)",
-    w: "Forty tickets instead of twenty-eight, for the same $100 and the same 100 combinations — spread across more distinct numbers.",
+    w: "Same $100, same 100 combinations, packaged into fewer tickets to manage — a real convenience trade against Pure Spread's better odds, not a mathematical advantage.",
   },
   mega: {
     name: "Jackpot or Bust",
