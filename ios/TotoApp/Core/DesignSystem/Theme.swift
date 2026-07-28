@@ -55,6 +55,23 @@ extension View {
     }
 }
 
+/// Prominent card section-title styling: bold and full-contrast instead of
+/// `.secondary`, which read as faint gray-on-white (and gray-on-black in
+/// dark mode) and made headers like "Next Draw" easy to miss entirely.
+struct SectionHeaderStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.title3.weight(.bold))
+            .foregroundStyle(.primary)
+    }
+}
+
+extension View {
+    func sectionHeaderStyle() -> some View {
+        modifier(SectionHeaderStyle())
+    }
+}
+
 extension Color {
     init(hex: UInt) {
         self.init(

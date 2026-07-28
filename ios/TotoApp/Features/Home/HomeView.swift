@@ -26,6 +26,9 @@ struct HomeView: View {
             .navigationDestination(for: Draw.self) { draw in
                 DrawDetailView(draw: draw)
             }
+            .navigationDestination(for: Int.self) { number in
+                NumberDetailView(number: number)
+            }
             .task { await viewModel.load() }
             .overlay {
                 if viewModel.isLoading && viewModel.latestDraw == nil {
@@ -79,32 +82,43 @@ struct HomeView: View {
     }
 
     private var nextDrawCard: some View {
+        // The jackpot amount is the headline number here, not the date — a
+        // draw date on its own tells you nothing about whether to care.
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Label("Next Draw", systemImage: "calendar")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
+                    .sectionHeaderStyle()
                 Spacer()
                 cachedPill
             }
 
             if let upcoming = viewModel.upcomingDraw {
                 Text(upcoming.drawDate, style: .date)
-                    .font(.title2.bold())
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
                 if let jackpot = upcoming.estimatedJackpot {
-                    Text("Estimated jackpot: \(jackpot, format: .currency(code: "SGD").precision(.fractionLength(0)))")
-                        .font(.subheadline)
+                    Text("Estimated jackpot")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(jackpot, format: .currency(code: "SGD").precision(.fractionLength(0)))
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                        .monospacedDigit()
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                 } else {
                     Text("Estimated jackpot not published yet.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 if upcoming.isSnowball {
-                    Text("Snowball draw").font(.caption).foregroundStyle(.orange)
+                    Text("Snowball draw").font(.caption.bold()).foregroundStyle(.orange)
                 }
             } else {
                 Text(viewModel.localNextDrawEstimate, style: .date)
-                    .font(.title2.bold())
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
                 Text("Jackpot amount unavailable. Showing estimated schedule only.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -118,8 +132,7 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Label("Latest Result · Draw #\(draw.drawNumber, format: .number.grouping(.never))", systemImage: "checkmark.seal")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
+                    .sectionHeaderStyle()
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.footnote.bold())
@@ -162,28 +175,50 @@ struct HomeView: View {
 
     private func curatedFactsSection(for draw: Draw) -> some View {
         // Show at most two facts, drawn from the winning numbers in order.
-        let factNumbers = (draw.winningNumbers + [draw.additionalNumber])
-            .filter { viewModel.curatedFacts[$0]?.first != nil }
-            .prefix(2)
-        return VStack(alignment: .leading, spacing: 12) {
+        let factNumbers = Array(
+            (draw.winningNumbers + [draw.additionalNumber])
+                .filter { viewModel.curatedFacts[$0]?.first != nil }
+                .prefix(2)
+        )
+        return VStack(alignment: .leading, spacing: 14) {
             Label("Fun Facts About These Numbers", systemImage: "sparkles")
-                .font(.headline)
-                .foregroundStyle(.secondary)
+                .sectionHeaderStyle()
 
-            ForEach(Array(factNumbers), id: \.self) { number in
+            ForEach(factNumbers.indices, id: \.self) { index in
+                let number = factNumbers[index]
                 if let fact = viewModel.curatedFacts[number]?.first {
-                    HStack(alignment: .top, spacing: 12) {
-                        LotteryBallView(number: number, size: 32)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(fact.headline).font(.subheadline.bold())
-                            Text(fact.body).font(.caption).foregroundStyle(.secondary)
+                    if index > 0 { Divider() }
+                    // Each fact pushes straight to that number's own page —
+                    // previously this whole section was read-only.
+                    NavigationLink(value: number) {
+                        HStack(alignment: .top, spacing: 12) {
+                            LotteryBallView(number: number, size: 36)
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(fact.headline)
+                                    .font(.headline)
+                                    .foregroundStyle(.primary)
+                                Text(fact.body)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .lineSpacing(3)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            Spacer(minLength: 0)
+                            Image(systemName: "chevron.right")
+                                .font(.footnote.bold())
+                                .foregroundStyle(.tertiary)
+                                .padding(.top, 3)
                         }
+                        .contentShape(Rectangle())
+                        .accessibilityElement(children: .combine)
+                        .accessibilityHint("Opens number \(number)'s page")
                     }
+                    .buttonStyle(.plain)
                 }
             }
 
             Divider()
-            Text("Every number has a story. Tap any ball in History → Numbers for more.")
+            Text("Tap a fact above for the full story, or browse all 49 numbers in History → Numbers.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
