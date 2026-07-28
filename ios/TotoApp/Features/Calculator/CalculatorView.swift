@@ -62,7 +62,7 @@ struct CalculatorView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("What SGD \(appState.budget.formatted()) can buy")
                 .font(.title2.bold())
-            Text("Every combination below costs the same per line of coverage. Spreading means smaller prizes land more often; concentrating means rarer but larger hits. Average return is identical either way.")
+            Text("Every option covers the same total stake — pick how concentrated you want your numbers.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
@@ -87,7 +87,11 @@ struct CalculatorView: View {
                 .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 12))
             }
 
-            Text("Same expected return either way. Spending pattern only changes how the losses arrive, never their average size.")
+            // The intro line above already sets up "same total stake" —
+            // this is the one place the actual insight (why spreading vs.
+            // concentrating doesn't matter) belongs, said once rather than
+            // echoed both above and below the list.
+            Label("Same average return either way — only how the losses arrive changes.", systemImage: "info.circle")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
@@ -145,9 +149,19 @@ struct CalculatorView: View {
             Text("About \(cents)¢ back per $1, on average")
                 .font(.title3.bold())
 
-            Text("At \(isHypothetical ? "an example" : "the current") \(displayedJackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot. This rate depends only on the jackpot size. Spending more doesn't change it; every dollar gets the same ~\(cents)¢ back. Breaking even needs roughly a \(viewModel.breakEvenJackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot, but big jackpots attract more players and get split more often, so in practice those draws don't really exist.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            // Was one long compound sentence cramming four separate ideas
+            // (which jackpot, why the rate is fixed, the break-even point,
+            // and why break-even is unrealistic). Splitting into a primary
+            // takeaway plus a secondary caveat — same treatment as the
+            // headline stat above it — gives the paragraph some hierarchy
+            // instead of one dense gray block.
+            VStack(alignment: .leading, spacing: 4) {
+                Text("At \(isHypothetical ? "an example" : "the current") \(displayedJackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot, every dollar spent returns about \(cents)¢ on average — spending more doesn't change that rate.")
+                    .font(.subheadline)
+                Text("Breaking even needs roughly a \(viewModel.breakEvenJackpot, format: .currency(code: "SGD").precision(.fractionLength(0))) jackpot — but jackpots that large draw more players and get split more often, so in practice they don't really happen.")
+                    .font(.footnote)
+            }
+            .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle()
@@ -204,25 +218,18 @@ struct BudgetCard: View {
     var body: some View {
         @Bindable var appState = appState
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
+            // "Your budget" and its value used to sit on separate rows —
+            // putting the value inline reclaims a full text row of height.
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text("Your budget").font(.title2.bold())
                 Spacer()
-                if showsSyncedPill {
-                    Text("synced with Calculator")
-                        .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(.quaternary, in: Capsule())
-                        .foregroundStyle(.secondary)
-                }
-            }
-
-            HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Text("SGD").font(.title2.bold())
+                Text("SGD").font(.subheadline.bold()).foregroundStyle(.secondary)
                 TextField("Budget", text: $draftText)
                     .keyboardType(.numberPad)
                     .font(.title2.bold())
                     .foregroundStyle(.tint)
+                    .multilineTextAlignment(.trailing)
+                    .fixedSize()
                     .focused($isEditingBudget)
 
                 if isEditingBudget {
@@ -245,6 +252,18 @@ struct BudgetCard: View {
                     .font(.subheadline.bold())
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
+                }
+            }
+
+            if showsSyncedPill {
+                HStack {
+                    Spacer()
+                    Text("synced with Calculator")
+                        .font(.caption)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(.quaternary, in: Capsule())
+                        .foregroundStyle(.secondary)
                 }
             }
 
