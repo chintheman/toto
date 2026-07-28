@@ -261,25 +261,28 @@ struct PicksView: View {
                     recommendationCard
                     premiumTeaser
                     Text("Every combination is equally likely to be drawn. These picks optimise structure, not luck. Play responsibly.")
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 .padding()
             }
+            // Tapping or scrolling anywhere else on the page exits the
+            // budget field's edit mode (see BudgetCard).
+            .scrollDismissesKeyboard(.immediately)
             .navigationTitle("Picks")
         }
     }
 
     private var goalCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("What are you aiming for?").font(.headline)
+            Text("What are you aiming for?").font(.title2.bold())
             ForEach(PickGoal.allCases) { candidate in
                 Button {
                     goal = candidate
                 } label: {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(candidate.title).font(.subheadline.bold()).foregroundStyle(.primary)
-                        Text(candidate.subtitle).font(.caption).foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(candidate.title).font(.headline).foregroundStyle(.primary)
+                        Text(candidate.subtitle).font(.subheadline).foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(12)
@@ -299,16 +302,16 @@ struct PicksView: View {
     private var recommendationCard: some View {
         let recommendation = PicksMath.recommendation(budget: appState.budget, goal: goal)
         return VStack(alignment: .leading, spacing: 10) {
-            Text("Recommended play").font(.headline)
+            Text("Recommended play").font(.title2.bold())
             Text(recommendation.title).font(.title3.bold())
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(recommendation.odds).font(.title3.bold()).foregroundStyle(.tint)
-                Text(recommendation.oddsNote).font(.caption).foregroundStyle(.secondary)
+                Text(recommendation.oddsNote).font(.subheadline).foregroundStyle(.secondary)
             }
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 12))
-            Text(recommendation.math).font(.footnote).foregroundStyle(.secondary)
+            Text(recommendation.math).font(.subheadline).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle()
@@ -320,19 +323,19 @@ struct PicksView: View {
             // Remembered across launches, so we never ask again.
             VStack(alignment: .leading, spacing: 8) {
                 Label("You're on the list", systemImage: "checkmark.circle.fill")
-                    .font(.subheadline.bold())
+                    .font(.headline)
                     .foregroundStyle(.green)
-                Text("Thanks for signing up. We'll email you the moment the premium version launches, with your 50% off locked in.")
-                    .font(.caption)
+                Text("You're awesome, thanks for signing up! You'll be the first to hear about promos and updates!")
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .cardStyle()
         } else {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Want picks tailored to you?").font(.subheadline.bold())
+                Text("Want picks tailored to you?").font(.headline)
                 Text("More detailed, customised combinations are coming in a future premium version. Leave your email for 50% off at launch.")
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                 HStack(spacing: 8) {
                     TextField("you@email.com", text: $email)
