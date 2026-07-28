@@ -31,6 +31,10 @@ struct CalculatorView: View {
                 }
                 .padding()
             }
+            // Tapping or scrolling anywhere else on the page exits the
+            // budget field's edit mode (see BudgetCard) — the same
+            // resigned-focus path Confirm and Cancel already use.
+            .scrollDismissesKeyboard(.immediately)
             .navigationTitle("Calculator")
             .task { await viewModel.load() }
             .overlay {
@@ -189,15 +193,23 @@ struct BudgetCard: View {
     @Environment(AppState.self) private var appState
     var showsSyncedPill = false
 
+    // Typing a new budget now has an explicit edit mode: the committed
+    // value (appState.budget) and the in-progress typed text (draftText)
+    // are kept separate, so an X can revert the typed text without ever
+    // touching the real budget, and nothing commits until the user
+    // confirms, taps away, or scrolls.
+    @FocusState private var isEditingBudget: Bool
+    @State private var draftText: String = ""
+
     var body: some View {
         @Bindable var appState = appState
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Your budget").font(.headline)
+                Text("Your budget").font(.title2.bold())
                 Spacer()
                 if showsSyncedPill {
                     Text("synced with Calculator")
-                        .font(.caption2)
+                        .font(.caption)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
                         .background(.quaternary, in: Capsule())
@@ -207,10 +219,33 @@ struct BudgetCard: View {
 
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text("SGD").font(.title2.bold())
-                TextField("Budget", value: $appState.budget, format: .number)
+                TextField("Budget", text: $draftText)
                     .keyboardType(.numberPad)
                     .font(.title2.bold())
                     .foregroundStyle(.tint)
+                    .focused($isEditingBudget)
+
+                if isEditingBudget {
+                    Button {
+                        // Cancel: snap the draft back to the committed
+                        // value, so whatever's typed is discarded rather
+                        // than applied, then exit edit mode.
+                        draftText = String(appState.budget)
+                        isEditingBudget = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title3)
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+
+                    Button("Confirm") {
+                        isEditingBudget = false
+                    }
+                    .font(.subheadline.bold())
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+                }
             }
 
             Slider(
@@ -232,6 +267,32 @@ struct BudgetCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle()
+        .onAppear {
+            draftText = String(appState.budget)
+        }
+        .onChange(of: appState.budget) { _, newValue in
+            // The slider (or the other page's shared BudgetCard) can change
+            // the budget while this field isn't focused — keep the display
+            // in sync, but never clobber text the user is mid-typing.
+            if !isEditingBudget {
+                draftText = String(newValue)
+            }
+        }
+        .onChange(of: isEditingBudget) { wasEditing, nowEditing in
+            if !wasEditing && nowEditing {
+                draftText = String(appState.budget)
+            } else if wasEditing && !nowEditing {
+                // Editing just ended — via Confirm, Cancel, tapping away, or
+                // scrolling. Cancel already reset draftText to the committed
+                // value above, so this commit is a harmless no-op in that
+                // case; otherwise it applies whatever was typed.
+                if let value = Int(draftText) {
+                    appState.budget = value
+                } else {
+                    draftText = String(appState.budget)
+                }
+            }
+        }
     }
 }
 
