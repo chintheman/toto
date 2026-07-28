@@ -29,7 +29,7 @@ trap 'git branch -qD "$branch" 2>/dev/null || true' EXIT
 echo "==> splitting $prefix/ into $branch"
 git subtree split --prefix="$prefix" --branch="$branch" >/dev/null
 
-echo "==> pushing to git@github.com:$target"
+echo "==> pushing to https://github.com/$target"
 # Explicit URL rather than a named remote: the host repo's origin points elsewhere, and
 # pushing a subtree split to the wrong place is not something you notice quickly.
 for attempt in 1 2 3 4; do
