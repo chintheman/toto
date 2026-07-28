@@ -50,11 +50,7 @@ struct LearnView: View {
                 FallacyDetailView(fallacy: fallacy)
             }
             .navigationDestination(for: LearnCollection.self) { collection in
-                CollectionListView(
-                    title: collection.title,
-                    fallacies: (collectionSlugs[collection.categoryKey] ?? [])
-                        .compactMap { slug in fallacies.first { $0.slug == slug } }
-                )
+                CollectionListView(title: collection.title, fallacies: collection.items)
             }
             .overlay { if isLoading { ProgressView() } }
             .task { await load() }
@@ -71,7 +67,7 @@ struct LearnView: View {
                 .tracking(-0.8)
                 .foregroundStyle(ink)
                 .padding(.top, 12)
-            Text("Eight beliefs almost every player holds, and what the maths actually says.")
+            Text("\(fallacies.count) beliefs almost every player holds, and what the maths actually says.")
                 .font(.system(size: 13.5))
                 .foregroundStyle(ink.opacity(0.55))
                 .lineSpacing(4)
@@ -126,6 +122,18 @@ struct LearnView: View {
                 .font(.system(size: 11.5, weight: .medium))
                 .foregroundStyle(Color(hex: 0x1A7F37))
                 .padding(.top, 3)
+        }
+    }
+
+    // Full category membership (all of that category's myths, same as the
+    // old grouped-list Learn tab) -- not a curated subset. Only the display
+    // wraps each category as a numbered "Collections" row instead of a
+    // native List section header.
+    private var collections: [LearnCollection] {
+        categoryKeyOrder.compactMap { key in
+            let items = fallacies.filter { $0.categoryKey == key }.sorted { $0.displayOrder < $1.displayOrder }
+            guard !items.isEmpty else { return nil }
+            return LearnCollection(categoryKey: key, title: categoryCollectionTitles[key] ?? items[0].categoryTitle, items: items)
         }
     }
 
@@ -241,38 +249,51 @@ private let bigFourCards: [BigFourCard] = [
                 title: "Buying more lines", verdict: "Losses scale too"),
 ]
 
-/// One row in the "Collections" list — pushes to a small filtered list of
-/// that category's 2 curated myths (see collectionSlugs below).
+/// One row in the "Collections" list — pushes to the FULL list of that
+/// category's real myths (all of them, same membership as the old
+/// grouped-list Learn tab), not a curated subset. items drives both the
+/// pushed list and the "N busts · M min" meta text, so they can never
+/// disagree with what's actually behind the row.
 private struct LearnCollection: Hashable {
     let categoryKey: String
     let title: String
-    let meta: String
+    let items: [Fallacy]
+
+    var meta: String {
+        "\(items.count) bust\(items.count == 1 ? "" : "s") · \(readTimeMinutes(items)) min"
+    }
 }
 
-private let collections: [LearnCollection] = [
-    LearnCollection(categoryKey: "randomness", title: "Which numbers are due", meta: "2 busts · 3 min"),
-    LearnCollection(categoryKey: "picking", title: "Picking smarter numbers", meta: "2 busts · 3 min"),
-    LearnCollection(categoryKey: "money", title: "Spending your way to odds", meta: "2 busts · 4 min"),
-    LearnCollection(categoryKey: "mind", title: "Is a fair game a good bet", meta: "2 busts · 3 min"),
+// Category display order and the shortened, sentence-style titles used for
+// Collections rows (distinct from Fallacy.categoryTitle's longer
+// first-person phrasing, which FallacyDetailView still uses unchanged).
+private let categoryKeyOrder = ["randomness", "picking", "money", "mind"]
+private let categoryCollectionTitles: [String: String] = [
+    "randomness": "Which numbers are due",
+    "picking": "Picking smarter numbers",
+    "money": "Spending your way to odds",
+    "mind": "Is a fair game a good bet",
 ]
 
-/// Which 2 of each category's real fallacies are surfaced here — a curated
-/// subset (8 of the 20 rows in the table), matching the "Eight beliefs"
-/// framing in the title deck line. The other 12 aren't reachable from this
-/// screen in this v1. randomness/picking/money's first pick matches a Big
-/// Four card; the rest are the next-lowest display_order in that category.
-/// This selection wasn't specified by the design handoff — flagged back
-/// rather than silently finalized.
-private let collectionSlugs: [String: [String]] = [
-    "randomness": ["hot-numbers-win-more", "cold-numbers-are-due"],
-    "picking": ["birthday-numbers", "balanced-numbers-look-more-random"],
-    "money": ["more-tickets-doesnt-help", "anchoring-on-jackpot-headline"],
-    "mind": ["the-system-is-rigged", "someone-always-wins"],
-]
+/// Rough reading-time estimate (~180 words/minute, rounded up, minimum 1)
+/// across a category's myth statement, truth line, explanation and stat
+/// callout. Computed rather than a static guess, since collection size
+/// varies by category (no longer a fixed "2 busts" assumption).
+private func readTimeMinutes(_ items: [Fallacy]) -> Int {
+    let words = items.reduce(0) { total, fallacy in
+        total + wordCount(fallacy.mythStatement) + wordCount(fallacy.truthHeadline)
+            + wordCount(fallacy.explanationBody) + wordCount(fallacy.statCallout ?? "")
+    }
+    return max(1, Int((Double(words) / 180.0).rounded(.up)))
+}
 
-/// The small list a "Collections" row pushes to — just that category's 2
-/// curated myths, reusing the existing Fallacy.self navigationDestination
-/// declared on the root NavigationStack.
+private func wordCount(_ text: String) -> Int {
+    text.split(separator: " ").count
+}
+
+/// The small list a "Collections" row pushes to — all of that category's
+/// myths, reusing the existing Fallacy.self navigationDestination declared
+/// on the root NavigationStack.
 private struct CollectionListView: View {
     let title: String
     let fallacies: [Fallacy]
