@@ -2,7 +2,7 @@ import { useCurrentFrame, useVideoConfig, spring, interpolate, AbsoluteFill, Seq
 import { loadFont } from "@remotion/google-fonts/PlayfairDisplay";
 import { loadFont as loadInter } from "@remotion/google-fonts/Inter";
 import { theme as COLORS } from "../../shared/palette";
-import { strats, evByJackpot, frequencyTop, frequencyBottom, maxFreq } from "../../shared/totoData";
+import { strats, evByJackpot, frequencyTop, frequencyBottom, maxFreq, BREAK_EVEN_MILLIONS } from "../../shared/totoData";
 
 const { fontFamily: headingFont } = loadFont("normal", { weights: ["400", "700", "900"] });
 const { fontFamily: bodyFont } = loadInter("normal", { weights: ["400", "600", "700"] });
@@ -126,14 +126,21 @@ const SceneMyths = () => {
 const SceneEV = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const evColors = [COLORS.terracotta, COLORS.terracotta, COLORS.terracottaLight, COLORS.beigeDark, COLORS.sage, COLORS.sage, COLORS.sageLight];
-  const jackpots = evByJackpot.map((j, i) => ({ amt: j.jackpot, ev: j.ev, color: evColors[i] ?? COLORS.sage }));
+  // Colour by how bad the bet is, not by position in the array — the EV
+  // table is derived now, so its length can change with the chart range.
+  const colorForEV = (ev: number) => {
+    if (ev > 0) return COLORS.sageLight;
+    if (ev > -20) return COLORS.sage;
+    if (ev > -40) return COLORS.beigeDark;
+    return COLORS.terracotta;
+  };
+  const jackpots = evByJackpot.map(j => ({ amt: j.jackpot, ev: j.ev, color: colorForEV(j.ev) }));
 
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingLeft: 120, paddingBottom: 100 }}>
       <div style={{ ...slideFromLeft(frame, 5), marginBottom: 20 }}>
         <span style={{ fontFamily: headingFont, fontSize: 160, fontWeight: 900, color: COLORS.brown, letterSpacing: "-0.03em", display: "block", lineHeight: 1 }}>
-          Below $4M?
+          Below ${BREAK_EVEN_MILLIONS}M?
         </span>
         <span style={{ fontFamily: headingFont, fontSize: 160, fontWeight: 900, color: COLORS.terracotta, letterSpacing: "-0.03em", display: "block", lineHeight: 1, marginTop: -16 }}>
           Bad bet.
@@ -168,7 +175,7 @@ const SceneEV = () => {
       <div style={{ marginTop: 24, width: 680, height: 2, backgroundColor: COLORS.sage, opacity: 0.35 }} />
       <div style={{ ...slideFromLeft(frame, 120) }}>
         <span style={{ fontFamily: headingFont, fontSize: 44, fontWeight: 700, color: COLORS.sage, marginTop: 8, display: "block" }}>
-          ↑ Positive EV threshold: $4.5M+
+          ↑ Break-even needs ${BREAK_EVEN_MILLIONS}M
         </span>
       </div>
     </AbsoluteFill>
