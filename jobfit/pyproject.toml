@@ -52,7 +52,10 @@ select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 # RUF001/002: en-dashes and typographic apostrophes are deliberate here. The style check
 # reasons about em-dash density in generated prose, and the proper-noun tokeniser has to
 # match the curly apostrophe real employer names actually contain.
-ignore = ["E501", "RUF001", "RUF002"]
+# SIM905: this codebase carries several word lists (stopwords, banned phrases, connectors)
+# that read as prose and edit as prose. The suggested list literal turns each into one
+# 400-character line, which is worse on every axis that matters.
+ignore = ["E501", "RUF001", "RUF002", "SIM905"]
 
 [tool.mypy]
 python_version = "3.11"

@@ -15,14 +15,19 @@ an explicit fact list, never of "the whole profile".
 from __future__ import annotations
 
 import os
-from typing import TypeVar
+from typing import Literal, TypeVar
 
 import anthropic
+from anthropic.types import OutputConfigParam, TextBlockParam
 from pydantic import BaseModel
 
 from jobfit.domain.models import Fact
 
 T = TypeVar("T", bound=BaseModel)
+
+#: The effort levels the API accepts. Spelled out rather than typed as `str` so a typo is
+#: a type error here instead of a 400 from the API at the end of a paid pipeline run.
+Effort = Literal["low", "medium", "high", "xhigh", "max"]
 
 #: Tailoring, angle selection, entailment — judgement-heavy, low volume.
 WRITER_MODEL = os.getenv("JOBFIT_MODEL_WRITER", "claude-opus-5")
@@ -66,7 +71,7 @@ class Client:
         system: str,
         user: str,
         model: str = WRITER_MODEL,
-        effort: str = "high",
+        effort: Effort = "high",
         max_tokens: int = 16000,
         cache_system: bool = True,
     ) -> T:
@@ -77,14 +82,18 @@ class Client:
         turn, after the breakpoint. Getting that order wrong is the usual reason caching
         silently does nothing.
         """
-        system_block: list[anthropic.types.TextBlockParam] = [{"type": "text", "text": system}]
+        system_block: list[TextBlockParam] = [{"type": "text", "text": system}]
         if cache_system:
             system_block[0]["cache_control"] = {"type": "ephemeral"}
+
+        # Annotated rather than inlined: a bare dict literal infers as `dict[str, str]`,
+        # which is not the TypedDict the SDK expects.
+        output_config: OutputConfigParam = {"effort": effort}
 
         response = self._client.messages.parse(
             model=model,
             max_tokens=max_tokens,
-            output_config={"effort": effort},
+            output_config=output_config,
             system=system_block,
             messages=[{"role": "user", "content": user}],
         )
