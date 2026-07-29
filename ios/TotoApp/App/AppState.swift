@@ -27,6 +27,12 @@ final class AppState {
 
     static let budgetRange = 1...500
 
+    /// Which tab `MainTabView`'s floating nav bar shows as active. Lives
+    /// here (not local state on MainTabView) so other screens can request
+    /// a tab switch — e.g. Home's "Enter the Number Trivia library" row
+    /// jumping to the Numbers tab.
+    var selectedTab: AppTab = .home
+
     init() {
         hasCompletedOnboarding = UserDefaults.standard.bool(forKey: AppStorageKeys.hasCompletedOnboarding)
         let storedBudget = UserDefaults.standard.integer(forKey: AppStorageKeys.sharedBudget)

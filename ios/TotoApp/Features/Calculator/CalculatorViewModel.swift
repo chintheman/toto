@@ -1,13 +1,13 @@
 import Foundation
 import Observation
 
-/// A "What $X can buy" row: how many of a bet type the budget affords.
-struct AffordableCombo: Identifiable {
-    let betType: BetType
+/// One row of the "What $X can buy" spend breakdown.
+struct SpendBreakdownRow: Identifiable, Equatable {
+    let name: String
     let count: Int
-    let spend: Int
+    let combinations: Int
 
-    var id: String { betType.id }
+    var id: String { name }
 }
 
 /// Which jackpot the "Value of this draw" card is currently valuing:
@@ -96,16 +96,33 @@ final class CalculatorViewModel {
         return "$\(String(format: "%.1f", millions))M"
     }
 
-    /// Design-changes §4: every affordable bet type, count-formatted, with
-    /// "$N of $budget" cost framing. Variance framing only — no claim that
-    /// any allocation improves expected return.
-    func affordableCombos(budget: Int) -> [AffordableCombo] {
-        BetType.allCases.compactMap { type in
-            let unit = Int(type.cost)
-            let count = budget / unit
-            guard count >= 1 else { return nil }
-            return AffordableCombo(betType: type, count: count, spend: count * unit)
+    /// "What $X can buy" spend breakdown (calculator-strategies handoff
+    /// §1). Ordinary-only when System is off: trivially spends the whole
+    /// budget as $1 combinations. With System on, a waterfall tries System
+    /// 10 → 9 → 8 → 7 *once each*, largest first, then Ordinary always mops
+    /// up whatever's left — even if the Ordinary toggle itself is off,
+    /// since it's the only bet type that can spend a remainder exactly.
+    /// This bounds the result at 5 rows no matter the budget, which was
+    /// the whole point of replacing the old one-row-per-affordable-type
+    /// list (that could show up to 5 simultaneous rows and only grew
+    /// messier as budget increased).
+    func spendBreakdown(budget: Int, systemOn: Bool) -> [SpendBreakdownRow] {
+        guard systemOn else {
+            return [SpendBreakdownRow(name: "Ordinary", count: budget, combinations: budget)]
         }
+        var remaining = budget
+        var rows: [SpendBreakdownRow] = []
+        let systemTiers: [(name: String, cost: Int)] = [
+            ("System 10", 210), ("System 9", 84), ("System 8", 28), ("System 7", 7)
+        ]
+        for tier in systemTiers where remaining >= tier.cost {
+            rows.append(SpendBreakdownRow(name: tier.name, count: 1, combinations: tier.cost))
+            remaining -= tier.cost
+        }
+        if remaining > 0 {
+            rows.append(SpendBreakdownRow(name: "Ordinary", count: remaining, combinations: remaining))
+        }
+        return rows
     }
 
     var ordinaryEV: Double? {

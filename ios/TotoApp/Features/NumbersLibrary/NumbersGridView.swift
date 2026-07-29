@@ -1,30 +1,5 @@
 import SwiftUI
 
-/// The Numbers grid, embedded as History's second segment
-/// (design-changes §1/§3) — framed as fun facts, not statistics.
-struct NumbersLibrarySection: View {
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 5)
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                Text("Every number from 1 to 49 has its own fun facts. Tap one to read its story.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(1...49, id: \.self) { number in
-                        NavigationLink(value: number) {
-                            LotteryBallView(number: number, size: 56)
-                        }
-                    }
-                }
-            }
-            .padding()
-        }
-    }
-}
-
 /// Tracks how many times each number's story has been opened so the fact
 /// rotates on every visit (§3: facts[(visitCount − 1) % facts.count]).
 enum FactRotation {
