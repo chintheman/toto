@@ -25,6 +25,7 @@ struct AllNumbersGridView: View {
             }
             .padding()
         }
+        .floatingNavBarClearance()
         .navigationTitle("All Numbers")
         .navigationBarTitleDisplayMode(.inline)
     }

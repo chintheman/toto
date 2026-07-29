@@ -18,6 +18,13 @@ final class NumbersHubViewModel {
     private var factsByNumber: [Int: NumberFact] = [:]
     private var rotationTask: Task<Void, Never>?
     private let factsRepository: FactsRepository
+    /// Whether the Numbers tab is the one currently on screen. MainTabView
+    /// keeps every tab's view (and this view model with it) alive the
+    /// whole time to preserve scroll/nav state across switches — so unlike
+    /// a normal SwiftUI screen, this never gets an `onDisappear`/`deinit`
+    /// to stop the rotation timer on its own. `setActive` is the only
+    /// thing that starts or stops it.
+    private var isActive = false
 
     /// Categories a number can be tagged with in the hero pill, most
     /// specific/interesting first — everything falls through to even/odd,
@@ -40,16 +47,31 @@ final class NumbersHubViewModel {
             if spotlight == nil {
                 advanceSpotlight()
             }
-            startRotationIfNeeded()
+            if isActive {
+                startRotationIfNeeded()
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
         isLoading = false
     }
 
-    /// Cycles the hero card to a new random number every few seconds —
-    /// stops automatically once the view (and this view model with it) is
-    /// deallocated, no explicit teardown call needed.
+    /// Starts or stops the rotation timer to match whether this tab is
+    /// actually visible — called from `NumbersHubView` on every tab switch
+    /// (via `AppState.selectedTab`), since nothing else tells this view
+    /// model when it's gone off screen.
+    func setActive(_ active: Bool) {
+        guard active != isActive else { return }
+        isActive = active
+        if active {
+            startRotationIfNeeded()
+        } else {
+            rotationTask?.cancel()
+            rotationTask = nil
+        }
+    }
+
+    /// Cycles the hero card to a new random number every few seconds.
     private func startRotationIfNeeded() {
         guard rotationTask == nil, !factsByNumber.isEmpty else { return }
         rotationTask = Task { [weak self] in

@@ -37,6 +37,7 @@ struct CalculatorView: View {
                 }
                 .padding()
             }
+            .floatingNavBarClearance()
             // Tapping or scrolling anywhere else on the page exits the
             // budget field's edit mode (see BudgetCard) — the same
             // resigned-focus path Confirm and Cancel already use.

@@ -42,6 +42,7 @@ struct HistoryView: View {
                 }
             }
         }
+        .floatingNavBarClearance()
         .overlay {
             if viewModel.isLoading && viewModel.draws.isEmpty {
                 ProgressView()
@@ -158,6 +159,7 @@ struct DrawDetailView: View {
                 Link("View original source", destination: URL(string: draw.sourceUrl) ?? URL(string: "https://singaporepools.com.sg")!)
             }
         }
+        .floatingNavBarClearance()
         .navigationTitle("Draw #\(draw.drawNumber, format: .number.grouping(.never))")
         .task { await loadPrizeGroups() }
     }

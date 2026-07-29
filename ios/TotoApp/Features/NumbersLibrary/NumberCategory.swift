@@ -5,7 +5,7 @@ import SwiftUI
 /// `culturallySignificant`, which is a curated list — deliberately no
 /// frequency-based categories (Hot/Cold/Overdue), since those would
 /// contradict the gambler's-fallacy myths busted in Learn.
-enum NumberCategory: String, CaseIterable, Identifiable {
+enum NumberCategory: String, CaseIterable, Identifiable, Equatable, Hashable {
     case random, allNumbers, prime, even, odd, perfectSquares, fibonacci, culturallySignificant
 
     var id: String { rawValue }

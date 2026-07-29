@@ -108,19 +108,22 @@ final class CalculatorViewModel {
     /// messier as budget increased).
     func spendBreakdown(budget: Int, systemOn: Bool) -> [SpendBreakdownRow] {
         guard systemOn else {
-            return [SpendBreakdownRow(name: "Ordinary", count: budget, combinations: budget)]
+            return [SpendBreakdownRow(name: BetType.ordinary.displayName, count: budget, combinations: budget)]
         }
         var remaining = budget
         var rows: [SpendBreakdownRow] = []
-        let systemTiers: [(name: String, cost: Int)] = [
-            ("System 10", 210), ("System 9", 84), ("System 8", 28), ("System 7", 7)
-        ]
-        for tier in systemTiers where remaining >= tier.cost {
-            rows.append(SpendBreakdownRow(name: tier.name, count: 1, combinations: tier.cost))
-            remaining -= tier.cost
+        // Largest tier first, derived from BetType.cost (== C(numbersChosen,
+        // 6)) rather than a second hardcoded 210/84/28/7 — EVMath.BetType is
+        // the one place those numbers are allowed to live.
+        let systemTiersLargestFirst: [BetType] = [.system10, .system9, .system8, .system7]
+        for tier in systemTiersLargestFirst {
+            let cost = Int(tier.cost)
+            guard remaining >= cost else { continue }
+            rows.append(SpendBreakdownRow(name: tier.displayName, count: 1, combinations: cost))
+            remaining -= cost
         }
         if remaining > 0 {
-            rows.append(SpendBreakdownRow(name: "Ordinary", count: remaining, combinations: remaining))
+            rows.append(SpendBreakdownRow(name: BetType.ordinary.displayName, count: remaining, combinations: remaining))
         }
         return rows
     }

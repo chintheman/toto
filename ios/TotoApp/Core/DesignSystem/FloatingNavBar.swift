@@ -75,6 +75,20 @@ extension View {
             if !isActive { value = .light }
         }
     }
+
+    /// Reserves clearance for the floating nav pill at the bottom of a
+    /// scrollable screen. The pill is an absolutely positioned overlay in
+    /// `MainTabView`, not a real safe area, so a List or ScrollView has no
+    /// way to know its own trailing content sits underneath it without
+    /// this — needed on every tab root *and* every pushed detail screen,
+    /// since the pill stays visible at any navigation depth. Works on both
+    /// List and ScrollView (safeAreaInset applies to either), so it's the
+    /// one thing to reach for instead of ad hoc trailing padding.
+    func floatingNavBarClearance() -> some View {
+        safeAreaInset(edge: .bottom) {
+            Color.clear.frame(height: 84)
+        }
+    }
 }
 
 /// Icon-only floating "liquid glass" pill nav bar — replaces the system

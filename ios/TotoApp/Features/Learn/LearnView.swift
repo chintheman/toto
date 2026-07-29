@@ -46,6 +46,7 @@ struct LearnView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 20)
             }
+            .floatingNavBarClearance()
             .background(pageBackground.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: Fallacy.self) { fallacy in
@@ -295,6 +296,7 @@ private struct CollectionListView: View {
                 }
             }
         }
+        .floatingNavBarClearance()
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -356,6 +358,7 @@ struct FallacyDetailView: View {
                 .padding(.horizontal, 28)
                 .frame(maxWidth: .infinity)
             }
+            .floatingNavBarClearance()
         }
         .navigationBarTitleDisplayMode(.inline)
     }

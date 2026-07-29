@@ -9,7 +9,15 @@ struct AllNumbersGridDestination: Hashable {}
 /// plus a grid of category tiles. Deliberately no page title/description —
 /// the hero card is the first thing on screen.
 struct NumbersHubView: View {
+    @Environment(AppState.self) private var appState
     @State private var viewModel = NumbersHubViewModel()
+
+    // MainTabView keeps every tab's view alive (opacity-toggled, never
+    // removed) to preserve scroll/nav state across switches, so this is
+    // the only signal the view model has for "is Numbers actually the
+    // tab on screen right now" — used to pause the hero-card rotation
+    // timer while it isn't, rather than letting it run forever.
+    private var isActive: Bool { appState.selectedTab == .numbers }
 
     var body: some View {
         NavigationStack {
@@ -35,7 +43,13 @@ struct NumbersHubView: View {
                     ProgressView()
                 }
             }
-            .task { await viewModel.load() }
+            .task {
+                await viewModel.load()
+                viewModel.setActive(isActive)
+            }
+            .onChange(of: isActive) { _, newValue in
+                viewModel.setActive(newValue)
+            }
         }
     }
 

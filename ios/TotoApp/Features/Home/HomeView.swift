@@ -22,6 +22,7 @@ struct HomeView: View {
                 }
                 .padding()
             }
+            .floatingNavBarClearance()
             .refreshable { await viewModel.load() }
             .navigationTitle("TOTO")
             .navigationDestination(for: Draw.self) { draw in
