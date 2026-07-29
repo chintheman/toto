@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		03B6D075430BF71A0297B120 /* NumbersGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AEF979A3562D25BC2AF343 /* NumbersGridView.swift */; };
+		03B6D075430BF71A0297B120 /* NumberStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AEF979A3562D25BC2AF343 /* NumberStats.swift */; };
 		1A48B5AC15DEA57DF504D073 /* EVMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A33C0AE2F0AE0AA227152C77 /* EVMathTests.swift */; };
 		20D5A3878702EA1989E3C69E /* NumberReelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F5DE9452AD2408786B2A8A /* NumberReelView.swift */; };
 		2379458E301877C4005E3982 /* PicksMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2379458D301877C4005E3982 /* PicksMathTests.swift */; };
@@ -73,7 +73,7 @@
 		51E2F01AA8742F08514D1913 /* NumberFact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFact.swift; sourceTree = "<group>"; };
 		6640EBFF3074A66C5DE39A4B /* NextDrawSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextDrawSchedule.swift; sourceTree = "<group>"; };
 		7274431146B4EE54C88F0051 /* TotoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TotoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		78AEF979A3562D25BC2AF343 /* NumbersGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumbersGridView.swift; sourceTree = "<group>"; };
+		78AEF979A3562D25BC2AF343 /* NumberStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberStats.swift; sourceTree = "<group>"; };
 		7F73DFB22FE27B6CC420F099 /* CalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorView.swift; sourceTree = "<group>"; };
 		833D6E49F7A5DD34BD4A295E /* DrawsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawsRepository.swift; sourceTree = "<group>"; };
 		89FBB262D48EB82BB152B3A6 /* FactsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FactsRepository.swift; sourceTree = "<group>"; };
@@ -172,7 +172,7 @@
 		48116FF0B84C4648304FBEC7 /* NumbersLibrary */ = {
 			isa = PBXGroup;
 			children = (
-				78AEF979A3562D25BC2AF343 /* NumbersGridView.swift */,
+				78AEF979A3562D25BC2AF343 /* NumberStats.swift */,
 				0290C7497FC7245A8FF9A77C /* AllNumbersGridView.swift */,
 				09F812C75D8C13B73B5AB993 /* NumberCategory.swift */,
 				D0F5DE9452AD2408786B2A8A /* NumberReelView.swift */,
@@ -410,7 +410,7 @@
 				701EF08C35796CAC01BC8753 /* LearnView.swift in Sources */,
 				BA0D1C23F8459ABCCD2799D0 /* NextDrawSchedule.swift in Sources */,
 				EF478C4B957BEC5B433C3A8A /* NumberFact.swift in Sources */,
-				03B6D075430BF71A0297B120 /* NumbersGridView.swift in Sources */,
+				03B6D075430BF71A0297B120 /* NumberStats.swift in Sources */,
 				F3B225DE7A6934F5A298F3EB /* OnboardingCarouselView.swift in Sources */,
 				E1A7C93F42B85D60F1234A01 /* PicksView.swift in Sources */,
 				D5B2446AD15F2CF08AF4D5BB /* SupabaseClients.swift in Sources */,

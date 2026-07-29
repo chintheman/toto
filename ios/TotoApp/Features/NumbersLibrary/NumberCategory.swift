@@ -100,11 +100,10 @@ enum NumberCategory: String, CaseIterable, Identifiable {
         return values
     }()
 
-    // PLACEHOLDER pending design/content confirmation — the handoff calls
-    // for exactly 5 numbers here but doesn't specify which. Chosen from
-    // numerology facts already live in `number_facts` (4 "tetraphobia", 8
-    // "sounds like getting rich", 13 "statistically innocent", 18
-    // "definitely getting rich", 28 "easy prosperity") as a defensible
-    // starting set, not a confirmed final one.
-    private static let culturallySignificantNumbers: [Int] = [4, 8, 13, 18, 28]
+    // Numbers carrying real cross-cultural numerological weight: 4
+    // (unlucky, Chinese/Japanese — Mandarin homophone with "death"), 7
+    // (lucky, Western), 8 (lucky, Chinese — homophone with "prosperity"),
+    // 9 (lucky, Chinese — homophone with "long-lasting"), 13 (unlucky,
+    // Western).
+    private static let culturallySignificantNumbers: [Int] = [4, 7, 8, 9, 13]
 }
