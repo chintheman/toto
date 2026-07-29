@@ -114,7 +114,7 @@ struct LearnView: View {
                 .foregroundStyle(.white.opacity(0.8))
         }
         .padding(14)
-        .frame(height: 92, maxWidth: .infinity, alignment: .topLeading)
+        .frame(maxWidth: .infinity, minHeight: 92, maxHeight: 92, alignment: .topLeading)
         .background(card.color, in: RoundedRectangle(cornerRadius: 16))
     }
 
