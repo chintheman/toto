@@ -1,0 +1,105 @@
+default_platform(:ios)
+
+PROJECT = "TotoApp.xcodeproj"
+SCHEME = "TotoApp"
+BUNDLE_ID = "com.chintheman.toto"
+
+platform :ios do
+  # Every lane authenticates via the App Store Connect API key, never an
+  # Apple ID + password/2FA prompt — that's what makes this runnable from
+  # a script instead of a human clicking through Xcode. The key itself is
+  # never in this repo; it's injected as an env var at run time (see
+  # fastlane/README.md for the exact `op run` command).
+  private_lane :api_key do
+    app_store_connect_api_key(
+      key_id: ENV.fetch("APP_STORE_CONNECT_API_KEY_ID"),
+      issuer_id: ENV.fetch("APP_STORE_CONNECT_API_ISSUER_ID"),
+      key_filepath: ENV["APP_STORE_CONNECT_API_KEY_FILEPATH"],
+      key_content: ENV["APP_STORE_CONNECT_API_KEY_CONTENT"],
+      in_house: false
+    )
+  end
+
+  # Pulls existing signing certs/profiles from the encrypted certs repo.
+  # readonly: true on purpose — this must never silently generate a new
+  # cert on a normal run. Only certs_bootstrap (below) is allowed to.
+  private_lane :certs do
+    api_key
+    match(type: "appstore", readonly: true)
+  end
+
+  desc "Run the test suite (no signing needed — safe to run anywhere, anytime)."
+  lane :test do
+    run_tests(project: PROJECT, scheme: SCHEME, devices: ["iPhone 17"])
+  end
+
+  desc "ONE-TIME / RARE: (re)generate signing certs+profiles and push them to " \
+       "the encrypted toto-ios-certs repo. Run this yourself, interactively, " \
+       "the first time you set up a new machine, or after a cert expires or " \
+       "is revoked. Never call this from an unattended script — it can " \
+       "invalidate certs other machines are relying on."
+  lane :certs_bootstrap do
+    api_key
+    match(type: "appstore", readonly: false)
+  end
+
+  desc "The everyday 'ship a build' command: bumps the build number, builds, " \
+       "and uploads to TestFlight. Does NOT submit for App Review — that's " \
+       "the separate `release` lane, run only after you've tested the build " \
+       "yourself on TestFlight."
+  lane :beta do
+    certs
+    increment_build_number(
+      xcodeproj: PROJECT,
+      build_number: (latest_testflight_build_number(
+        api_key: lane_context[SharedValues::APP_STORE_CONNECT_API_KEY],
+        app_identifier: BUNDLE_ID
+      ) + 1).to_s
+    )
+    build_app(project: PROJECT, scheme: SCHEME, export_method: "app-store")
+    upload_to_testflight(
+      api_key: lane_context[SharedValues::APP_STORE_CONNECT_API_KEY],
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  desc "Push App Store listing text/screenshots from fastlane/metadata/ " \
+       "without touching the binary or submitting anything for review. " \
+       "Safe to run any time you've edited the listing copy."
+  lane :metadata do
+    api_key
+    deliver(
+      skip_binary_upload: true,
+      skip_screenshots: false,
+      submit_for_review: false,
+      force: true
+    )
+  end
+
+  desc "Pulls the CURRENT live App Store Connect listing (description, " \
+       "keywords, release notes, etc.) down into fastlane/metadata/, " \
+       "overwriting local files. Run this once to seed the metadata " \
+       "folder, or any time the listing was edited directly in the ASC " \
+       "web UI and you want that reflected locally."
+  lane :pull_metadata do
+    api_key
+    deliver(download_metadata: true, force: true)
+  end
+
+  desc "Submits the build already sitting on TestFlight for App Review. " \
+       "Run this ONLY after you've personally tested that build on your " \
+       "phone via TestFlight and are happy with it — this lane assumes " \
+       "that judgment call already happened, it doesn't make it for you. " \
+       "automatic_release is deliberately off: you press the final " \
+       "'Release This Version' button in ASC yourself once Apple approves."
+  lane :release do
+    api_key
+    deliver(
+      submit_for_review: true,
+      automatic_release: false,
+      force: true,
+      skip_binary_upload: true,
+      skip_screenshots: false
+    )
+  end
+end

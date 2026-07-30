@@ -1,0 +1,7 @@
+app_identifier("com.chintheman.toto")
+team_id("JU475PP468") # Apple Developer Portal team (Signing & Capabilities)
+
+# No apple_id/username here on purpose — every action in this Fastfile
+# authenticates via the App Store Connect API key (see api_key lane in
+# Fastfile), not an Apple ID + password/2FA. That's what makes this
+# scriptable from a machine with nobody sitting at 2FA prompts.
