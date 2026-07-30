@@ -6,10 +6,11 @@ import SwiftUI
 struct CalculatorView: View {
     @Environment(AppState.self) private var appState
     @State private var viewModel = CalculatorViewModel()
-    // "At least one must always be active" (calculator-strategies handoff
-    // §1) — enforced in the two toggle() methods below, not just by
-    // convention, so there's no code path that can leave both off.
-    @State private var ordinaryOn = true
+    // Ordinary isn't a toggle: spendBreakdown only ever branches on
+    // systemOn (the waterfall mops the remainder via Ordinary regardless
+    // of any Ordinary-chip state), so an "Ordinary off" state never did
+    // anything — it's locked always-on below instead of pretending to be
+    // an interactive toggle that silently no-ops.
     @State private var systemOn = false
 
     var body: some View {
@@ -53,13 +54,7 @@ struct CalculatorView: View {
         }
     }
 
-    private func toggleOrdinary() {
-        guard systemOn else { return } // Ordinary is the last one on — no-op
-        ordinaryOn.toggle()
-    }
-
     private func toggleSystem() {
-        guard ordinaryOn else { return } // System is the last one on — no-op
         systemOn.toggle()
     }
 
@@ -121,7 +116,16 @@ struct CalculatorView: View {
                 .font(.title2.bold())
 
             HStack(spacing: 4) {
-                affordabilityToggleChip(title: "Ordinary", isOn: ordinaryOn, action: toggleOrdinary)
+                // Locked always-selected, not a real toggle — see the
+                // systemOn comment above.
+                Text("Ordinary")
+                    .font(.subheadline.bold())
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 12))
+                    .foregroundStyle(Color.white)
+                    .accessibilityAddTraits(.isSelected)
+
                 affordabilityToggleChip(title: "System", isOn: systemOn, action: toggleSystem)
             }
             .padding(4)
