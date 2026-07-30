@@ -197,7 +197,6 @@ struct LearnView: View {
             .background(Color(hex: 0x3D6A8F).opacity(0.09), in: RoundedRectangle(cornerRadius: 14))
         }
         .buttonStyle(.plain)
-        .padding(.top, 22)
     }
 
     private func load() async {
