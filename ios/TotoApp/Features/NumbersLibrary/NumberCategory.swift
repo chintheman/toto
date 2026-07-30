@@ -61,16 +61,18 @@ enum NumberCategory: String, CaseIterable, Identifiable, Equatable, Hashable {
     /// hero card — the design's one full-bleed example (Prime) pairs a
     /// brighter and a darker stop of the tile's hue rather than reusing the
     /// flat tile fill verbatim, so every category follows the same
-    /// brighter/darker-stop shape built from its `tileGradient`. Random,
-    /// Culturally Significant, and All Numbers already have their final
-    /// look as a flat/2-stop tile fill, so those are reused as-is; Prime
-    /// uses Claude Design's literal reel values instead of the derived
-    /// ones, since we have the exact pixels for that one case.
+    /// brighter/darker-stop shape built from its `tileGradient`. Random and
+    /// Culturally Significant already have their final look as a genuine
+    /// 2-stop tile fill, so those are reused as-is; All Numbers' tile fill
+    /// is a single flat color, so it derives a brighter/darker pair like
+    /// even/odd/etc. rather than falling through as a flat reel background.
+    /// Prime uses Claude Design's literal reel values instead of the
+    /// derived ones, since we have the exact pixels for that one case.
     var reelBackground: [Color] {
         switch self {
         case .prime: return [Color(hex: 0x3AC1DB), Color(hex: 0x1B6E85)]
-        case .random, .culturallySignificant, .allNumbers: return tileGradient
-        case .even, .odd, .perfectSquares, .fibonacci:
+        case .random, .culturallySignificant: return tileGradient
+        case .even, .odd, .perfectSquares, .fibonacci, .allNumbers:
             let base = tileGradient[0]
             return [base.adjustedBrightness(by: 1.10), base.adjustedBrightness(by: 0.67)]
         }
