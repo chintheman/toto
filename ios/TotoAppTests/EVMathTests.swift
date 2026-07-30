@@ -24,12 +24,15 @@ final class EVMathTests: XCTestCase {
     }
 
     /// A system bet's cost should equal C(numbersChosen, 6) dollars (each
-    /// underlying combination is a $1 Ordinary-equivalent).
+    /// underlying combination is a $1 Ordinary-equivalent). System 10 is
+    /// the tier the old test coverage missed — it's the one every waterfall
+    /// spend-breakdown test (CalculatorViewModelTests) leans on most.
     func testSystemBetCosts() {
         XCTAssertEqual(BetType.ordinary.cost, 1)
         XCTAssertEqual(BetType.system7.cost, 7)
         XCTAssertEqual(BetType.system8.cost, 28)
         XCTAssertEqual(BetType.system9.cost, 84)
+        XCTAssertEqual(BetType.system10.cost, 210)
     }
 
     /// Below the break-even jackpot, EV must be < 1.0 (a loss on average);

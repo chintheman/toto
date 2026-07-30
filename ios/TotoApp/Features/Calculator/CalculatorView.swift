@@ -6,6 +6,12 @@ import SwiftUI
 struct CalculatorView: View {
     @Environment(AppState.self) private var appState
     @State private var viewModel = CalculatorViewModel()
+    // Ordinary isn't a toggle: spendBreakdown only ever branches on
+    // systemOn (the waterfall mops the remainder via Ordinary regardless
+    // of any Ordinary-chip state), so an "Ordinary off" state never did
+    // anything — it's locked always-on below instead of pretending to be
+    // an interactive toggle that silently no-ops.
+    @State private var systemOn = false
 
     var body: some View {
         NavigationStack {
@@ -15,6 +21,7 @@ struct CalculatorView: View {
                         errorBanner(error)
                     }
                     BudgetCard()
+                    strategiesLockToggle
                     affordabilityCard
                     if viewModel.currentJackpot != nil {
                         valueCard
@@ -31,16 +38,58 @@ struct CalculatorView: View {
                 }
                 .padding()
             }
+            .floatingNavBarClearance()
             // Tapping or scrolling anywhere else on the page exits the
             // budget field's edit mode (see BudgetCard) — the same
             // resigned-focus path Confirm and Cancel already use.
             .scrollDismissesKeyboard(.immediately)
-            .navigationTitle("Calculator")
+            .navigationTitle("Budget")
+            .navigationDestination(for: BetTypesDestination.self) { _ in
+                BetTypesInfoView()
+            }
             .task { await viewModel.load() }
             .overlay {
                 if viewModel.isLoading && viewModel.currentJackpot == nil { ProgressView() }
             }
         }
+    }
+
+    private func toggleSystem() {
+        systemOn.toggle()
+    }
+
+    /// Was a real Picks tab; now a locked, non-tappable placeholder living
+    /// inside Budget until the goal-based Picks feature gets more design
+    /// work (see PicksView.swift, kept but unreachable from navigation).
+    private var strategiesLockToggle: some View {
+        HStack(spacing: 4) {
+            Text("Calculator")
+                .font(.subheadline.bold())
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 12))
+
+            HStack(spacing: 6) {
+                Text("Strategies")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.secondary)
+                Text("SOON")
+                    .font(.system(size: 9, weight: .bold))
+                    .tracking(0.4)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.secondary.opacity(0.25), in: Capsule())
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .opacity(0.5)
+        }
+        .padding(4)
+        .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Calculator, selected. Strategies, coming soon, unavailable.")
     }
 
     private func errorBanner(_ message: String) -> some View {
@@ -59,44 +108,89 @@ struct CalculatorView: View {
     }
 
     private var affordabilityCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let rows = viewModel.spendBreakdown(budget: appState.budget, systemOn: systemOn)
+        let total = rows.reduce(0) { $0 + $1.combinations }
+
+        return VStack(alignment: .leading, spacing: 12) {
             Text("What SGD \(appState.budget.formatted()) can buy")
                 .font(.title2.bold())
-            Text("Every option covers the same total stake — pick how concentrated you want your numbers.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
 
-            ForEach(viewModel.affordableCombos(budget: appState.budget)) { combo in
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    Text("\(combo.count.formatted())×")
-                        .font(.title3.bold().monospacedDigit())
-                        .lineLimit(1)
-                        .fixedSize(horizontal: true, vertical: false)
-                        .frame(minWidth: 84, alignment: .leading)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(combo.betType.displayName).font(.headline)
-                        Text(combo.betType.coverageDescription).font(.subheadline).foregroundStyle(.secondary)
+            HStack(spacing: 4) {
+                // Locked always-selected, not a real toggle — see the
+                // systemOn comment above.
+                Text("Ordinary")
+                    .font(.subheadline.bold())
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 12))
+                    .foregroundStyle(Color.white)
+                    .accessibilityAddTraits(.isSelected)
+
+                affordabilityToggleChip(title: "System", isOn: systemOn, action: toggleSystem)
+            }
+            .padding(4)
+            .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
+
+            if rows.count == 1, let only = rows.first {
+                breakdownRow(only, isBold: true)
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(rows) { row in
+                        if row.id != rows.first?.id { Divider() }
+                        breakdownRow(row, isBold: false)
                     }
-                    Spacer()
-                    Text("$\(combo.spend.formatted()) of $\(appState.budget.formatted())")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.trailing)
+                    Divider()
+                    HStack {
+                        Text("Total").font(.subheadline.bold())
+                        Spacer()
+                        Text("\(total.formatted()) combinations").font(.subheadline.bold())
+                    }
+                    .padding(.vertical, 4)
                 }
-                .padding(12)
-                .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 12))
             }
 
-            // The intro line above already sets up "same total stake" —
-            // this is the one place the actual insight (why spreading vs.
-            // concentrating doesn't matter) belongs, said once rather than
-            // echoed both above and below the list.
-            Label("Same average return either way — only how the losses arrive changes.", systemImage: "info.circle")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+            NavigationLink(value: BetTypesDestination()) {
+                HStack(spacing: 8) {
+                    Image(systemName: "info.circle")
+                        .foregroundStyle(.blue)
+                    Text("Ordinary, System 7 to 10 explained")
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.blue)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.bold())
+                        .foregroundStyle(.blue)
+                }
+            }
+            .buttonStyle(.plain)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle()
+    }
+
+    private func breakdownRow(_ row: SpendBreakdownRow, isBold: Bool) -> some View {
+        HStack {
+            Text("\(row.count.formatted())× \(row.name)")
+                .font(isBold ? .headline : .subheadline)
+            Spacer()
+            Text("\(row.combinations.formatted()) combinations")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func affordabilityToggleChip(title: String, isOn: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.subheadline.bold())
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(isOn ? Color.accentColor : .clear, in: RoundedRectangle(cornerRadius: 12))
+                .foregroundStyle(isOn ? Color.white : Color.secondary)
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isOn ? [.isSelected] : [])
     }
 
     private var valueCard: some View {

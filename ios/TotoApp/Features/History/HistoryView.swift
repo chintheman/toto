@@ -1,43 +1,18 @@
 import SwiftUI
 
-/// Design-changes §1/§3: History hosts a `Draws | Numbers` segmented
-/// control — the old Numbers tab folds in here, framed as fun facts.
+/// Design iteration 1.1.0: History is Draws-only now — Numbers has its
+/// own standalone hub/reel tab (`NumbersHubView`), so the old
+/// Draws|Numbers segmented control is gone.
 struct HistoryView: View {
-    private enum Segment: String, CaseIterable, Identifiable {
-        case draws = "Draws"
-        case numbers = "Numbers"
-        var id: String { rawValue }
-    }
-
     @State private var viewModel = HistoryViewModel()
-    @State private var segment: Segment = .draws
 
     var body: some View {
         NavigationStack {
-            Group {
-                switch segment {
-                case .draws: drawsList
-                case .numbers: NumbersLibrarySection()
+            drawsList
+                .navigationTitle("History")
+                .navigationDestination(for: Draw.self) { draw in
+                    DrawDetailView(draw: draw)
                 }
-            }
-            .navigationTitle("History")
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Picker("Section", selection: $segment) {
-                        ForEach(Segment.allCases) { segment in
-                            Text(segment.rawValue).tag(segment)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(maxWidth: 260)
-                }
-            }
-            .navigationDestination(for: Draw.self) { draw in
-                DrawDetailView(draw: draw)
-            }
-            .navigationDestination(for: Int.self) { number in
-                NumberDetailView(number: number)
-            }
         }
     }
 
@@ -67,6 +42,7 @@ struct HistoryView: View {
                 }
             }
         }
+        .floatingNavBarClearance()
         .overlay {
             if viewModel.isLoading && viewModel.draws.isEmpty {
                 ProgressView()
@@ -183,6 +159,7 @@ struct DrawDetailView: View {
                 Link("View original source", destination: URL(string: draw.sourceUrl) ?? URL(string: "https://singaporepools.com.sg")!)
             }
         }
+        .floatingNavBarClearance()
         .navigationTitle("Draw #\(draw.drawNumber, format: .number.grouping(.never))")
         .task { await loadPrizeGroups() }
     }

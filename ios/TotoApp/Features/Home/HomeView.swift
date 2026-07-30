@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct HomeView: View {
+    @Environment(AppState.self) private var appState
     @State private var viewModel = HomeViewModel()
 
     var body: some View {
@@ -21,13 +22,14 @@ struct HomeView: View {
                 }
                 .padding()
             }
+            .floatingNavBarClearance()
             .refreshable { await viewModel.load() }
             .navigationTitle("TOTO")
             .navigationDestination(for: Draw.self) { draw in
                 DrawDetailView(draw: draw)
             }
-            .navigationDestination(for: Int.self) { number in
-                NumberDetailView(number: number)
+            .navigationDestination(for: ReelDestination.self) { destination in
+                NumberReelView(destination: destination)
             }
             .task { await viewModel.load() }
             .overlay {
@@ -131,16 +133,20 @@ struct HomeView: View {
 
     private func latestResultCard(_ draw: Draw) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Label("Latest Result · Draw #\(draw.drawNumber, format: .number.grouping(.never))", systemImage: "checkmark.seal")
-                    .sectionHeaderStyle()
-                Spacer()
+            HStack(alignment: .firstTextBaseline) {
+                Image(systemName: "checkmark.seal")
+                    .font(.subheadline.bold())
+                Text("Latest Result")
+                    .font(.subheadline.bold())
+                Text("Draw #\(draw.drawNumber, format: .number.grouping(.never)) · \(draw.drawDate.formatted(date: .abbreviated, time: .omitted))")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                Spacer(minLength: 4)
                 Image(systemName: "chevron.right")
                     .font(.footnote.bold())
                     .foregroundStyle(.tertiary)
             }
-            Text(draw.drawDate, style: .date)
-                .font(.subheadline)
 
             HStack(spacing: 8) {
                 ForEach(draw.winningNumbers, id: \.self) { number in
@@ -181,15 +187,16 @@ struct HomeView: View {
             limit: 2
         )
         return VStack(alignment: .leading, spacing: 14) {
-            Label("Fun Facts About These Numbers", systemImage: "sparkles")
+            Label("Number Trivia", systemImage: "sparkles")
                 .sectionHeaderStyle()
 
             ForEach(picks.indices, id: \.self) { index in
                 let (number, fact) = picks[index]
                 if index > 0 { Divider() }
-                // Each fact pushes straight to that number's own page —
-                // previously this whole section was read-only.
-                NavigationLink(value: number) {
+                // Each fact pushes straight into the same reel experience
+                // the Numbers tab uses, rather than a separate detail page
+                // — one number-browsing UI across the whole app.
+                NavigationLink(value: ReelDestination.shuffled(category: .random, startingAt: number)) {
                     HStack(alignment: .top, spacing: 12) {
                         LotteryBallView(number: number, size: 36)
                         VStack(alignment: .leading, spacing: 6) {
@@ -220,9 +227,18 @@ struct HomeView: View {
             }
 
             Divider()
-            Text("Tap a fact above for the full story, or browse all 49 numbers in History → Numbers.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            Button {
+                appState.selectedTab = .numbers
+            } label: {
+                HStack {
+                    Text("Enter the Number Trivia library")
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                }
+                .font(.footnote.bold())
+                .foregroundStyle(.blue)
+            }
+            .buttonStyle(.plain)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle()
@@ -256,4 +272,5 @@ private func pickDiverseFacts(
 
 #Preview {
     HomeView()
+        .environment(AppState())
 }

@@ -23,27 +23,30 @@ struct LearnView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing: 20) {
                     if let loadError, fallacies.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text(loadError).font(.subheadline).foregroundStyle(.secondary)
                             Button("Retry") { Task { await load() } }.buttonStyle(.borderedProminent)
                         }
-                        .padding(.top, 12)
                     } else if !fallacies.isEmpty {
                         titleBlock
-                        sectionHeader("The big four")
-                            .padding(.top, 16)
-                        bigFourGrid
-                        sectionHeader("Collections")
-                            .padding(.top, 26)
-                        collectionsList
+                        VStack(alignment: .leading, spacing: 10) {
+                            sectionHeader("The big four")
+                            bigFourGrid
+                        }
+                        VStack(alignment: .leading, spacing: 10) {
+                            sectionHeader("Collections")
+                            collectionsList
+                        }
                         replayCard
                     }
                 }
-                .padding(.horizontal, 18)
-                .padding(.bottom, 22)
+                .padding(.top, 14)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 20)
             }
+            .floatingNavBarClearance()
             .background(pageBackground.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: Fallacy.self) { fallacy in
@@ -66,7 +69,6 @@ struct LearnView: View {
                 .font(.system(size: 32, weight: .heavy))
                 .tracking(-0.8)
                 .foregroundStyle(ink)
-                .padding(.top, 12)
             Text("\(fallacies.count) beliefs almost every player holds, and what the maths actually says.")
                 .font(.system(size: 13.5))
                 .foregroundStyle(ink.opacity(0.55))
@@ -74,14 +76,14 @@ struct LearnView: View {
         }
     }
 
+    // Matches the Numbers hub's "BROWSE BY CATEGORY" label style — plain
+    // uppercase caption, no trailing rule line (the old 11px/700 bold caps
+    // + divider read as a different, heavier design language).
     private func sectionHeader(_ title: String) -> some View {
-        HStack(spacing: 8) {
-            Text(title.uppercased())
-                .font(.system(size: 11, weight: .bold))
-                .tracking(1.1)
-                .foregroundStyle(ink.opacity(0.45))
-            Rectangle().fill(ink.opacity(0.1)).frame(height: 1)
-        }
+        Text(title.uppercased())
+            .font(.system(size: 13))
+            .tracking(0.4)
+            .foregroundStyle(ink.opacity(0.5))
     }
 
     private var bigFourGrid: some View {
@@ -97,32 +99,23 @@ struct LearnView: View {
         }
     }
 
+    // Flat solid-color tile, same shape/format as the Numbers hub's
+    // category tiles (bottom-aligned white text) — replaces the old
+    // gradient + centered circle-avatar treatment.
     private func bigFourCardView(_ card: BigFourCard) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(LinearGradient(colors: [card.gradientTop, card.gradientBottom], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    .aspectRatio(1, contentMode: .fit)
-                    .shadow(color: card.gradientBottom.opacity(card.shadowOpacity), radius: 10, x: 0, y: 8)
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: 66, height: 66)
-                    .overlay(
-                        Text(card.ballGlyph)
-                            .font(.system(size: card.ballGlyph.count > 1 ? 26 : 30, weight: .heavy))
-                            .foregroundStyle(card.ink)
-                    )
-            }
             Text(card.title)
-                .font(.system(size: 14.5, weight: .bold))
-                .foregroundStyle(ink)
+                .font(.system(size: 17, weight: .bold))
+                .foregroundStyle(.white)
                 .lineLimit(2)
-                .padding(.top, 10)
+            Spacer(minLength: 4)
             Text(card.verdict)
-                .font(.system(size: 11.5, weight: .medium))
-                .foregroundStyle(Color(hex: 0x1A7F37))
-                .padding(.top, 3)
+                .font(.system(size: 12))
+                .foregroundStyle(.white.opacity(0.8))
         }
+        .padding(14)
+        .frame(maxWidth: .infinity, minHeight: 92, maxHeight: 92, alignment: .topLeading)
+        .background(card.color, in: RoundedRectangle(cornerRadius: 16))
     }
 
     // Full category membership (all of that category's myths, same as the
@@ -220,32 +213,24 @@ struct LearnView: View {
 }
 
 /// One of the four "Big Four" cover cards — a curated subset (not all 20
-/// fallacies), matching real slugs in the `fallacies` table. Gradient pairs,
-/// ball glyphs, ink tones and shadow opacities are design-spec values from
-/// the "learn-tab-8b" handoff, not derived from anything in the data model.
+/// fallacies), matching real slugs in the `fallacies` table. Solid tile
+/// colors are design-spec values from the Learn-tab-restyle handoff, not
+/// derived from anything in the data model.
 private struct BigFourCard: Identifiable {
     let id: String // matches Fallacy.slug
-    let gradientTop: Color
-    let gradientBottom: Color
-    let ballGlyph: String
-    let ink: Color
-    let shadowOpacity: Double
+    let color: Color
     let title: String
     let verdict: String
 }
 
 private let bigFourCards: [BigFourCard] = [
-    BigFourCard(id: "hot-numbers-win-more", gradientTop: Color(hex: 0x8B7CF6), gradientBottom: Color(hex: 0x5544C4),
-                ballGlyph: "8", ink: Color(hex: 0x4A3BB8), shadowOpacity: 0.25,
+    BigFourCard(id: "hot-numbers-win-more", color: Color(hex: 0x8B7CF6),
                 title: "Hot numbers", verdict: "Balls have no memory"),
-    BigFourCard(id: "cold-numbers-are-due", gradientTop: Color(hex: 0x5E7CE2), gradientBottom: Color(hex: 0x2C4699),
-                ballGlyph: "13", ink: Color(hex: 0x2C4699), shadowOpacity: 0.25,
+    BigFourCard(id: "cold-numbers-are-due", color: Color(hex: 0x5E7CE2),
                 title: "Overdue numbers", verdict: "Nothing is ever due"),
-    BigFourCard(id: "birthday-numbers", gradientTop: Color(hex: 0x2FBDB3), gradientBottom: Color(hex: 0x12726B),
-                ballGlyph: "31", ink: Color(hex: 0x12726B), shadowOpacity: 0.22,
+    BigFourCard(id: "birthday-numbers", color: Color(hex: 0x2FBDB3),
                 title: "Birthday picks", verdict: "Same odds, smaller cut"),
-    BigFourCard(id: "more-tickets-doesnt-help", gradientTop: Color(hex: 0xE6A23C), gradientBottom: Color(hex: 0xA5650C),
-                ballGlyph: "$", ink: Color(hex: 0x8A5A0B), shadowOpacity: 0.22,
+    BigFourCard(id: "more-tickets-doesnt-help", color: Color(hex: 0xE6A23C),
                 title: "Buying more lines", verdict: "Losses scale too"),
 ]
 
@@ -311,6 +296,7 @@ private struct CollectionListView: View {
                 }
             }
         }
+        .floatingNavBarClearance()
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -372,6 +358,7 @@ struct FallacyDetailView: View {
                 .padding(.horizontal, 28)
                 .frame(maxWidth: .infinity)
             }
+            .floatingNavBarClearance()
         }
         .navigationBarTitleDisplayMode(.inline)
     }
