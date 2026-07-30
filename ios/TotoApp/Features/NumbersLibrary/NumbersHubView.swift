@@ -98,8 +98,10 @@ struct NumbersHubView: View {
                 }
                 .padding(20)
                 .background(
+                    // "background tinted to that number's category color"
+                    // — was hardcoded to Prime's teal for every spotlight.
                     LinearGradient(
-                        colors: [Color(hex: 0x3AC1DB), Color(hex: 0x1B6E85)],
+                        colors: spotlight.category.reelBackground,
                         startPoint: .topLeading, endPoint: .bottomTrailing
                     ),
                     in: RoundedRectangle(cornerRadius: 22)

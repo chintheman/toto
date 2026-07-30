@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Fresh native design language for the app — deliberately not a port of the
 /// research site's editorial (Playfair Display / cream-terracotta-sage)
@@ -81,6 +82,19 @@ extension Color {
             blue: Double(hex & 0xFF) / 255,
             opacity: 1
         )
+    }
+
+    /// Scales HSB brightness by `factor` (hue/saturation untouched), clamped
+    /// to a valid brightness. Used to derive a full-bleed gradient's light/
+    /// dark stops from a single flat category color — the same brightness
+    /// spread (+10% / -33%) Claude Design used going from the Prime tile's
+    /// flat fill to its full-bleed reel gradient.
+    func adjustedBrightness(by factor: CGFloat) -> Color {
+        let uiColor = UIColor(self)
+        var hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, alpha: CGFloat = 0
+        uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+        let adjusted = min(max(brightness * factor, 0), 1)
+        return Color(hue: hue, saturation: saturation, brightness: adjusted, opacity: alpha)
     }
 }
 

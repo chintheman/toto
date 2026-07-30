@@ -82,11 +82,15 @@ struct NumberReelView: View {
 
     var body: some View {
         ZStack {
+            // Tinted to the current category (design: "background tinted to
+            // that number's category color") — recomputes as `category`
+            // changes on a vertical swipe.
             LinearGradient(
-                colors: [Color(hex: 0x3AC1DB), Color(hex: 0x1B6E85)],
+                colors: category.reelBackground,
                 startPoint: .topLeading, endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
+            .animation(.easeInOut(duration: 0.3), value: category)
 
             VStack(spacing: 0) {
                 header

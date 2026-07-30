@@ -1,7 +1,17 @@
 import XCTest
+import SwiftUI
+import UIKit
 @testable import TotoApp
 
 final class NumberCategoryTests: XCTestCase {
+    private func rgba(_ color: Color) -> [Int] {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        UIColor(color).getRed(&r, green: &g, blue: &b, alpha: &a)
+        // Round to the nearest 8-bit channel value so float noise from the
+        // HSB round-trip doesn't cause a false mismatch.
+        return [r, g, b, a].map { Int(($0 * 255).rounded()) }
+    }
+
     /// Every category's `numbers` must stay within the game's actual
     /// range — a stray 0 or 50 here would silently show a ball no draw
     /// can ever produce.
@@ -86,5 +96,29 @@ final class NumberCategoryTests: XCTestCase {
         XCTAssertEqual(NumberCategory.allCases, [
             .random, .allNumbers, .prime, .even, .odd, .perfectSquares, .fibonacci, .culturallySignificant,
         ])
+    }
+
+    /// Regression test for the bug where the reel and hub hero card were
+    /// hardcoded to Prime's teal gradient no matter which category was on
+    /// screen: every category must resolve to its own distinct background,
+    /// not a shared fallback.
+    func testReelBackgroundIsDistinctPerCategory() {
+        let signatures = NumberCategory.allCases.map { $0.reelBackground.map(rgba) }
+        let uniqueSignatures = Set(signatures.map { $0.description })
+        XCTAssertEqual(uniqueSignatures.count, NumberCategory.allCases.count)
+    }
+
+    func testReelBackgroundHasTwoStopsForEveryCategory() {
+        for category in NumberCategory.allCases {
+            XCTAssertEqual(category.reelBackground.count, 2, "\(category) should have a 2-stop gradient")
+        }
+    }
+
+    /// Prime is the one category Claude Design gave literal full-bleed
+    /// pixels for (#3AC1DB → #1B6E85) — pin those exactly rather than the
+    /// derived brightness-adjustment used for the other flat categories.
+    func testPrimeReelBackgroundMatchesDesignExactly() {
+        let stops = NumberCategory.prime.reelBackground.map(rgba)
+        XCTAssertEqual(stops, [rgba(Color(hex: 0x3AC1DB)), rgba(Color(hex: 0x1B6E85))])
     }
 }

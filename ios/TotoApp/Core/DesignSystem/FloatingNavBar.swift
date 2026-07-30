@@ -14,7 +14,7 @@ enum AppTab: Int, CaseIterable, Identifiable {
         case .home: return "house.fill"
         case .history: return "clock"
         case .numbers: return "sparkles"
-        case .budget: return "function"
+        case .budget: return "calculator"
         case .learn: return "book.fill"
         }
     }

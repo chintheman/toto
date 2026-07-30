@@ -9,7 +9,10 @@ struct HistoryView: View {
     var body: some View {
         NavigationStack {
             drawsList
-                .navigationTitle("History")
+                // No page title, matching the Numbers/Budget/Learn tab
+                // roots — "Draw History" is already the in-content section
+                // header below.
+                .toolbar(.hidden, for: .navigationBar)
                 .navigationDestination(for: Draw.self) { draw in
                     DrawDetailView(draw: draw)
                 }

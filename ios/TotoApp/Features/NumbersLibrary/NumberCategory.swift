@@ -57,6 +57,25 @@ enum NumberCategory: String, CaseIterable, Identifiable, Equatable, Hashable {
         }
     }
 
+    /// Full-bleed background for the reel screen and the hub's rotating
+    /// hero card — the design's one full-bleed example (Prime) pairs a
+    /// brighter and a darker stop of the tile's hue rather than reusing the
+    /// flat tile fill verbatim, so every category follows the same
+    /// brighter/darker-stop shape built from its `tileGradient`. Random,
+    /// Culturally Significant, and All Numbers already have their final
+    /// look as a flat/2-stop tile fill, so those are reused as-is; Prime
+    /// uses Claude Design's literal reel values instead of the derived
+    /// ones, since we have the exact pixels for that one case.
+    var reelBackground: [Color] {
+        switch self {
+        case .prime: return [Color(hex: 0x3AC1DB), Color(hex: 0x1B6E85)]
+        case .random, .culturallySignificant, .allNumbers: return tileGradient
+        case .even, .odd, .perfectSquares, .fibonacci:
+            let base = tileGradient[0]
+            return [base.adjustedBrightness(by: 1.10), base.adjustedBrightness(by: 0.67)]
+        }
+    }
+
     /// The numbers (1...49) belonging to this category, in canonical
     /// (ascending) order. `random`'s hub tile and reel behavior come from
     /// shuffling this same full range fresh on every visit, not from a
