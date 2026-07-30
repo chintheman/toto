@@ -43,7 +43,12 @@ struct CalculatorView: View {
             // budget field's edit mode (see BudgetCard) — the same
             // resigned-focus path Confirm and Cancel already use.
             .scrollDismissesKeyboard(.immediately)
-            .navigationTitle("Budget")
+            // No page title, matching NumbersHubView — the "Your budget"
+            // card is the first thing on screen. A plain .navigationTitle
+            // here was also the cause of the large-title/content overlap
+            // glitch mid-scroll, since this screen doesn't collapse the
+            // way a List-backed screen does.
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: BetTypesDestination.self) { _ in
                 BetTypesInfoView()
             }
@@ -382,6 +387,16 @@ struct BudgetCard: View {
         .cardStyle()
         .onAppear {
             draftText = String(appState.budget)
+        }
+        .onChange(of: draftText) { _, newValue in
+            // Digits only, capped at 3 characters (the app's $500 max is
+            // 3 digits) — without this, nothing stopped the field from
+            // accepting arbitrary length/non-numeric input, which broke
+            // the row's layout once the typed text got long enough.
+            let filtered = String(newValue.filter(\.isNumber).prefix(3))
+            if filtered != newValue {
+                draftText = filtered
+            }
         }
         .onChange(of: appState.budget) { _, newValue in
             // The slider (or the other page's shared BudgetCard) can change
