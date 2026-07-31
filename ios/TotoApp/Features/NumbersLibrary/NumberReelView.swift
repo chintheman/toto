@@ -105,6 +105,24 @@ struct NumberReelView: View {
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                // Edge tap zones, narrow enough to sit outside the centered
+                // content column (number circle, fact text, the "See the
+                // numbers" button) so they never steal a tap meant for
+                // those — a real swipe still pages normally underneath,
+                // since a moving touch never satisfies onTapGesture.
+                .overlay {
+                    HStack(spacing: 0) {
+                        Color.clear
+                            .frame(width: 80)
+                            .contentShape(Rectangle())
+                            .onTapGesture { retreatNumber() }
+                        Spacer(minLength: 0)
+                        Color.clear
+                            .frame(width: 80)
+                            .contentShape(Rectangle())
+                            .onTapGesture { advanceNumber() }
+                    }
+                }
 
                 Text("▼ \(nextCategory.breadcrumbTitle)")
                     .font(.system(size: 12, weight: .semibold))
@@ -276,6 +294,19 @@ struct NumberReelView: View {
                 guard abs(value.translation.height) > abs(value.translation.width) else { return }
                 switchCategory(to: value.translation.height < 0 ? nextCategory : previousCategory)
             }
+    }
+
+    /// Edge-tap equivalents of swiping — clamped, not wrapping, since the
+    /// vertical swipe (category change) is the deliberate way to leave a
+    /// category's sequence rather than looping past its ends.
+    private func advanceNumber() {
+        guard currentIndex < sequence.count - 1 else { return }
+        withAnimation { currentIndex += 1 }
+    }
+
+    private func retreatNumber() {
+        guard currentIndex > 0 else { return }
+        withAnimation { currentIndex -= 1 }
     }
 
     private func switchCategory(to newCategory: NumberCategory) {
