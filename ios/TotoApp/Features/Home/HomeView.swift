@@ -95,7 +95,7 @@ struct HomeView: View {
             }
 
             if let upcoming = viewModel.upcomingDraw {
-                Text(upcoming.drawDate, style: .date)
+                Text(nextDrawDateTimeText(upcoming.drawDate))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
@@ -119,7 +119,7 @@ struct HomeView: View {
                     Text("Snowball draw").font(.caption.bold()).foregroundStyle(.orange)
                 }
             } else {
-                Text(viewModel.localNextDrawEstimate, style: .date)
+                Text(nextDrawDateTimeText(viewModel.localNextDrawEstimate))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Text("Jackpot amount unavailable. Showing estimated schedule only.")
@@ -129,6 +129,17 @@ struct HomeView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cardStyle()
+    }
+
+    /// Weekday + date + draw time, e.g. "Thursday, 30 July · 6:30 PM SGT".
+    /// The time is always this fixed literal, not read off `date` — draws
+    /// are always Mon/Thu 6:30pm SGT (see NextDrawSchedule), but the
+    /// authoritative `upcoming_draw.draw_date` from Supabase is a date-only
+    /// column that decodes to midnight, so its own time-of-day would be
+    /// wrong to display. The weekday/date portion is still derived from
+    /// `date` correctly either way, whichever branch supplies it.
+    private func nextDrawDateTimeText(_ date: Date) -> String {
+        "\(date.formatted(.dateTime.weekday(.wide).day().month(.wide))) · 6:30 PM SGT"
     }
 
     private func latestResultCard(_ draw: Draw) -> some View {
