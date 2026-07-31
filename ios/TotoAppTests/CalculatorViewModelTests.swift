@@ -3,7 +3,7 @@ import XCTest
 
 final class CalculatorViewModelTests: XCTestCase {
     /// A live jackpot that doesn't round to any preset's $0.1M bucket:
-    /// "Today" plus all 8 presets plus the break-even chip should appear,
+    /// "Upcoming" plus all 8 presets plus the break-even chip should appear,
     /// nothing deduped.
     func testChipsIncludeLiveAndAllPresetsWhenNoOverlap() {
         let chips = CalculatorViewModel.jackpotChips(currentJackpot: 5_900_838)
@@ -24,7 +24,7 @@ final class CalculatorViewModelTests: XCTestCase {
 
     /// No live jackpot yet (still loading, or a won jackpot with no
     /// upcoming estimate): chips are the 8 presets plus break-even, no
-    /// "Today" entry.
+    /// "Upcoming" entry.
     func testChipsArePresetsOnlyWhenNoLiveJackpotYet() {
         let chips = CalculatorViewModel.jackpotChips(currentJackpot: nil)
         XCTAssertEqual(chips.count, JackpotPreset.millionsValues.count + 1)

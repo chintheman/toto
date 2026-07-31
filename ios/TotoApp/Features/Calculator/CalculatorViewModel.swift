@@ -81,7 +81,7 @@ final class CalculatorViewModel {
         var shownMillions: Set<Double> = []
 
         if let currentJackpot {
-            chips.append(JackpotChip(id: "live", selection: .live, label: "Today · \(formatMillions(currentJackpot))"))
+            chips.append(JackpotChip(id: "live", selection: .live, label: "Upcoming · \(formatMillions(currentJackpot))"))
             shownMillions.insert((currentJackpot / 1_000_000 * 10).rounded() / 10)
         }
 
