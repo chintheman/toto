@@ -22,12 +22,14 @@ describe("generatePortfolio", () => {
     }
   });
 
-  test("1k: the 12 System 7 tickets cover all 49 numbers", () => {
+  test("1k: 100 Ordinary tickets, no System bets, covering all 49 numbers", () => {
     for (const seed of [1, 2, 3, 99, 12345]) {
       const p = generatePortfolio("1k", seed);
       const s7 = p.tickets.filter(t => t.type === "S7");
-      expect(s7.length).toBe(12);
-      expect(new Set(s7.flatMap(t => t.numbers)).size).toBe(49);
+      const ord = p.tickets.filter(t => t.type === "ORD");
+      expect(s7.length).toBe(0);
+      expect(ord.length).toBe(100);
+      expect(new Set(ord.flatMap(t => t.numbers)).size).toBe(49);
     }
   });
 

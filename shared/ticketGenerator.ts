@@ -88,9 +88,16 @@ export function generatePortfolio(goal: StrategyKey, seed: number): Portfolio {
     sys = dealTickets(7, 7, pool, rand);
     ord = dealTickets(5, 6, pool, rand);
   } else if (goal === "1k") {
-    // G3+ Optimised: 12× System 7 + 16× Ordinary across all 49 numbers.
-    sys = dealTickets(12, 7, ALL_NUMBERS, rand);
-    ord = dealTickets(16, 6, ALL_NUMBERS, rand);
+    // Pure Spread: 100x Ordinary, no System bets at all. Simulation showed
+    // System-7 sub-lines correlate (one well-matched entry can light up
+    // several of its own sub-lines on the same draw), which pulls down the
+    // any-prize and G3-or-better rates versus fully independent lines. At
+    // the same 100-combo cost, zero System bets measured 86.5% any-prize
+    // and 1-in-~540 for G3-or-better, against 51.8%/1-in-948 for the old
+    // 12xSystem7+16xOrdinary mix this replaces. G1 and G2 are unaffected —
+    // both depend only on combo count, never on how combos are packaged.
+    sys = [];
+    ord = dealTickets(100, 6, ALL_NUMBERS, rand);
   } else {
     // G2 Hunter: 10× System 7 + 30× Ordinary across all 49 numbers.
     sys = dealTickets(10, 7, ALL_NUMBERS, rand);
