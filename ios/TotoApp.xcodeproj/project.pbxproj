@@ -39,6 +39,7 @@
 		B694280086CE300D65780154 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C02D35DD185BB0476F79CDC /* Assets.xcassets */; };
 		BA0D1C23F8459ABCCD2799D0 /* NextDrawSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6640EBFF3074A66C5DE39A4B /* NextDrawSchedule.swift */; };
 		CAB47B8F0AE6E1F3AE605ADE /* ReelDestinationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E5464067112A11A539E2AD /* ReelDestinationTests.swift */; };
+		D1B9A88EA30755AB0B20E3D7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 71A2A97EFE88B66D56207910 /* PrivacyInfo.xcprivacy */; };
 		D29F616D374C096F8E74C6AB /* FallaciesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD169980FF63D940F0F6C7BD /* FallaciesRepository.swift */; };
 		D56E8446494ED41A9FB71E46 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3A801FCF3882D944FCCD65 /* HomeView.swift */; };
 		D5B2446AD15F2CF08AF4D5BB /* SupabaseClients.swift in Sources */ = {isa = PBXBuildFile; fileRef = F616FFD6EA046642E44580C8 /* SupabaseClients.swift */; };
@@ -79,6 +80,7 @@
 		51E2F01AA8742F08514D1913 /* NumberFact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFact.swift; sourceTree = "<group>"; };
 		58B801F99F3943A8273870D1 /* CombinatoricsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CombinatoricsTests.swift; sourceTree = "<group>"; };
 		6640EBFF3074A66C5DE39A4B /* NextDrawSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextDrawSchedule.swift; sourceTree = "<group>"; };
+		71A2A97EFE88B66D56207910 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		7274431146B4EE54C88F0051 /* TotoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TotoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		78AEF979A3562D25BC2AF343 /* NumberStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberStats.swift; sourceTree = "<group>"; };
 		7F73DFB22FE27B6CC420F099 /* CalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorView.swift; sourceTree = "<group>"; };
@@ -279,6 +281,7 @@
 			isa = PBXGroup;
 			children = (
 				8C02D35DD185BB0476F79CDC /* Assets.xcassets */,
+				71A2A97EFE88B66D56207910 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -393,6 +396,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B694280086CE300D65780154 /* Assets.xcassets in Resources */,
+				D1B9A88EA30755AB0B20E3D7 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
