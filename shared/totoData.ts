@@ -1,7 +1,7 @@
 // Analysis dataset shared by the site and the explainer video, so a data
 // refresh updates both at once. Derived from 1,000+ Singapore TOTO draws.
 
-import { evAtJackpot as evPercentAtJackpot, breakEvenJackpot, TOTAL_COMBINATIONS } from "./evMath";
+import { evAtJackpot as evPercentAtJackpot, breakEvenJackpot, evPerDollar, probabilityAnyPrize, nCr, TOTAL_COMBINATIONS } from "./evMath";
 // Summary, not the raw history: importing drawStats here would bundle all
 // 1,193 draws into the browser for five table rows.
 import { frequencyTop as derivedTop, frequencyBottom as derivedBottom, maxFreq as derivedMax } from "./drawStatsSummary";
@@ -47,7 +47,14 @@ export { TOTAL_COMBINATIONS } from "./evMath";
 // (scripts/simulateStrategies.ts, 500 portfolios x 40,000 draws).
 function exactG1(costDollars: number): string {
   const oneIn = TOTAL_COMBINATIONS / costDollars;
-  return `1 in ${Math.round(oneIn / 1000) * 1000 >= 100_000 ? Math.round(oneIn / 1000) + "K" : Math.round(oneIn).toLocaleString()}`;
+  // "en-SG" is pinned deliberately. A bare toLocaleString() follows the
+  // *viewer's* locale, so a German browser renders 69,919 as "69.919" — and
+  // strategyInvariants' parseOneIn, which strips commas, would then read
+  // that as 69.919 and silently pass a figure off by a factor of 1,000.
+  // Only strategies costing more than $140 reach this branch today, so the
+  // trap is latent rather than live, which is exactly why it needs pinning
+  // before a cheaper budget tier lands on it.
+  return `1 in ${Math.round(oneIn / 1000) * 1000 >= 100_000 ? Math.round(oneIn / 1000) + "K" : Math.round(oneIn).toLocaleString("en-SG")}`;
 }
 function exactG2(costDollars: number): string {
   const oneIn = TOTAL_COMBINATIONS / (6 * costDollars);
@@ -89,6 +96,52 @@ export const strats = {
     w: "You want the jackpot. Concentrated 14-number pool — live or die by those 14.",
   },
 } as const;
+
+// ── The $84 spread-vs-concentration comparison ─────────────────────────────
+//
+// The site's "spread your tickets" accordion and the "bigger systems" myth
+// both compare two portfolios that cost exactly the same $84: one System 9
+// (84 combos locked inside 9 numbers) against 12 System 7s (84 combos dealt
+// across all 49). The published figures used to be "~49% vs ~22%", and both
+// were wrong:
+//
+//   - The concentrated side is EXACT, not a backtest. A System 9 wins
+//     something iff at least 3 of the 6 winning numbers fall inside its 9,
+//     which is probabilityAnyPrize(9) = 6.7% — not 22%. The old figure
+//     overstated it by more than 3x.
+//   - The spread side was not merely optimistic, it was impossible. Boole's
+//     inequality caps 12 System 7s at 12 x probabilityAnyPrize(7) = 37.1%,
+//     so a published 49% claimed a rate the union bound forbids. This is the
+//     same class of error strategyInvariants.test.ts was written to catch —
+//     it just lived in site prose, which no test was reading.
+//
+// The true gap is wider than the false one: 36.5% against 6.7% is 5.5x, not
+// the 2.2x the old numbers implied. Being accurate makes the point better.
+export const SYSTEM_9_COMBOS = nCr(9, 6); // 84 combos for $84
+export const SYSTEM_7_COUNT_FOR_EQUAL_COST = SYSTEM_9_COMBOS / nCr(7, 6); // 12 tickets
+
+/** Exact: a System 9 pays iff >=3 of the 6 winners land inside its 9 numbers. */
+export const CONCENTRATED_ANY_PRIZE = probabilityAnyPrize(9) * 100;
+
+/**
+ * Monte Carlo, 2,000,000 draws against 12 System 7s dealt evenly across all
+ * 49 numbers (95% CI +/-0.07pp). No closed form exists: the 12 tickets share
+ * numbers, so their sub-lines correlate and the events are not independent.
+ * strategyInvariants.test.ts asserts this stays under the union bound.
+ */
+export const SPREAD_ANY_PRIZE = 36.5;
+
+/** Ceiling the spread figure can never exceed, whatever the correlation. */
+export const SPREAD_ANY_PRIZE_CEILING = SYSTEM_7_COUNT_FOR_EQUAL_COST * probabilityAnyPrize(7) * 100;
+
+// EV expressed as cents returned per dollar staked, for the "what's the
+// play" copy. Previously hardcoded as "about 52-66c at a typical $2-5M
+// jackpot"; the model actually gives 48c at $2M and 70c at $5M, so both
+// ends of the stated range were wrong. Derived now, so the copy tracks the
+// prize constants instead of drifting from them.
+export function centsPerDollarAtJackpot(millions: number): number {
+  return Math.round(evPerDollar(millions * 1_000_000) * 100);
+}
 
 // Jackpot sizes charted on the EV curve. The top of the range sits above
 // break-even (~$9.23M) so the chart shows where the line actually crosses

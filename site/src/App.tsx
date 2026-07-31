@@ -2,13 +2,25 @@ import { useState, useEffect, useMemo, useId } from "react";
 import { theme, Section, ScribbleDivider } from "./brand";
 import { BarChart3, Share2, Sparkles, AlertTriangle, ChevronDown } from "lucide-react";
 import { useNextDraw } from "./useNextDraw";
-import { strats, evByJackpot, evAtJackpot, frequencyTop, frequencyBottom, maxFreq, BREAK_EVEN_MILLIONS } from "../../shared/totoData";
+import {
+  strats, evByJackpot, evAtJackpot, frequencyTop, frequencyBottom, maxFreq,
+  BREAK_EVEN_MILLIONS, SPREAD_ANY_PRIZE, CONCENTRATED_ANY_PRIZE,
+  SYSTEM_9_COMBOS, SYSTEM_7_COUNT_FOR_EQUAL_COST, centsPerDollarAtJackpot,
+} from "../../shared/totoData";
 import { generatePortfolio, type Portfolio, type StrategyKey } from "../../shared/ticketGenerator";
 import { myths, funFacts as sharedFunFacts } from "../../shared/content";
+import { oneDecimal } from "../../shared/drawStatsSummary";
 
 // ─── Data ───────────────────────────────────────────────────────────────────
 
 const funFacts = sharedFunFacts.map(f => ({ ...f, color: theme[f.accent] }));
+
+// Measured off the real generator rather than quoted from an older one. The
+// previous copy cited "0.753" for an "Optimal Region" strategy that no longer
+// exists under that name; the deal policy is deterministic per seed and this
+// figure is stable across seeds, so reading it here cannot drift from what
+// the calculator actually produces.
+const spreadOverlap = generatePortfolio("1k", 1).meanOverlap;
 
 const BUDGET_OPTIONS = ["20", "50", "100", "200", "500"] as const;
 type BudgetOption = (typeof BUDGET_OPTIONS)[number];
@@ -550,15 +562,15 @@ export default function Toto() {
                   </Accordion>
 
                   <Accordion title="🔄 Spread your tickets — don't pile into one system" accent={theme.sage}>
-                    <p>A System 9 ticket ($84) covers 84 combinations — but only across 9 numbers. If those 9 numbers miss, you win nothing.</p>
-                    <p>12 System 7 tickets at $7 each cover the same 84 combinations, but spread across up to 49 different numbers. Same spend, far better coverage.</p>
-                    <p><strong style={{ color: theme.brown }}>Backtest result:</strong> The spread strategy wins a prize in ~49% of draws vs ~22% for the concentrated approach.</p>
+                    <p>A System 9 ticket (${SYSTEM_9_COMBOS}) covers {SYSTEM_9_COMBOS} combinations — but only across 9 numbers. If those 9 numbers miss, you win nothing.</p>
+                    <p>{SYSTEM_7_COUNT_FOR_EQUAL_COST} System 7 tickets at $7 each cover the same {SYSTEM_9_COMBOS} combinations, but spread across up to 49 different numbers. Same spend, far better coverage.</p>
+                    <p><strong style={{ color: theme.brown }}>The numbers:</strong> the spread wins a prize in ~{oneDecimal(SPREAD_ANY_PRIZE)}% of draws against {oneDecimal(CONCENTRATED_ANY_PRIZE)}% for the concentrated System 9 — a {(SPREAD_ANY_PRIZE / CONCENTRATED_ANY_PRIZE).toFixed(1)}× difference for identical spend.</p>
                   </Accordion>
 
                   <Accordion title="🧩 The only peer-reviewed lottery strategy" accent={theme.brownLight}>
                     <p><strong style={{ color: theme.brown }}>Liu, Liu & Teo (2024, Management Science)</strong> proved that evenly distributing number overlap across your tickets — not maximising coverage, not randomising — gives the best expected prize count.</p>
                     <p>It sounds technical. Practically it means: structure your tickets so they're as independent of each other as possible. One ticket losing shouldn't drag the others with it.</p>
-                    <p><strong style={{ color: theme.brown }}>Our Optimal Region strategy</strong> achieves 100% coverage with mean pairwise overlap of 0.753 — best of any $100 portfolio tested across 1,000+ draws.</p>
+                    <p><strong style={{ color: theme.brown }}>Our {strats["1k"].name} strategy</strong> covers all 49 numbers at a mean pairwise overlap of {spreadOverlap.toFixed(3)} — close to the theoretical floor for {strats["1k"].cost} six-number tickets.</p>
                   </Accordion>
                 </div>
               </div>
@@ -706,9 +718,9 @@ export default function Toto() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { color: theme.terracotta, n: "01", title: "Bigger jackpots lose you less, not nothing", body: `Every dollar buys about 52–66¢ of expected prize money at a typical $2–5M jackpot. Break-even needs roughly $${BREAK_EVEN_MILLIONS}M. The only variable you fully control is whether you buy at all.` },
+                  { color: theme.terracotta, n: "01", title: "Bigger jackpots lose you less, not nothing", body: `Every dollar buys about ${centsPerDollarAtJackpot(2)}–${centsPerDollarAtJackpot(5)}¢ of expected prize money at a typical $2–5M jackpot. Break-even needs roughly $${BREAK_EVEN_MILLIONS}M. The only variable you fully control is whether you buy at all.` },
                   { color: theme.sage,       n: "02", title: "Spread across all 49 numbers",    body: "12× System 7 covers every number for $84. One System 9 covers 9 numbers for the same price. Same cost, completely different odds profile." },
-                  { color: theme.brownLight, n: "03", title: "Keep your tickets independent",    body: "Minimise overlap between tickets. If one misses, the others should still have a chance. This is the Liu & Teo (2024) insight — it's peer-reviewed and it works." },
+                  { color: theme.brownLight, n: "03", title: "Keep your tickets independent",    body: "Minimise overlap between tickets. If one misses, the others should still have a chance. This is the Liu, Liu & Teo (2024) insight — it's peer-reviewed and it works." },
                   { color: theme.terracotta, n: "04", title: "Pick one goal and own the trade-off", body: "Frequent small wins vs jackpot upside. The calculator above shows exactly what you're trading. Neither is wrong — just be honest with yourself about what you want." },
                 ].map(({ color, n, title, body }) => (
                   <div
