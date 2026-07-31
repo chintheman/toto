@@ -17,8 +17,16 @@ struct LearnView: View {
         self.repository = repository
     }
 
-    private let pageBackground = Color(hex: 0xFBFAF8)
-    private let ink = Color(hex: 0x14161A)
+    // Was a fixed off-white/near-black pair (matched the design mock
+    // exactly, but only the light-mode version of it) — system-adaptive
+    // instead, so the whole list screen actually follows Dark Mode rather
+    // than staying stuck light with unreadable text. The Onboarding
+    // carousel and FallacyDetailView below stay on their fixed
+    // CarouselPalette on purpose (that's the "Wrapped-style" saturated
+    // look, not a light-mode default), this is the only screen in Learn
+    // that was accidentally hardcoded rather than deliberately fixed.
+    private let pageBackground = Color(.systemBackground)
+    private let ink = Color.primary
 
     var body: some View {
         NavigationStack {
@@ -183,12 +191,16 @@ struct LearnView: View {
                 }
                 .frame(width: 34, height: 34)
                 VStack(alignment: .leading, spacing: 1) {
+                    // Was a fixed navy blue tuned for the light tinted
+                    // background below — with pageBackground now adaptive,
+                    // a dark-mode page turns that background near-black and
+                    // the fixed navy text nearly disappeared into it.
                     Text("Replay the intro course")
                         .font(.system(size: 13.5, weight: .semibold))
-                        .foregroundStyle(Color(hex: 0x1B3A54))
+                        .foregroundStyle(.primary)
                     Text("\(fallacies.filter(\.inOnboardingCarousel).count) myths · about 2 minutes")
                         .font(.system(size: 11.5))
-                        .foregroundStyle(Color(hex: 0x1B3A54).opacity(0.6))
+                        .foregroundStyle(.secondary)
                 }
                 Spacer()
             }

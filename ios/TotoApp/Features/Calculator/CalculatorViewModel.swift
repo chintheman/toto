@@ -23,6 +23,10 @@ struct JackpotChip: Identifiable, Equatable {
     let id: String
     let selection: JackpotSelection
     let label: String
+    /// The break-even chip gets distinct styling in the view — the one
+    /// jackpot size where a ticket is worth exactly what it costs is worth
+    /// calling out rather than blending into the ordered preset sweep.
+    var isHighlighted: Bool = false
 }
 
 @Observable
@@ -85,6 +89,19 @@ final class CalculatorViewModel {
             let dollars = millions * 1_000_000
             chips.append(JackpotChip(id: "preset-\(millions)", selection: .preset(dollars), label: formatMillions(dollars)))
         }
+
+        // Always shown, regardless of dedup against the live/preset values
+        // above — this is the one figure on the whole card that answers
+        // "at what point does this stop being a bad deal," worth a tap on
+        // its own even if it happens to land near another chip.
+        let breakEven = EVMath.breakEvenJackpot()
+        chips.append(JackpotChip(
+            id: "break-even",
+            selection: .preset(breakEven),
+            label: "Break-even · \(formatMillions(breakEven))",
+            isHighlighted: true
+        ))
+
         return chips
     }
 

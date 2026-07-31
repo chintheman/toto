@@ -3,10 +3,11 @@ import XCTest
 
 final class CalculatorViewModelTests: XCTestCase {
     /// A live jackpot that doesn't round to any preset's $0.1M bucket:
-    /// "Today" plus all 8 presets should appear, nothing deduped.
+    /// "Today" plus all 8 presets plus the break-even chip should appear,
+    /// nothing deduped.
     func testChipsIncludeLiveAndAllPresetsWhenNoOverlap() {
         let chips = CalculatorViewModel.jackpotChips(currentJackpot: 5_900_838)
-        XCTAssertEqual(chips.count, 1 + JackpotPreset.millionsValues.count)
+        XCTAssertEqual(chips.count, 1 + JackpotPreset.millionsValues.count + 1) // +1 live, +1 break-even
         XCTAssertEqual(chips.first?.selection, .live)
     }
 
@@ -15,17 +16,35 @@ final class CalculatorViewModelTests: XCTestCase {
     /// twice in the row.
     func testDuplicatePresetIsDroppedWhenLiveJackpotMatchesIt() {
         let chips = CalculatorViewModel.jackpotChips(currentJackpot: 1_000_000)
-        XCTAssertEqual(chips.count, JackpotPreset.millionsValues.count) // 1 live + 7 presets, not 1 + 8
+        // 1 live + 7 presets + 1 break-even, not 1 + 8 + 1
+        XCTAssertEqual(chips.count, JackpotPreset.millionsValues.count + 1)
         XCTAssertTrue(chips.contains { $0.selection == .live })
         XCTAssertFalse(chips.contains { $0.selection == .preset(1_000_000) })
     }
 
     /// No live jackpot yet (still loading, or a won jackpot with no
-    /// upcoming estimate): chips are the 8 presets only, no "Today" entry.
+    /// upcoming estimate): chips are the 8 presets plus break-even, no
+    /// "Today" entry.
     func testChipsArePresetsOnlyWhenNoLiveJackpotYet() {
         let chips = CalculatorViewModel.jackpotChips(currentJackpot: nil)
-        XCTAssertEqual(chips.count, JackpotPreset.millionsValues.count)
+        XCTAssertEqual(chips.count, JackpotPreset.millionsValues.count + 1)
         XCTAssertFalse(chips.contains { $0.selection == .live })
+    }
+
+    /// The break-even chip is always present, always highlighted, and its
+    /// selection value is exactly EVMath's break-even jackpot — not a
+    /// rounded preset standing in for it.
+    func testBreakEvenChipIsAlwaysPresentAndHighlighted() {
+        for currentJackpot in [nil, 1_000_000, 5_900_838] as [Double?] {
+            let chips = CalculatorViewModel.jackpotChips(currentJackpot: currentJackpot)
+            guard let breakEvenChip = chips.first(where: { $0.id == "break-even" }) else {
+                XCTFail("no break-even chip for currentJackpot \(String(describing: currentJackpot))")
+                continue
+            }
+            XCTAssertTrue(breakEvenChip.isHighlighted)
+            XCTAssertEqual(breakEvenChip.selection, .preset(EVMath.breakEvenJackpot()))
+            XCTAssertFalse(chips.dropLast().contains { $0.isHighlighted }, "only the break-even chip should be highlighted")
+        }
     }
 
     // MARK: - spendBreakdown (calculator-strategies handoff §1 waterfall)

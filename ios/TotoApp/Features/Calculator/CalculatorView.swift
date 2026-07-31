@@ -274,14 +274,30 @@ struct CalculatorView: View {
                     Button {
                         viewModel.selectJackpot(chip.selection)
                     } label: {
-                        Text(chip.label)
-                            .font(.subheadline.bold())
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(
-                                Capsule().fill(isSelected ? Color.accentColor : Color.secondary.opacity(0.15))
+                        HStack(spacing: 4) {
+                            // The break-even chip keeps its green "target"
+                            // marker even once selected, so it doesn't just
+                            // blend into the same blue every other chip
+                            // turns when active.
+                            if chip.isHighlighted {
+                                Image(systemName: "target")
+                                    .font(.caption2.bold())
+                            }
+                            Text(chip.label)
+                                .font(.subheadline.bold())
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(
+                            Capsule().fill(chipFill(isSelected: isSelected, isHighlighted: chip.isHighlighted))
+                        )
+                        .overlay(
+                            Capsule().strokeBorder(
+                                chip.isHighlighted && !isSelected ? Theme.positiveEV : .clear,
+                                lineWidth: 1.5
                             )
-                            .foregroundStyle(isSelected ? Color.white : Color.primary)
+                        )
+                        .foregroundStyle(chipForeground(isSelected: isSelected, isHighlighted: chip.isHighlighted))
                     }
                     .buttonStyle(.plain)
                     .accessibilityAddTraits(isSelected ? [.isSelected] : [])
@@ -289,6 +305,18 @@ struct CalculatorView: View {
             }
             .padding(.vertical, 2)
         }
+    }
+
+    private func chipFill(isSelected: Bool, isHighlighted: Bool) -> Color {
+        if isSelected { return isHighlighted ? Theme.positiveEV : Color.accentColor }
+        if isHighlighted { return Theme.positiveEV.opacity(0.16) }
+        return Color.secondary.opacity(0.15)
+    }
+
+    private func chipForeground(isSelected: Bool, isHighlighted: Bool) -> Color {
+        if isSelected { return .white }
+        if isHighlighted { return Theme.positiveEV }
+        return .primary
     }
 
     private var disclaimer: some View {

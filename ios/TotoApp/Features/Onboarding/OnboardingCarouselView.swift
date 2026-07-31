@@ -63,6 +63,24 @@ struct OnboardingCarouselView: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            // Edge tap zones mirror the "Next myth" button's forward step,
+            // but never finish onboarding on their own — an edge tap on the
+            // last page is a no-op, since accidentally dismissing onboarding
+            // from a stray tap would be a much worse mistake than a tap
+            // that quietly does nothing.
+            .overlay {
+                HStack(spacing: 0) {
+                    Color.clear
+                        .frame(width: 80)
+                        .contentShape(Rectangle())
+                        .onTapGesture { retreatPage() }
+                    Spacer(minLength: 0)
+                    Color.clear
+                        .frame(width: 80)
+                        .contentShape(Rectangle())
+                        .onTapGesture { advancePage() }
+                }
+            }
             footer
         }
     }
@@ -100,11 +118,23 @@ struct OnboardingCarouselView: View {
         .animation(.easeInOut(duration: 0.3), value: currentPage)
     }
 
+    /// Shared with the edge tap zones so "Next myth" and a right-edge tap
+    /// always agree on what "forward" means.
+    private func advancePage() {
+        guard currentPage < fallacies.count - 1 else { return }
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { currentPage += 1 }
+    }
+
+    private func retreatPage() {
+        guard currentPage > 0 else { return }
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { currentPage -= 1 }
+    }
+
     private var footer: some View {
         VStack(spacing: 10) {
             Button {
                 if currentPage < fallacies.count - 1 {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) { currentPage += 1 }
+                    advancePage()
                 } else {
                     onFinished()
                 }
