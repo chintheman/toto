@@ -8,5 +8,6 @@ type("appstore")
 app_identifier(["com.chintheman.toto"])
 
 # MATCH_PASSWORD (the passphrase match encrypts this repo's contents
-# with) is never written here or anywhere in git — it's injected as an
-# env var from 1Password at run time. See fastlane/README.md.
+# with) is never written here or anywhere in git — fastlane/keychain-env.sh
+# injects it as an env var from the macOS Keychain at run time.
+# See fastlane/SETUP.md.

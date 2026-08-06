@@ -8,8 +8,9 @@ platform :ios do
   # Every lane authenticates via the App Store Connect API key, never an
   # Apple ID + password/2FA prompt — that's what makes this runnable from
   # a script instead of a human clicking through Xcode. The key itself is
-  # never in this repo; it's injected as an env var at run time (see
-  # fastlane/README.md for the exact `op run` command).
+  # never in this repo; it's injected as an env var at run time by
+  # fastlane/keychain-env.sh, which reads it from the macOS Keychain
+  # (see fastlane/SETUP.md).
   private_lane :api_key do
     app_store_connect_api_key(
       key_id: ENV.fetch("APP_STORE_CONNECT_API_KEY_ID"),

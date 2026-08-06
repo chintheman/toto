@@ -8,7 +8,6 @@ ios/TotoApp.xcodeproj/project.xcworkspace/xcuserdata/
 # fastlane — build products, logs, and the real (non-example) secret
 # reference file. Actual secrets never live in this repo at all — see
 # ios/fastlane/SETUP.md — but keep this file out of git regardless.
-ios/fastlane/.env.op
 ios/fastlane/report.xml
 ios/fastlane/test_output/
 ios/build/

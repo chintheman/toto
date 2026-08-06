@@ -16,11 +16,11 @@ The app pulls live draw data, number facts, and myth content from the
 
 Once the one-time account setup below has happened once, every future
 build goes through fastlane instead of clicking through Xcode. See
-**`fastlane/SETUP.md`** for the full 1Password-backed setup and the
+**`fastlane/SETUP.md`** for the full Keychain-backed setup and the
 `beta` / `metadata` / `release` commands. Short version:
 
 ```
-op run --env-file=fastlane/.env.op -- bundle exec fastlane beta
+fastlane/keychain-env.sh bundle exec fastlane beta
 ```
 bumps the build number, archives, and uploads straight to TestFlight —
 no Xcode GUI, no Apple ID 2FA prompts.
