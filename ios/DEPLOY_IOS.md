@@ -12,7 +12,23 @@ with Xcode on your Mac. No Expo/EAS involved.
 The app pulls live draw data, number facts, and myth content from the
 `toto-data` Supabase project.
 
-## Ship it (once your Apple Developer account is approved)
+## Ship it — automated (day-to-day builds)
+
+Once the one-time account setup below has happened once, every future
+build goes through fastlane instead of clicking through Xcode. See
+**`fastlane/SETUP.md`** for the full Keychain-backed setup and the
+`beta` / `metadata` / `release` commands. Short version:
+
+```
+fastlane/keychain-env.sh bundle exec fastlane beta
+```
+bumps the build number, archives, and uploads straight to TestFlight —
+no Xcode GUI, no Apple ID 2FA prompts.
+
+## Ship it — manual / one-time account setup
+
+You still need this once, on any brand-new Apple Developer account, or
+as a fallback if you ever want to do a one-off archive by hand:
 
 1. In Xcode, click the blue **TotoApp** project icon → **Signing &
    Capabilities** tab → set **Team** to your Apple Developer team and
@@ -32,6 +48,11 @@ The app pulls live draw data, number facts, and myth content from the
    - Age rating: answer the gambling questions honestly (educational
      references → expect 17+).
 6. **Submit for Review**. Apple typically responds in 1–3 days.
+
+Once an app record exists in App Store Connect (step 5 above has
+happened at least once), `fastlane/SETUP.md`'s `certs_bootstrap`,
+`beta`, `metadata`, and `release` lanes cover all of this going
+forward — no need to repeat the manual flow.
 
 ## Version bumps
 
