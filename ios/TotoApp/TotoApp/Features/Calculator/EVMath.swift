@@ -159,15 +159,6 @@ enum EVMath {
         return totalExpectedReturn / betType.cost
     }
 
-    static func odds(for betType: BetType, jackpot: Double) -> BetOdds {
-        BetOdds(
-            betType: betType,
-            probabilityAnyPrize: probabilityAnyPrize(betType),
-            probabilityJackpot: probabilityJackpot(betType),
-            expectedValue: expectedValue(betType: betType, jackpot: jackpot)
-        )
-    }
-
     /// The jackpot size at which a single Ordinary ticket crosses from -EV
     /// to +EV, holding G2-G4 estimates fixed. Used by CalculatorView to
     /// tell the user "how far from +EV" they are.

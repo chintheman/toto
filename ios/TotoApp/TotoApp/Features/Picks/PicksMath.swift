@@ -34,8 +34,6 @@ enum PicksMath {
     struct TargetResult {
         let betType: BetType
         let entries: Int           // how many of this type the budget buys
-        let need: Int              // smallest m (pool matches) hitting the target
-        let pEntry: Double         // P(single entry reaches target)
         let pAny: Double           // P(at least one entry reaches target) = 1 - (1-pEntry)^entries
         let reached: Bool          // true if some prize tier can hit the target
     }
@@ -106,8 +104,6 @@ enum PicksMath {
                 results.append(TargetResult(
                     betType: betType,
                     entries: entries,
-                    need: 7,  // sentinel: > 6 so pEntry=0
-                    pEntry: 0,
                     pAny: 0,
                     reached: false
                 ))
@@ -120,8 +116,6 @@ enum PicksMath {
             results.append(TargetResult(
                 betType: betType,
                 entries: entries,
-                need: need,
-                pEntry: pEntryVal,
                 pAny: pAnyVal,
                 reached: true
             ))
