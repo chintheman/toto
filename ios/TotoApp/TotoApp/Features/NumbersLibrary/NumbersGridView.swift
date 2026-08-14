@@ -1,28 +1,5 @@
 import SwiftUI
 
-struct NumbersGridView: View {
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 5)
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(1...49, id: \.self) { number in
-                        NavigationLink(value: number) {
-                            LotteryBallView(number: number, size: 56)
-                        }
-                    }
-                }
-                .padding()
-            }
-            .navigationTitle("Numbers")
-            .navigationDestination(for: Int.self) { number in
-                NumberDetailView(number: number)
-            }
-        }
-    }
-}
-
 struct NumberDetailView: View {
     let number: Int
 
