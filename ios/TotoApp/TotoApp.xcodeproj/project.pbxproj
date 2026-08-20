@@ -24,6 +24,7 @@
 		8349016C59D95EE4E3D3B666 /* DrawsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833D6E49F7A5DD34BD4A295E /* DrawsRepository.swift */; };
 		9601EEE7A07EA15F1BCFC834 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C6F6B7A434ABC8D6BAFC27D /* HomeViewModel.swift */; };
 		97482021C6E6FBFB5909C142 /* PicksMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DB9931399E5B72FCC3D248 /* PicksMath.swift */; };
+		9E49D4EAA14FA514FD9E4B75 /* TotoScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8945960EA9B0BE4C1AAF75E /* TotoScreenshotTests.swift */; };
 		AC3EA14A93A0002A58291822 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1293250E6FAB7EF80C3AB454 /* HistoryView.swift */; };
 		AE777697091A94263640897D /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EB9FF8B4386BCABCB8B3A24 /* HistoryViewModel.swift */; };
 		AFA7E85A53F9CDECD2A2D7E5 /* PicksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D729D503C8901C40BEF39A6 /* PicksView.swift */; };
@@ -42,6 +43,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		C21E8BF5B6D6AED18D96A746 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A814581EADC1244463F540CD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 66EA2DEBC696C51D9D36EC03;
+			remoteInfo = TotoApp;
+		};
+		F2AF09A054A324998BCA9404 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A814581EADC1244463F540CD /* Project object */;
 			proxyType = 1;
@@ -79,9 +87,11 @@
 		A9B362D563372A90383A74DE /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		ABDD919224971225CFBC177F /* TotoAppTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TotoAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4FF35248C4A89CB8C103DD0 /* CalculatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorViewModel.swift; sourceTree = "<group>"; };
+		B5736A69F38C3CFF6F5D3850 /* TotoAppUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TotoAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC3A801FCF3882D944FCCD65 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		CE7E90385BC1D3FAB0F7D376 /* AppStorageKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorageKeys.swift; sourceTree = "<group>"; };
 		D5756DF252E82BA12D2657D4 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		D8945960EA9B0BE4C1AAF75E /* TotoScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotoScreenshotTests.swift; sourceTree = "<group>"; };
 		DD169980FF63D940F0F6C7BD /* FallaciesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FallaciesRepository.swift; sourceTree = "<group>"; };
 		F616FFD6EA046642E44580C8 /* SupabaseClients.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClients.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -106,6 +116,14 @@
 				51E2F01AA8742F08514D1913 /* NumberFact.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		076366DD9DA6367938A718C1 /* TotoAppUITests */ = {
+			isa = PBXGroup;
+			children = (
+				D8945960EA9B0BE4C1AAF75E /* TotoScreenshotTests.swift */,
+			);
+			path = TotoAppUITests;
 			sourceTree = "<group>";
 		};
 		0A9502258A6328DFD3A2F795 /* Home */ = {
@@ -142,6 +160,7 @@
 			children = (
 				FA0AE1681EEA34CE83907DA3 /* TotoApp */,
 				0F65BFB64CDA72A0DC02FD36 /* TotoAppTests */,
+				076366DD9DA6367938A718C1 /* TotoAppUITests */,
 				686EDE445DA169739812EE0A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -176,6 +195,7 @@
 			children = (
 				7274431146B4EE54C88F0051 /* TotoApp.app */,
 				ABDD919224971225CFBC177F /* TotoAppTests.xctest */,
+				B5736A69F38C3CFF6F5D3850 /* TotoAppUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -322,6 +342,24 @@
 			productReference = 7274431146B4EE54C88F0051 /* TotoApp.app */;
 			productType = "com.apple.product-type.application";
 		};
+		BE662C024F72EBB8C7DFC76D /* TotoAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C8940A7BCE8FDC3C860B3A3C /* Build configuration list for PBXNativeTarget "TotoAppUITests" */;
+			buildPhases = (
+				81C3C2A1D8ACEC6EAF4F4929 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				86299524B2E1C73D748F2E1E /* PBXTargetDependency */,
+			);
+			name = TotoAppUITests;
+			packageProductDependencies = (
+			);
+			productName = TotoAppUITests;
+			productReference = B5736A69F38C3CFF6F5D3850 /* TotoAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -336,6 +374,10 @@
 					};
 					66EA2DEBC696C51D9D36EC03 = {
 						DevelopmentTeam = "";
+					};
+					BE662C024F72EBB8C7DFC76D = {
+						DevelopmentTeam = "";
+						TestTargetID = 66EA2DEBC696C51D9D36EC03;
 					};
 				};
 			};
@@ -358,6 +400,7 @@
 			targets = (
 				66EA2DEBC696C51D9D36EC03 /* TotoApp */,
 				0A99E78DBD823657204DF033 /* TotoAppTests */,
+				BE662C024F72EBB8C7DFC76D /* TotoAppUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -409,6 +452,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		81C3C2A1D8ACEC6EAF4F4929 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E49D4EAA14FA514FD9E4B75 /* TotoScreenshotTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9665AC4EB0CB2E4CF3ADD6D1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -420,6 +471,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		86299524B2E1C73D748F2E1E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 66EA2DEBC696C51D9D36EC03 /* TotoApp */;
+			targetProxy = F2AF09A054A324998BCA9404 /* PBXContainerItemProxy */;
+		};
 		97A14659AC9830ED928C4A33 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 66EA2DEBC696C51D9D36EC03 /* TotoApp */;
@@ -432,12 +488,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.TotoAppTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.toto.tests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TotoApp.app/TotoApp";
@@ -569,12 +626,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.TotoAppTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.toto.tests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TotoApp.app/TotoApp";
@@ -615,6 +673,40 @@
 			};
 			name = Release;
 		};
+		F7E626824B2D85DB5C2F2D2E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.toto.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TotoApp;
+			};
+			name = Debug;
+		};
+		F97BBD98DB7357E2EBF8DF99 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.toto.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TotoApp;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -641,6 +733,15 @@
 			buildConfigurations = (
 				92281BF668D45BA96472486A /* Debug */,
 				9362E99AC18D4C8D252A3F9A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C8940A7BCE8FDC3C860B3A3C /* Build configuration list for PBXNativeTarget "TotoAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F7E626824B2D85DB5C2F2D2E /* Debug */,
+				F97BBD98DB7357E2EBF8DF99 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

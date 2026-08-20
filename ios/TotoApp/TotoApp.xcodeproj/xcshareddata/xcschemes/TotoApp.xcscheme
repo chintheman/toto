@@ -35,6 +35,20 @@
                ReferencedContainer = "container:TotoApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "BE662C024F72EBB8C7DFC76D"
+               BuildableName = "TotoAppUITests.xctest"
+               BlueprintName = "TotoAppUITests"
+               ReferencedContainer = "container:TotoApp.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -61,6 +75,17 @@
                BlueprintIdentifier = "0A99E78DBD823657204DF033"
                BuildableName = "TotoAppTests.xctest"
                BlueprintName = "TotoAppTests"
+               ReferencedContainer = "container:TotoApp.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "BE662C024F72EBB8C7DFC76D"
+               BuildableName = "TotoAppUITests.xctest"
+               BlueprintName = "TotoAppUITests"
                ReferencedContainer = "container:TotoApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
