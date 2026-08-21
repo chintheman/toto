@@ -373,7 +373,8 @@
 						DevelopmentTeam = "";
 					};
 					66EA2DEBC696C51D9D36EC03 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = JU475PP468;
+						ProvisioningStyle = Manual;
 					};
 					BE662C024F72EBB8C7DFC76D = {
 						DevelopmentTeam = "";
@@ -643,14 +644,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Chin Tuan Chuang (JU475PP468)";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = JU475PP468;
 				INFOPLIST_FILE = TotoApp/Info.plist;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.toto;
+				PROVISIONING_PROFILE_SPECIFIER = "TotoBuddy AppStore Distribution";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -660,14 +666,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Chin Tuan Chuang (JU475PP468)";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = JU475PP468;
 				INFOPLIST_FILE = TotoApp/Info.plist;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 2.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chintheman.toto;
+				PROVISIONING_PROFILE_SPECIFIER = "TotoBuddy AppStore Distribution";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
