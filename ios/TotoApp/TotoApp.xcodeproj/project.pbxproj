@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		03B6D075430BF71A0297B120 /* NumbersGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AEF979A3562D25BC2AF343 /* NumbersGridView.swift */; };
 		1A48B5AC15DEA57DF504D073 /* EVMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A33C0AE2F0AE0AA227152C77 /* EVMathTests.swift */; };
 		24C18D52FABFAEA25CE9A022 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B362D563372A90383A74DE /* AppState.swift */; };
 		28791042727C1D08598B2098 /* DeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A84D91E1EE190B734022FFFE /* DeviceIdentity.swift */; };
@@ -74,7 +73,6 @@
 		51E2F01AA8742F08514D1913 /* NumberFact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFact.swift; sourceTree = "<group>"; };
 		6640EBFF3074A66C5DE39A4B /* NextDrawSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextDrawSchedule.swift; sourceTree = "<group>"; };
 		7274431146B4EE54C88F0051 /* TotoApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TotoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		78AEF979A3562D25BC2AF343 /* NumbersGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumbersGridView.swift; sourceTree = "<group>"; };
 		79DB9931399E5B72FCC3D248 /* PicksMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PicksMath.swift; sourceTree = "<group>"; };
 		7F73DFB22FE27B6CC420F099 /* CalculatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorView.swift; sourceTree = "<group>"; };
 		833D6E49F7A5DD34BD4A295E /* DrawsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawsRepository.swift; sourceTree = "<group>"; };
@@ -177,7 +175,6 @@
 		48116FF0B84C4648304FBEC7 /* NumbersLibrary */ = {
 			isa = PBXGroup;
 			children = (
-				78AEF979A3562D25BC2AF343 /* NumbersGridView.swift */,
 			);
 			path = NumbersLibrary;
 			sourceTree = "<group>";
@@ -442,7 +439,6 @@
 				701EF08C35796CAC01BC8753 /* LearnView.swift in Sources */,
 				BA0D1C23F8459ABCCD2799D0 /* NextDrawSchedule.swift in Sources */,
 				EF478C4B957BEC5B433C3A8A /* NumberFact.swift in Sources */,
-				03B6D075430BF71A0297B120 /* NumbersGridView.swift in Sources */,
 				F3B225DE7A6934F5A298F3EB /* OnboardingCarouselView.swift in Sources */,
 				97482021C6E6FBFB5909C142 /* PicksMath.swift in Sources */,
 				AFA7E85A53F9CDECD2A2D7E5 /* PicksView.swift in Sources */,

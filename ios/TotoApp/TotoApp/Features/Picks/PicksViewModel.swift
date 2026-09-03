@@ -116,15 +116,6 @@ final class PicksViewModel {
         )
     }
 
-    var currentResultExplanation: String {
-        switch selectedGoal {
-        case .jackpot:
-            return jackpotResult.explanation
-        default:
-            return targetResult?.explanation ?? "No recommendation available for this goal and budget."
-        }
-    }
-
     // MARK: – Email capture
 
     func saveEmail() {
