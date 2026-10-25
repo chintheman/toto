@@ -58,13 +58,6 @@ enum PrizeGroupEstimate {
     static let g4Typical = 450.0
 }
 
-struct BetOdds {
-    let betType: BetType
-    let probabilityAnyPrize: Double
-    let probabilityJackpot: Double
-    let expectedValue: Double // dollars returned per dollar spent, e.g. 0.42 = 42 cents back per $1
-}
-
 enum EVMath {
     /// For a system bet choosing N numbers, whether you win ANYTHING
     /// reduces to a clean existence argument: you win at least one prize
